@@ -1,0 +1,230 @@
+<div>
+  <h2 id="page-heading" data-cy="ChangeRequestHeading">
+    <span jhiTranslate="pGestion360App.changeRequest.home.title">Change Requests</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span jhiTranslate="pGestion360App.changeRequest.home.refreshListLabel">Refrescar lista</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-change-request"
+        [routerLink]="['/change-request/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="pGestion360App.changeRequest.home.createLabel">Crear nuevo Change Request</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  @if (changeRequests().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span jhiTranslate="pGestion360App.changeRequest.home.notFound">Ningún Change Requests encontrado</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="title">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.title">Title</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="description">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.description">Description</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="createdDate">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.createdDate">Created Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="updatedDate">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.updatedDate">Updated Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="priority">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.priority">Priority</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="impact">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.impact">Impact</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="status">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.status">Status</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaEntrega">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.fechaEntrega">Fecha Entrega</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="observaciones">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.observaciones">Observaciones</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="archivoAdjunto">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.archivoAdjunto">Archivo Adjunto</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="solicitante">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="departamento">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="responsible.id">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.responsible">Responsible</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="itemCatalogue.id">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.changeRequest.itemCatalogue">Item Catalogue</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (changeRequest of changeRequests(); track trackId(changeRequest)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/change-request', changeRequest.id, 'view']">{{ changeRequest.id }}</a>
+              </td>
+              <td>{{ changeRequest.title }}</td>
+              <td>{{ changeRequest.description }}</td>
+              <td>{{ changeRequest.createdDate | formatMediumDate }}</td>
+              <td>{{ changeRequest.updatedDate | formatMediumDate }}</td>
+              <td [jhiTranslate]="'pGestion360App.prioridad.' + (changeRequest.priority ?? 'null')">
+                {{ { null: '', ALTA: 'ALTA', MEDIA: 'MEDIA', BAJA: 'BAJA' }[changeRequest.priority ?? 'null'] }}
+              </td>
+              <td [jhiTranslate]="'pGestion360App.Impacto.' + (changeRequest.impact ?? 'null')">
+                {{ { null: '', ALTO: 'ALTO', MEDIO: 'MEDIO', BAJO: 'BAJO' }[changeRequest.impact ?? 'null'] }}
+              </td>
+              <td>{{ changeRequest.status }}</td>
+              <td>{{ changeRequest.fechaEntrega | formatMediumDate }}</td>
+              <td>{{ changeRequest.observaciones }}</td>
+              <td>
+                @if (changeRequest.archivoAdjunto) {
+                  <a
+                    (click)="openFile(changeRequest.archivoAdjunto, changeRequest.archivoAdjuntoContentType)"
+                    jhiTranslate="entity.action.open"
+                    >Abrir</a
+                  >
+                  <span>{{ changeRequest.archivoAdjuntoContentType }}, {{ byteSize(changeRequest.archivoAdjunto) }}</span>
+                }
+              </td>
+              <td>{{ changeRequest.solicitante }}</td>
+              <td>{{ changeRequest.departamento }}</td>
+              <td>
+                @if (changeRequest.responsible) {
+                  <div>
+                    <a [routerLink]="['/responsible', changeRequest.responsible.id, 'view']">{{ changeRequest.responsible.id }}</a>
+                  </div>
+                }
+              </td>
+              <td>
+                @if (changeRequest.itemCatalogue) {
+                  <div>
+                    <a [routerLink]="['/item-catalogue', changeRequest.itemCatalogue.id, 'view']">{{ changeRequest.itemCatalogue.id }}</a>
+                  </div>
+                }
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a [routerLink]="['/change-request', changeRequest.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Vista</span>
+                  </a>
+
+                  <a [routerLink]="['/change-request', changeRequest.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Editar</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(changeRequest)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Eliminar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (changeRequests().length > 0) {
+    <div>
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page, totalItems, itemsPerPage }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [page]="page"
+          [pageSize]="itemsPerPage"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        ></ngb-pagination>
+      </div>
+    </div>
+  }
+</div>

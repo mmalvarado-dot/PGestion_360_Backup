@@ -1,0 +1,136 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-file-record-heading"
+        data-cy="FileRecordCreateUpdateHeading"
+        jhiTranslate="pGestion360App.fileRecord.home.createOrEditLabel"
+      >
+        Crear o editar File Record
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="pGestion360App.fileRecord.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let fileNameRef = editForm.get('fileName')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fileName" jhiTranslate="pGestion360App.fileRecord.fileName">File Name</label>
+          <input type="text" class="form-control" name="fileName" id="field_fileName" data-cy="fileName" formControlName="fileName" />
+          @if (fileNameRef.invalid && (fileNameRef.dirty || fileNameRef.touched)) {
+            <div>
+              @if (editForm.get('fileName')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let filePathRef = editForm.get('filePath')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_filePath" jhiTranslate="pGestion360App.fileRecord.filePath">File Path</label>
+          <input type="text" class="form-control" name="filePath" id="field_filePath" data-cy="filePath" formControlName="filePath" />
+          @if (filePathRef.invalid && (filePathRef.dirty || filePathRef.touched)) {
+            <div>
+              @if (editForm.get('filePath')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let fileTypeRef = editForm.get('fileType')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fileType" jhiTranslate="pGestion360App.fileRecord.fileType">File Type</label>
+          <input type="text" class="form-control" name="fileType" id="field_fileType" data-cy="fileType" formControlName="fileType" />
+          @if (fileTypeRef.invalid && (fileTypeRef.dirty || fileTypeRef.touched)) {
+            <div>
+              @if (editForm.get('fileType')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let contentRef = editForm.get('content')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_content" jhiTranslate="pGestion360App.fileRecord.content">Content</label>
+          <div>
+            @if (contentRef.value) {
+              <div class="form-text text-danger clearfix">
+                <a
+                  class="pull-start"
+                  (click)="openFile(contentRef.value!, editForm.get('contentContentType')!.value!)"
+                  jhiTranslate="entity.action.open"
+                  >Abrir</a
+                ><br />
+                <span class="pull-start">{{ editForm.get('contentContentType')!.value }}, {{ byteSize(contentRef.value!) }}</span>
+                <button
+                  type="button"
+                  (click)="editForm.patchValue({ content: undefined, contentContentType: undefined })"
+                  class="btn btn-secondary btn-xs pull-end"
+                >
+                  <fa-icon icon="times"></fa-icon>
+                </button>
+              </div>
+            }
+            <input
+              type="file"
+              id="file_content"
+              data-cy="content"
+              (change)="setFileData($event, 'content', false)"
+              jhiTranslate="entity.action.addblob"
+            />
+          </div>
+          <input type="hidden" class="form-control" name="content" id="field_content" data-cy="content" formControlName="content" />
+          <input
+            type="hidden"
+            class="form-control"
+            name="contentContentType"
+            id="field_contentContentType"
+            formControlName="contentContentType"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_changeRequest" jhiTranslate="pGestion360App.fileRecord.changeRequest">Change Request</label>
+          <select
+            class="form-control"
+            id="field_changeRequest"
+            data-cy="changeRequest"
+            name="changeRequest"
+            formControlName="changeRequest"
+            [compareWith]="compareChangeRequest"
+          >
+            <option [ngValue]="null"></option>
+            @for (changeRequestOption of changeRequestsSharedCollection; track $index) {
+              <option [ngValue]="changeRequestOption">{{ changeRequestOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

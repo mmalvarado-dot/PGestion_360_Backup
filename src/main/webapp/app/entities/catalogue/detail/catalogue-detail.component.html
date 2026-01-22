@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (catalogue(); as catalogueRef) {
+      <div>
+        <h2 data-cy="catalogueDetailsHeading"><span jhiTranslate="pGestion360App.catalogue.detail.title">Catalogue</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ catalogueRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.catalogue.name">Name</span></dt>
+          <dd>
+            <span>{{ catalogueRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.catalogue.code">Code</span></dt>
+          <dd>
+            <span>{{ catalogueRef.code }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.catalogue.status">Status</span></dt>
+          <dd>
+            <span>{{ catalogueRef.status }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/catalogue', catalogueRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

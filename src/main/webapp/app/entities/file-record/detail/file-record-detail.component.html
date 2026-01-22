@@ -1,0 +1,61 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (fileRecord(); as fileRecordRef) {
+      <div>
+        <h2 data-cy="fileRecordDetailsHeading"><span jhiTranslate="pGestion360App.fileRecord.detail.title">File Record</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ fileRecordRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.fileRecord.fileName">File Name</span></dt>
+          <dd>
+            <span>{{ fileRecordRef.fileName }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.fileRecord.filePath">File Path</span></dt>
+          <dd>
+            <span>{{ fileRecordRef.filePath }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.fileRecord.fileType">File Type</span></dt>
+          <dd>
+            <span>{{ fileRecordRef.fileType }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.fileRecord.content">Content</span></dt>
+          <dd>
+            @if (fileRecordRef.content) {
+              <div>
+                <a (click)="openFile(fileRecordRef.content ?? '', fileRecordRef.contentContentType)" jhiTranslate="entity.action.open"
+                  >Abrir</a
+                >
+                {{ fileRecordRef.contentContentType }}, {{ byteSize(fileRecordRef.content ?? '') }}
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.fileRecord.changeRequest">Change Request</span></dt>
+          <dd>
+            @if (fileRecord()!.changeRequest) {
+              <div>
+                <a [routerLink]="['/change-request', fileRecord()!.changeRequest?.id, 'view']">{{ fileRecordRef.changeRequest?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/file-record', fileRecordRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

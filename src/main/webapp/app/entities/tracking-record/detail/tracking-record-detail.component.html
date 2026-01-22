@@ -1,0 +1,66 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (trackingRecord(); as trackingRecordRef) {
+      <div>
+        <h2 data-cy="trackingRecordDetailsHeading">
+          <span jhiTranslate="pGestion360App.trackingRecord.detail.title">Tracking Record</span>
+        </h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ trackingRecordRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.trackingRecord.changeDate">Change Date</span></dt>
+          <dd>
+            <span>{{ trackingRecordRef.changeDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.trackingRecord.status">Status</span></dt>
+          <dd>
+            <span>{{ trackingRecordRef.status }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.trackingRecord.comments">Comments</span></dt>
+          <dd>
+            <span>{{ trackingRecordRef.comments }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.trackingRecord.user">User</span></dt>
+          <dd>
+            <span>{{ trackingRecordRef.user?.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.trackingRecord.responsible">Responsible</span></dt>
+          <dd>
+            @if (trackingRecord()!.responsible) {
+              <div>
+                <a [routerLink]="['/responsible', trackingRecord()!.responsible?.id, 'view']">{{ trackingRecordRef.responsible?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.trackingRecord.changeRequest">Change Request</span></dt>
+          <dd>
+            @if (trackingRecord()!.changeRequest) {
+              <div>
+                <a [routerLink]="['/change-request', trackingRecord()!.changeRequest?.id, 'view']">{{
+                  trackingRecordRef.changeRequest?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/tracking-record', trackingRecordRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

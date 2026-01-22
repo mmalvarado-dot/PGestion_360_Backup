@@ -1,0 +1,81 @@
+{
+  "annotations": {
+    "changelogDate": "20260121041521"
+  },
+  "applications": "*",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdDate",
+      "fieldType": "LocalDate",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedDate",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "priority",
+      "fieldType": "prioridad",
+      "fieldValues": "ALTA,MEDIA,BAJA"
+    },
+    {
+      "fieldName": "impact",
+      "fieldType": "Impacto",
+      "fieldValues": "ALTO,MEDIO,BAJO"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "fechaEntrega",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "observaciones",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "archivoAdjunto",
+      "fieldType": "AnyBlob"
+    },
+    {
+      "fieldName": "solicitante",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "departamento",
+      "fieldType": "String"
+    }
+  ],
+  "name": "ChangeRequest",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "responsible",
+      "relationshipName": "responsible",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "itemCatalogue",
+      "relationshipName": "itemCatalogue",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

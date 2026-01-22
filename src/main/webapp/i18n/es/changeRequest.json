@@ -1,0 +1,37 @@
+{
+  "pGestion360App": {
+    "changeRequest": {
+      "home": {
+        "title": "Change Requests",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Change Request",
+        "createOrEditLabel": "Crear o editar Change Request",
+        "notFound": "Ningún Change Requests encontrado"
+      },
+      "created": "Un nuevo Change Request ha sido creado con el identificador {{ param }}",
+      "updated": "Un Change Request ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Change Request ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Change Request {{ id }}?"
+      },
+      "detail": {
+        "title": "Change Request"
+      },
+      "id": "ID",
+      "title": "Title",
+      "description": "Description",
+      "createdDate": "Created Date",
+      "updatedDate": "Updated Date",
+      "priority": "Priority",
+      "impact": "Impact",
+      "status": "Status",
+      "fechaEntrega": "Fecha Entrega",
+      "observaciones": "Observaciones",
+      "archivoAdjunto": "Archivo Adjunto",
+      "solicitante": "Solicitante",
+      "departamento": "Departamento",
+      "responsible": "Responsible",
+      "itemCatalogue": "Item Catalogue"
+    }
+  }
+}

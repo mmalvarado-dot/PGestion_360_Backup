@@ -1,0 +1,294 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-change-request-heading"
+        data-cy="ChangeRequestCreateUpdateHeading"
+        jhiTranslate="pGestion360App.changeRequest.home.createOrEditLabel"
+      >
+        Crear o editar Change Request
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="pGestion360App.changeRequest.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let titleRef = editForm.get('title')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_title" jhiTranslate="pGestion360App.changeRequest.title">Title</label>
+          <input type="text" class="form-control" name="title" id="field_title" data-cy="title" formControlName="title" />
+          @if (titleRef.invalid && (titleRef.dirty || titleRef.touched)) {
+            <div>
+              @if (editForm.get('title')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let descriptionRef = editForm.get('description')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_description" jhiTranslate="pGestion360App.changeRequest.description">Description</label>
+          <input
+            type="text"
+            class="form-control"
+            name="description"
+            id="field_description"
+            data-cy="description"
+            formControlName="description"
+          />
+          @if (descriptionRef.invalid && (descriptionRef.dirty || descriptionRef.touched)) {
+            <div>
+              @if (editForm.get('description')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let createdDateRef = editForm.get('createdDate')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_createdDate" jhiTranslate="pGestion360App.changeRequest.createdDate">Created Date</label>
+          <div class="input-group">
+            <input
+              id="field_createdDate"
+              data-cy="createdDate"
+              type="text"
+              class="form-control"
+              name="createdDate"
+              ngbDatepicker
+              #createdDateDp="ngbDatepicker"
+              formControlName="createdDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="createdDateDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+          @if (createdDateRef.invalid && (createdDateRef.dirty || createdDateRef.touched)) {
+            <div>
+              @if (editForm.get('createdDate')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_updatedDate" jhiTranslate="pGestion360App.changeRequest.updatedDate">Updated Date</label>
+          <div class="input-group">
+            <input
+              id="field_updatedDate"
+              data-cy="updatedDate"
+              type="text"
+              class="form-control"
+              name="updatedDate"
+              ngbDatepicker
+              #updatedDateDp="ngbDatepicker"
+              formControlName="updatedDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="updatedDateDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_priority" jhiTranslate="pGestion360App.changeRequest.priority">Priority</label>
+          <select class="form-control" name="priority" formControlName="priority" id="field_priority" data-cy="priority">
+            <option [ngValue]="null">{{ 'pGestion360App.prioridad.null' | translate }}</option>
+            @for (prioridad of prioridadValues; track $index) {
+              <option [value]="prioridad">{{ 'pGestion360App.prioridad.' + prioridad | translate }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_impact" jhiTranslate="pGestion360App.changeRequest.impact">Impact</label>
+          <select class="form-control" name="impact" formControlName="impact" id="field_impact" data-cy="impact">
+            <option [ngValue]="null">{{ 'pGestion360App.Impacto.null' | translate }}</option>
+            @for (impacto of impactoValues; track $index) {
+              <option [value]="impacto">{{ 'pGestion360App.Impacto.' + impacto | translate }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_status">Estado</label>
+          <select class="form-control" name="status" id="field_status" data-cy="status" formControlName="status">
+            <option [ngValue]="null">Seleccione un estado...</option>
+            <option value="PENDIENTE">PENDIENTE</option>
+            <option value="EN_PROCESO">EN PROCESO</option>
+            <option value="APROBADO">APROBADO</option>
+            <option value="RECHAZADO">RECHAZADO</option>
+            <option value="COMPLETADO">COMPLETADO</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaEntrega" jhiTranslate="pGestion360App.changeRequest.fechaEntrega">Fecha Entrega</label>
+          <div class="input-group">
+            <input
+              id="field_fechaEntrega"
+              data-cy="fechaEntrega"
+              type="text"
+              class="form-control"
+              name="fechaEntrega"
+              ngbDatepicker
+              #fechaEntregaDp="ngbDatepicker"
+              formControlName="fechaEntrega"
+            />
+            <button type="button" class="btn btn-secondary" (click)="fechaEntregaDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_observaciones" jhiTranslate="pGestion360App.changeRequest.observaciones"
+            >Observaciones</label
+          >
+          <textarea
+            class="form-control"
+            name="observaciones"
+            id="field_observaciones"
+            data-cy="observaciones"
+            formControlName="observaciones"
+          ></textarea>
+        </div>
+
+        @let archivoAdjuntoRef = editForm.get('archivoAdjunto')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_archivoAdjunto" jhiTranslate="pGestion360App.changeRequest.archivoAdjunto"
+            >Archivo Adjunto</label
+          >
+          <div>
+            @if (archivoAdjuntoRef.value) {
+              <div class="form-text text-danger clearfix">
+                <a
+                  class="pull-start"
+                  (click)="openFile(archivoAdjuntoRef.value!, editForm.get('archivoAdjuntoContentType')!.value!)"
+                  jhiTranslate="entity.action.open"
+                  >Abrir</a
+                ><br />
+                <span class="pull-start"
+                  >{{ editForm.get('archivoAdjuntoContentType')!.value }}, {{ byteSize(archivoAdjuntoRef.value!) }}</span
+                >
+                <button
+                  type="button"
+                  (click)="editForm.patchValue({ archivoAdjunto: undefined, archivoAdjuntoContentType: undefined })"
+                  class="btn btn-secondary btn-xs pull-end"
+                >
+                  <fa-icon icon="times"></fa-icon>
+                </button>
+              </div>
+            }
+            <input
+              type="file"
+              id="file_archivoAdjunto"
+              data-cy="archivoAdjunto"
+              (change)="setFileData($event, 'archivoAdjunto', false)"
+              jhiTranslate="entity.action.addblob"
+            />
+          </div>
+          <input
+            type="hidden"
+            class="form-control"
+            name="archivoAdjunto"
+            id="field_archivoAdjunto"
+            data-cy="archivoAdjunto"
+            formControlName="archivoAdjunto"
+          />
+          <input
+            type="hidden"
+            class="form-control"
+            name="archivoAdjuntoContentType"
+            id="field_archivoAdjuntoContentType"
+            formControlName="archivoAdjuntoContentType"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_solicitante" jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</label>
+          <input
+            type="text"
+            class="form-control"
+            name="solicitante"
+            id="field_solicitante"
+            data-cy="solicitante"
+            formControlName="solicitante"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_departamento" jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</label>
+          <input
+            type="text"
+            class="form-control"
+            name="departamento"
+            id="field_departamento"
+            data-cy="departamento"
+            formControlName="departamento"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_responsible" jhiTranslate="pGestion360App.changeRequest.responsible">Responsible</label>
+          <select
+            class="form-control"
+            id="field_responsible"
+            data-cy="responsible"
+            name="responsible"
+            formControlName="responsible"
+            [compareWith]="compareResponsible"
+          >
+            <option [ngValue]="null"></option>
+            @for (responsibleOption of responsiblesSharedCollection; track $index) {
+              <option [ngValue]="responsibleOption">{{ responsibleOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_itemCatalogue" jhiTranslate="pGestion360App.changeRequest.itemCatalogue"
+            >Item Catalogue</label
+          >
+          <select
+            class="form-control"
+            id="field_itemCatalogue"
+            data-cy="itemCatalogue"
+            name="itemCatalogue"
+            formControlName="itemCatalogue"
+            [compareWith]="compareItemCatalogue"
+          >
+            <option [ngValue]="null"></option>
+            @for (itemCatalogueOption of itemCataloguesSharedCollection; track $index) {
+              <option [ngValue]="itemCatalogueOption">{{ itemCatalogueOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

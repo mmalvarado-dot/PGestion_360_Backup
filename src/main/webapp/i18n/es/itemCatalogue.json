@@ -1,0 +1,28 @@
+{
+  "pGestion360App": {
+    "itemCatalogue": {
+      "home": {
+        "title": "Item Catalogues",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Item Catalogue",
+        "createOrEditLabel": "Crear o editar Item Catalogue",
+        "notFound": "Ningún Item Catalogues encontrado"
+      },
+      "created": "Un nuevo Item Catalogue ha sido creado con el identificador {{ param }}",
+      "updated": "Un Item Catalogue ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Item Catalogue ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Item Catalogue {{ id }}?"
+      },
+      "detail": {
+        "title": "Item Catalogue"
+      },
+      "id": "ID",
+      "name": "Name",
+      "code": "Code",
+      "catalogueCode": "Catalogue Code",
+      "active": "Active",
+      "catalogue": "Catalogue"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "annotations": {
+    "changelogDate": "20260121041523"
+  },
+  "applications": "*",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "fileName",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "filePath",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "fileType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "AnyBlob",
+      "fieldValidateRules": []
+    }
+  ],
+  "name": "FileRecord",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "changeRequest",
+      "relationshipName": "changeRequest",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

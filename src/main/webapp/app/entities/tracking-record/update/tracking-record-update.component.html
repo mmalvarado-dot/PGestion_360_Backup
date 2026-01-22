@@ -1,0 +1,129 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-tracking-record-heading"
+        data-cy="TrackingRecordCreateUpdateHeading"
+        jhiTranslate="pGestion360App.trackingRecord.home.createOrEditLabel"
+      >
+        Crear o editar Tracking Record
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="pGestion360App.trackingRecord.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let changeDateRef = editForm.get('changeDate')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_changeDate" jhiTranslate="pGestion360App.trackingRecord.changeDate">Change Date</label>
+          <div class="input-group">
+            <input
+              id="field_changeDate"
+              data-cy="changeDate"
+              type="text"
+              class="form-control"
+              name="changeDate"
+              ngbDatepicker
+              #changeDateDp="ngbDatepicker"
+              formControlName="changeDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="changeDateDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
+          </div>
+          @if (changeDateRef.invalid && (changeDateRef.dirty || changeDateRef.touched)) {
+            <div>
+              @if (editForm.get('changeDate')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let statusRef = editForm.get('status')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_status" jhiTranslate="pGestion360App.trackingRecord.status">Status</label>
+          <input type="text" class="form-control" name="status" id="field_status" data-cy="status" formControlName="status" />
+          @if (statusRef.invalid && (statusRef.dirty || statusRef.touched)) {
+            <div>
+              @if (editForm.get('status')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_comments" jhiTranslate="pGestion360App.trackingRecord.comments">Comments</label>
+          <input type="text" class="form-control" name="comments" id="field_comments" data-cy="comments" formControlName="comments" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_user" jhiTranslate="pGestion360App.trackingRecord.user">User</label>
+          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
+            <option [ngValue]="null"></option>
+            @for (userOption of usersSharedCollection; track $index) {
+              <option [ngValue]="userOption">{{ userOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_responsible" jhiTranslate="pGestion360App.trackingRecord.responsible">Responsible</label>
+          <select
+            class="form-control"
+            id="field_responsible"
+            data-cy="responsible"
+            name="responsible"
+            formControlName="responsible"
+            [compareWith]="compareResponsible"
+          >
+            <option [ngValue]="null"></option>
+            @for (responsibleOption of responsiblesSharedCollection; track $index) {
+              <option [ngValue]="responsibleOption">{{ responsibleOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_changeRequest" jhiTranslate="pGestion360App.trackingRecord.changeRequest"
+            >Change Request</label
+          >
+          <select
+            class="form-control"
+            id="field_changeRequest"
+            data-cy="changeRequest"
+            name="changeRequest"
+            formControlName="changeRequest"
+            [compareWith]="compareChangeRequest"
+          >
+            <option [ngValue]="null"></option>
+            @for (changeRequestOption of changeRequestsSharedCollection; track $index) {
+              <option [ngValue]="changeRequestOption">{{ changeRequestOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

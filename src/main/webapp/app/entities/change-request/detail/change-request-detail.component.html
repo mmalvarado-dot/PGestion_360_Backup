@@ -1,0 +1,109 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (changeRequest(); as changeRequestRef) {
+      <div>
+        <h2 data-cy="changeRequestDetailsHeading"><span jhiTranslate="pGestion360App.changeRequest.detail.title">Change Request</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.title">Title</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.title }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.description">Description</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.description }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.createdDate">Created Date</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.createdDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.updatedDate">Updated Date</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.updatedDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.priority">Priority</span></dt>
+          <dd>
+            <span [jhiTranslate]="'pGestion360App.prioridad.' + (changeRequestRef.priority ?? 'null')">{{
+              { null: '', ALTA: 'ALTA', MEDIA: 'MEDIA', BAJA: 'BAJA' }[changeRequestRef.priority ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.impact">Impact</span></dt>
+          <dd>
+            <span [jhiTranslate]="'pGestion360App.Impacto.' + (changeRequestRef.impact ?? 'null')">{{
+              { null: '', ALTO: 'ALTO', MEDIO: 'MEDIO', BAJO: 'BAJO' }[changeRequestRef.impact ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.status">Status</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.status }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.fechaEntrega">Fecha Entrega</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.fechaEntrega | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.observaciones">Observaciones</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.observaciones }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.archivoAdjunto">Archivo Adjunto</span></dt>
+          <dd>
+            @if (changeRequestRef.archivoAdjunto) {
+              <div>
+                <a
+                  (click)="openFile(changeRequestRef.archivoAdjunto ?? '', changeRequestRef.archivoAdjuntoContentType)"
+                  jhiTranslate="entity.action.open"
+                  >Abrir</a
+                >
+                {{ changeRequestRef.archivoAdjuntoContentType }}, {{ byteSize(changeRequestRef.archivoAdjunto ?? '') }}
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.solicitante }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</span></dt>
+          <dd>
+            <span>{{ changeRequestRef.departamento }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.responsible">Responsible</span></dt>
+          <dd>
+            @if (changeRequest()!.responsible) {
+              <div>
+                <a [routerLink]="['/responsible', changeRequest()!.responsible?.id, 'view']">{{ changeRequestRef.responsible?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.changeRequest.itemCatalogue">Item Catalogue</span></dt>
+          <dd>
+            @if (changeRequest()!.itemCatalogue) {
+              <div>
+                <a [routerLink]="['/item-catalogue', changeRequest()!.itemCatalogue?.id, 'view']">{{
+                  changeRequestRef.itemCatalogue?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/change-request', changeRequestRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

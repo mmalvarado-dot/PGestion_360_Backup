@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (itemCatalogue(); as itemCatalogueRef) {
+      <div>
+        <h2 data-cy="itemCatalogueDetailsHeading"><span jhiTranslate="pGestion360App.itemCatalogue.detail.title">Item Catalogue</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ itemCatalogueRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.itemCatalogue.name">Name</span></dt>
+          <dd>
+            <span>{{ itemCatalogueRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.itemCatalogue.code">Code</span></dt>
+          <dd>
+            <span>{{ itemCatalogueRef.code }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.itemCatalogue.catalogueCode">Catalogue Code</span></dt>
+          <dd>
+            <span>{{ itemCatalogueRef.catalogueCode }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.itemCatalogue.active">Active</span></dt>
+          <dd>
+            <span>{{ itemCatalogueRef.active }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.itemCatalogue.catalogue">Catalogue</span></dt>
+          <dd>
+            @if (itemCatalogue()!.catalogue) {
+              <div>
+                <a [routerLink]="['/catalogue', itemCatalogue()!.catalogue?.id, 'view']">{{ itemCatalogueRef.catalogue?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/item-catalogue', itemCatalogueRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

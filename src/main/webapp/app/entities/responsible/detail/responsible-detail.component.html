@@ -1,0 +1,38 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (responsible(); as responsibleRef) {
+      <div>
+        <h2 data-cy="responsibleDetailsHeading"><span jhiTranslate="pGestion360App.responsible.detail.title">Responsible</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ responsibleRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.responsible.name">Name</span></dt>
+          <dd>
+            <span>{{ responsibleRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="pGestion360App.responsible.position">Position</span></dt>
+          <dd>
+            <span>{{ responsibleRef.position }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/responsible', responsibleRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

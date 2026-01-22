@@ -1,0 +1,29 @@
+{
+  "pGestion360App": {
+    "trackingRecord": {
+      "home": {
+        "title": "Tracking Records",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Tracking Record",
+        "createOrEditLabel": "Crear o editar Tracking Record",
+        "notFound": "Ningún Tracking Records encontrado"
+      },
+      "created": "Un nuevo Tracking Record ha sido creado con el identificador {{ param }}",
+      "updated": "Un Tracking Record ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Tracking Record ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Tracking Record {{ id }}?"
+      },
+      "detail": {
+        "title": "Tracking Record"
+      },
+      "id": "ID",
+      "changeDate": "Change Date",
+      "status": "Status",
+      "comments": "Comments",
+      "user": "User",
+      "responsible": "Responsible",
+      "changeRequest": "Change Request"
+    }
+  }
+}

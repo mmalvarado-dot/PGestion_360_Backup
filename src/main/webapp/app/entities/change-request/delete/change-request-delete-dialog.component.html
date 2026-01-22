@@ -1,0 +1,30 @@
+@if (changeRequest) {
+  <form name="deleteForm" (ngSubmit)="confirmDelete(changeRequest.id!)">
+    <div class="modal-header">
+      <h4 class="modal-title" data-cy="changeRequestDeleteDialogHeading" jhiTranslate="entity.delete.title">
+        Confirmar operación de borrado
+      </h4>
+    </div>
+
+    <div class="modal-body">
+      <jhi-alert-error />
+      <p
+        id="jhi-delete-changeRequest-heading"
+        jhiTranslate="pGestion360App.changeRequest.delete.question"
+        [translateValues]="{ id: changeRequest.id }"
+      >
+        ¿Seguro que quiere eliminar Change Request {{ changeRequest.id }}?
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">
+        <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+      </button>
+
+      <button id="jhi-confirm-delete-changeRequest" data-cy="entityConfirmDeleteButton" type="submit" class="btn btn-danger">
+        <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="entity.action.delete">Eliminar</span>
+      </button>
+    </div>
+  </form>
+}

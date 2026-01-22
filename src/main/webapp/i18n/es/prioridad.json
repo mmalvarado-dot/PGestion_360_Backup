@@ -1,0 +1,10 @@
+{
+  "pGestion360App": {
+    "prioridad": {
+      "null": "",
+      "ALTA": "ALTA",
+      "MEDIA": "MEDIA",
+      "BAJA": "BAJA"
+    }
+  }
+}

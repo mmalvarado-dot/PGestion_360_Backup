@@ -1,0 +1,25 @@
+{
+  "pGestion360App": {
+    "responsible": {
+      "home": {
+        "title": "Responsibles",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Responsible",
+        "createOrEditLabel": "Crear o editar Responsible",
+        "notFound": "Ningún Responsibles encontrado"
+      },
+      "created": "Un nuevo Responsible ha sido creado con el identificador {{ param }}",
+      "updated": "Un Responsible ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Responsible ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Responsible {{ id }}?"
+      },
+      "detail": {
+        "title": "Responsible"
+      },
+      "id": "ID",
+      "name": "Name",
+      "position": "Position"
+    }
+  }
+}

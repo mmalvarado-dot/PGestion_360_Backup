@@ -1,0 +1,62 @@
+entity Catalogue {
+    name String required
+    code String required
+    status Boolean
+}
+
+entity ItemCatalogue {
+    name String required
+    code String required
+    catalogueCode String required
+    active Boolean
+}
+
+entity Responsible {
+    name String required
+    position String required
+}
+
+entity Department {
+    departmentName String required
+    field String
+}
+
+entity ChangeRequest {
+    title String required
+    description String required
+    priority String
+    status String required
+    impact String
+    // Borré "Department String" aquí porque ya usas la relación abajo
+    createdDate LocalDate required
+    updatedDate LocalDate
+}
+
+entity TrackingRecord {
+    changeDate LocalDate required
+    status String required
+    comments String
+}
+
+entity FileRecord {
+    fileName String required
+    filePath String required
+    fileType String required
+}
+
+relationship ManyToOne {
+    ChangeRequest{requester} to User with builtInEntity
+    ChangeRequest{responsible} to Responsible
+    ChangeRequest{department} to Department
+    ChangeRequest{itemCatalogue} to ItemCatalogue
+    TrackingRecord{user} to User with builtInEntity
+    TrackingRecord{responsible} to Responsible
+    TrackingRecord{changeRequest} to ChangeRequest
+    FileRecord{changeRequest} to ChangeRequest
+    Department{parentDepartment} to Department
+    ItemCatalogue{catalogue} to Catalogue
+}
+
+paginate * with pagination
+service all with serviceImpl
+dto * with mapstruct
