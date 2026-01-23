@@ -18,7 +18,7 @@ import tech.jhipster.config.JHipsterConstants;
  *
  * By default, it only runs with the "dev" profile.
  */
-@Aspect
+//@Aspect
 public class LoggingAspect {
 
     private final Environment env;

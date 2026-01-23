@@ -20,6 +20,36 @@
     </div>
   </h2>
 
+  <div class="card mb-4 shadow-sm border-primary">
+    <div class="card-body bg-light">
+      <div class="row g-3">
+        <div class="col-md-7">
+          <label class="form-label fw-bold">Buscar Solicitud:</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><fa-icon icon="search"></fa-icon></span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar por departamento, título o descripción..."
+              #searchInput
+              (keyup)="onSearch(searchInput.value)"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-5">
+          <label class="form-label fw-bold">Filtrar por Estado:</label>
+          <select class="form-select" #statusFilter (change)="onStatusChange(statusFilter.value)">
+            <option value="">TODOS LOS ESTADOS</option>
+            <option value="PENDIENTE">PENDIENTE 🟡</option>
+            <option value="EN_PROCESO">EN PROCESO 🔵</option>
+            <option value="FINALIZADO">FINALIZADO 🟢</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <jhi-alert-error />
 
   <jhi-alert />
@@ -140,7 +170,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (changeRequest of changeRequests(); track trackId(changeRequest)) {
+          @for (changeRequest of requestsFiltrados(); track trackId(changeRequest)) {
             <tr data-cy="entityTable">
               <td>
                 <a [routerLink]="['/change-request', changeRequest.id, 'view']">{{ changeRequest.id }}</a>
@@ -155,7 +185,19 @@
               <td [jhiTranslate]="'pGestion360App.Impacto.' + (changeRequest.impact ?? 'null')">
                 {{ { null: '', ALTO: 'ALTO', MEDIO: 'MEDIO', BAJO: 'BAJO' }[changeRequest.impact ?? 'null'] }}
               </td>
-              <td>{{ changeRequest.status }}</td>
+              <td>
+                <span
+                  class="badge rounded-pill"
+                  [ngClass]="{
+                    'bg-warning text-dark': changeRequest.status === 'PENDIENTE',
+                    'bg-info text-white': changeRequest.status === 'EN_PROCESO',
+                    'bg-success text-white': changeRequest.status === 'FINALIZADO' || changeRequest.status === 'APROBADO',
+                  }"
+                >
+                  <fa-icon [icon]="changeRequest.status === 'FINALIZADO' ? 'check-circle' : 'info-circle'"></fa-icon>
+                  {{ changeRequest.status }}
+                </span>
+              </td>
               <td>{{ changeRequest.fechaEntrega | formatMediumDate }}</td>
               <td>{{ changeRequest.observaciones }}</td>
               <td>

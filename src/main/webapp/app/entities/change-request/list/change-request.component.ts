@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, inject, signal } from '@angular/core';
+import { Component, NgZone, OnInit, inject, signal, computed } from '@angular/core';
 import { HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { Observable, Subscription, combineLatest, filter, tap } from 'rxjs';
@@ -26,6 +26,38 @@ export class ChangeRequestComponent implements OnInit {
   subscription: Subscription | null = null;
   changeRequests = signal<IChangeRequest[]>([]);
   isLoading = false;
+
+  // --- BLOQUE DE SEGUIMIENTO Y BUSQUEDA ---
+  searchTerm = signal('');
+  statusFilter = signal('');
+
+  // Esta lista se actualiza automáticamente cuando cambia la original o los filtros
+  requestsFiltrados = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    const status = this.statusFilter();
+
+    return this.changeRequests().filter(req => {
+      const cumpleTexto =
+        !term ||
+        req.title?.toLowerCase().includes(term) ||
+        req.departamento?.toLowerCase().includes(term) ||
+        req.solicitante?.toLowerCase().includes(term);
+
+      const cumpleEstado = !status || req.status === status;
+
+      return cumpleTexto && cumpleEstado;
+    });
+  });
+
+  // Funciones para conectar con el HTML
+  onSearch(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  onStatusChange(value: string): void {
+    this.statusFilter.set(value);
+  }
+  // --- FIN BLOQUE ---
 
   sortState = sortStateSignal({});
 

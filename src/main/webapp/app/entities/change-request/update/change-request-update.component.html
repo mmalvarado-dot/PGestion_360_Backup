@@ -119,14 +119,12 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="field_status">Estado</label>
+          <label class="form-label" for="field_status">Estado de la Solicitud</label>
           <select class="form-control" name="status" id="field_status" data-cy="status" formControlName="status">
             <option [ngValue]="null">Seleccione un estado...</option>
             <option value="PENDIENTE">PENDIENTE</option>
             <option value="EN_PROCESO">EN PROCESO</option>
-            <option value="APROBADO">APROBADO</option>
-            <option value="RECHAZADO">RECHAZADO</option>
-            <option value="COMPLETADO">COMPLETADO</option>
+            <option value="FINALIZADO">FINALIZADO</option>
           </select>
         </div>
 
