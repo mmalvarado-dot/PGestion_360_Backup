@@ -1,0 +1,12 @@
+.card {
+  transition: transform 0.2s;
+  border: none;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.badge {
+  font-size: 1rem;
+}

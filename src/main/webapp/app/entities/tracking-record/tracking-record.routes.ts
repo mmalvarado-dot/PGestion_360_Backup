@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
-import { ASC } from 'app/config/navigation.constants';
+import { DESC } from 'app/config/navigation.constants';
 import TrackingRecordResolve from './route/tracking-record-routing-resolve.service';
 
 const trackingRecordRoute: Routes = [
@@ -9,7 +9,8 @@ const trackingRecordRoute: Routes = [
     path: '',
     loadComponent: () => import('./list/tracking-record.component').then(m => m.TrackingRecordComponent),
     data: {
-      defaultSort: `id,${ASC}`,
+      // CORRECCIÓN: Usamos 'change_date' (con guion bajo) para que la base de datos no falle.
+      defaultSort: `change_date,${DESC}`,
     },
     canActivate: [UserRouteAccessService],
   },

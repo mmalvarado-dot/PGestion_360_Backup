@@ -33,6 +33,10 @@ public class UserMapper {
     }
 
     public AdminUserDTO userToAdminUserDTO(User user) {
+        // PROTECCIÓN: Si el usuario es null, devolvemos null y evitamos el error
+        if (user == null) {
+            return null;
+        }
         return new AdminUserDTO(user);
     }
 

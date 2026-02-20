@@ -1,9 +1,12 @@
 package com.mycompany.myapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+// 1. IMPORT NECESARIO PARA QUE EL MAPPER FUNCIONE
+import com.mycompany.myapp.domain.Department;
+import com.mycompany.myapp.domain.enumeration.TrackingActionType;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -21,16 +24,38 @@ public class TrackingRecord implements Serializable {
     @Column("id")
     private Long id;
 
+    // CAMBIO 1: Usamos Instant en vez de LocalDate
     @NotNull(message = "must not be null")
     @Column("change_date")
-    private LocalDate changeDate;
+    private Instant changeDate;
 
     @NotNull(message = "must not be null")
     @Column("status")
     private String status;
 
+    // CAMBIO 2: Aquí guardamos si fue EDICION o CAMBIO_ESTADO
+    @Column("action_type")
+    private TrackingActionType actionType;
+
     @Column("comments")
     private String comments;
+
+    // --- Relaciones (IDs en Base de Datos) ---
+
+    @Column("user_id")
+    private Long userId;
+
+    @Column("responsible_id")
+    private Long responsibleId;
+
+    @Column("change_request_id")
+    private Long changeRequestId;
+
+    // CAMBIO 3: ID del departamento
+    @Column("department_id")
+    private Long departmentId;
+
+    // --- Objetos Transients (Para que Java y el Mapper los vean, pero no se guardan directo en tabla) ---
 
     @org.springframework.data.annotation.Transient
     private User user;
@@ -42,16 +67,12 @@ public class TrackingRecord implements Serializable {
     @JsonIgnoreProperties(value = { "responsible", "itemCatalogue" }, allowSetters = true)
     private ChangeRequest changeRequest;
 
-    @Column("user_id")
-    private Long userId;
+    // 2. AGREGADO: OBJETO DEPARTAMENTO (El Mapper busca esto)
+    @org.springframework.data.annotation.Transient
+    @JsonIgnoreProperties(value = { "trackingRecords" }, allowSetters = true)
+    private Department department;
 
-    @Column("responsible_id")
-    private Long responsibleId;
-
-    @Column("change_request_id")
-    private Long changeRequestId;
-
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+    // --- GETTERS Y SETTERS ---
 
     public Long getId() {
         return this.id;
@@ -66,16 +87,16 @@ public class TrackingRecord implements Serializable {
         this.id = id;
     }
 
-    public LocalDate getChangeDate() {
+    public Instant getChangeDate() {
         return this.changeDate;
     }
 
-    public TrackingRecord changeDate(LocalDate changeDate) {
+    public TrackingRecord changeDate(Instant changeDate) {
         this.setChangeDate(changeDate);
         return this;
     }
 
-    public void setChangeDate(LocalDate changeDate) {
+    public void setChangeDate(Instant changeDate) {
         this.changeDate = changeDate;
     }
 
@@ -92,6 +113,19 @@ public class TrackingRecord implements Serializable {
         this.status = status;
     }
 
+    public TrackingActionType getActionType() {
+        return this.actionType;
+    }
+
+    public TrackingRecord actionType(TrackingActionType actionType) {
+        this.setActionType(actionType);
+        return this;
+    }
+
+    public void setActionType(TrackingActionType actionType) {
+        this.actionType = actionType;
+    }
+
     public String getComments() {
         return this.comments;
     }
@@ -104,6 +138,42 @@ public class TrackingRecord implements Serializable {
     public void setComments(String comments) {
         this.comments = comments;
     }
+
+    // --- IDs ---
+
+    public Long getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getResponsibleId() {
+        return this.responsibleId;
+    }
+
+    public void setResponsibleId(Long responsibleId) {
+        this.responsibleId = responsibleId;
+    }
+
+    public Long getChangeRequestId() {
+        return this.changeRequestId;
+    }
+
+    public void setChangeRequestId(Long changeRequestId) {
+        this.changeRequestId = changeRequestId;
+    }
+
+    public Long getDepartmentId() {
+        return this.departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    // --- Transients (Objetos Completos) ---
 
     public User getUser() {
         return this.user;
@@ -147,31 +217,21 @@ public class TrackingRecord implements Serializable {
         return this;
     }
 
-    public Long getUserId() {
-        return this.userId;
+    // 3. AGREGADO: MÉTODOS PARA EL DEPARTAMENTO (Esto quita el error rojo del Mapper)
+    public Department getDepartment() {
+        return this.department;
     }
 
-    public void setUserId(Long user) {
-        this.userId = user;
+    public void setDepartment(Department department) {
+        this.department = department;
+        // Importante: Al poner el objeto, actualizamos también el ID numérico
+        this.departmentId = department != null ? department.getId() : null;
     }
 
-    public Long getResponsibleId() {
-        return this.responsibleId;
+    public TrackingRecord department(Department department) {
+        this.setDepartment(department);
+        return this;
     }
-
-    public void setResponsibleId(Long responsible) {
-        this.responsibleId = responsible;
-    }
-
-    public Long getChangeRequestId() {
-        return this.changeRequestId;
-    }
-
-    public void setChangeRequestId(Long changeRequest) {
-        this.changeRequestId = changeRequest;
-    }
-
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -186,7 +246,6 @@ public class TrackingRecord implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 
@@ -197,6 +256,7 @@ public class TrackingRecord implements Serializable {
             "id=" + getId() +
             ", changeDate='" + getChangeDate() + "'" +
             ", status='" + getStatus() + "'" +
+            ", actionType='" + getActionType() + "'" +
             ", comments='" + getComments() + "'" +
             "}";
     }

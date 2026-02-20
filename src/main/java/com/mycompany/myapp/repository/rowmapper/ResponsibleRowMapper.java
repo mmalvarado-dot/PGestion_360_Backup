@@ -23,8 +23,19 @@ public class ResponsibleRowMapper implements BiFunction<Row, String, Responsible
      */
     @Override
     public Responsible apply(Row row, String prefix) {
+        // --- MODIFICACIÓN CRÍTICA ---
+        // 1. Extraemos el ID primero.
+        Object id = converter.fromRow(row, prefix + "_id", Long.class);
+
+        // 2. Si el ID es nulo, significa que el LEFT JOIN no encontró responsable.
+        // Devolvemos NULL para no crear "objetos fantasma".
+        if (id == null) {
+            return null;
+        }
+        // ---------------------------
+
         Responsible entity = new Responsible();
-        entity.setId(converter.fromRow(row, prefix + "_id", Long.class));
+        entity.setId((Long) id);
         entity.setName(converter.fromRow(row, prefix + "_name", String.class));
         entity.setPosition(converter.fromRow(row, prefix + "_position", String.class));
         return entity;

@@ -23,8 +23,17 @@ public class DepartmentRowMapper implements BiFunction<Row, String, Department> 
      */
     @Override
     public Department apply(Row row, String prefix) {
+        // --- VALIDACIÓN CRÍTICA (AGREGAR ESTO) ---
+        // Si el ID del departamento es NULL, significa que el LEFT JOIN no encontró nada.
+        // Debemos devolver NULL para que la entidad TrackingRecord sepa que no hay departamento.
+        Object id = converter.fromRow(row, prefix + "_id", Long.class);
+        if (id == null) {
+            return null;
+        }
+        // ----------------------------------------
+
         Department entity = new Department();
-        entity.setId(converter.fromRow(row, prefix + "_id", Long.class));
+        entity.setId((Long) id);
         entity.setDepartmentName(converter.fromRow(row, prefix + "_department_name", String.class));
         entity.setField(converter.fromRow(row, prefix + "_field", String.class));
         entity.setParentDepartmentId(converter.fromRow(row, prefix + "_parent_department_id", Long.class));

@@ -24,46 +24,107 @@ import { ChangeRequestDeleteDialogComponent } from '../delete/change-request-del
 })
 export class ChangeRequestComponent implements OnInit {
   subscription: Subscription | null = null;
-  changeRequests = signal<IChangeRequest[]>([]);
+
+  // --- CONFIGURACIÓN PRINCIPAL ---
+  serverFetchSize = 500; // Traemos los últimos 500
+  pageSize = 10; // Mostramos de 10 en 10
+
+  // SEÑAL DE PÁGINA
+  page = signal(1);
+
+  // --- SEÑALES DE DATOS Y FILTROS ---
+  changeRequests = signal<IChangeRequest[]>([]); // Datos crudos del backend
   isLoading = false;
 
-  // --- BLOQUE DE SEGUIMIENTO Y BUSQUEDA ---
   searchTerm = signal('');
   statusFilter = signal('');
+  startDateFilter = signal<string | null>(null);
+  endDateFilter = signal<string | null>(null);
 
-  // Esta lista se actualiza automáticamente cuando cambia la original o los filtros
+  // --- 1. LÓGICA DE FILTRADO (COMPUTED) ---
   requestsFiltrados = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
     const status = this.statusFilter();
+    const start = this.startDateFilter();
+    const end = this.endDateFilter();
 
     return this.changeRequests().filter(req => {
-      const cumpleTexto =
+      // A. Texto
+      const matchesText =
         !term ||
         req.title?.toLowerCase().includes(term) ||
         req.departamento?.toLowerCase().includes(term) ||
-        req.solicitante?.toLowerCase().includes(term);
+        req.description?.toLowerCase().includes(term);
 
-      const cumpleEstado = !status || req.status === status;
+      // B. Estado
+      const matchesStatus = !status || req.status === status;
 
-      return cumpleTexto && cumpleEstado;
+      // C. Fechas
+      let matchesDate = true;
+      if (req.createdDate && (start || end)) {
+        const recordDate = new Date(req.createdDate.toString());
+        if (start) {
+          matchesDate = matchesDate && recordDate >= new Date(start);
+        }
+        if (end) {
+          const endDateObj = new Date(end);
+          endDateObj.setHours(23, 59, 59, 999);
+          matchesDate = matchesDate && recordDate <= endDateObj;
+        }
+      }
+
+      return matchesText && matchesStatus && matchesDate;
     });
   });
 
-  // Funciones para conectar con el HTML
-  onSearch(value: string): void {
-    this.searchTerm.set(value);
+  // --- 2. LÓGICA DE VISIBILIDAD (PAGINACIÓN CLIENTE) ---
+  requestsVisibles = computed(() => {
+    // Usamos this.page() porque es una señal
+    const startIndex = (this.page() - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    return this.requestsFiltrados().slice(startIndex, endIndex);
+  });
+
+  // --- FUNCIONES DE CONTROL ---
+  onSearch(val: string) {
+    this.searchTerm.set(val);
+    this.page.set(1);
   }
 
-  onStatusChange(value: string): void {
-    this.statusFilter.set(value);
+  onStatusChange(val: string) {
+    this.statusFilter.set(val);
+    this.page.set(1);
   }
+
+  // ... código existente ...
+
+  onDateChange(type: 'start' | 'end', e: any) {
+    const val = e.target.value;
+    type === 'start' ? this.startDateFilter.set(val) : this.endDateFilter.set(val);
+    this.page.set(1);
+  }
+
+  // 👇 --- PEGA ESTO AQUÍ --- 👇
+  limpiarFechas(inputInicio: HTMLInputElement, inputFin: HTMLInputElement): void {
+    // 1. Limpiar visualmente las cajitas de texto HTML
+    inputInicio.value = '';
+    inputFin.value = '';
+
+    // 2. Resetear las señales (Signals) a null
+    this.startDateFilter.set(null);
+    this.endDateFilter.set(null);
+
+    // 3. Volver a la página 1
+    this.page.set(1);
+
+    // NOTA: No hace falta llamar a this.load() ni nada más.
+    // Como usas 'computed', al cambiar la señal, la lista se actualiza sola.
+  }
+
   // --- FIN BLOQUE ---
 
   sortState = sortStateSignal({});
-
-  itemsPerPage = ITEMS_PER_PAGE;
   totalItems = 0;
-  page = 1;
 
   public readonly router = inject(Router);
   protected readonly changeRequestService = inject(ChangeRequestService);
@@ -95,7 +156,6 @@ export class ChangeRequestComponent implements OnInit {
   delete(changeRequest: IChangeRequest): void {
     const modalRef = this.modalService.open(ChangeRequestDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.changeRequest = changeRequest;
-    // unsubscribe not needed because closed completes on modal close
     modalRef.closed
       .pipe(
         filter(reason => reason === ITEM_DELETED_EVENT),
@@ -113,17 +173,26 @@ export class ChangeRequestComponent implements OnInit {
   }
 
   navigateToWithComponentValues(event: SortState): void {
-    this.handleNavigation(this.page, event);
+    this.handleNavigation(this.page(), event);
   }
 
   navigateToPage(page: number): void {
+    this.page.set(page);
     this.handleNavigation(page, this.sortState());
   }
 
+  // --- AQUÍ ESTÁ EL CAMBIO CLAVE PARA EL ORDEN ---
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
-    const page = params.get(PAGE_HEADER);
-    this.page = +(page ?? 1);
-    this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data[DEFAULT_SORT_DATA]));
+    // 1. Verificamos si hay un orden en la URL (ej: clickeaste una columna)
+    const sortParam = params.get(SORT);
+
+    if (sortParam) {
+      // Si el usuario pidió un orden específico, lo respetamos
+      this.sortState.set(this.sortService.parseSortParam(sortParam));
+    } else {
+      // Si la URL está limpia (inicio), FORZAMOS 'id' DESCENDENTE (Lo nuevo arriba)
+      this.sortState.set({ predicate: 'id', order: 'desc' });
+    }
   }
 
   protected onResponseSuccess(response: EntityArrayResponseType): void {
@@ -141,13 +210,10 @@ export class ChangeRequestComponent implements OnInit {
   }
 
   protected queryBackend(): Observable<EntityArrayResponseType> {
-    const { page } = this;
-
     this.isLoading = true;
-    const pageToLoad: number = page;
     const queryObject: any = {
-      page: pageToLoad - 1,
-      size: this.itemsPerPage,
+      page: 0,
+      size: this.serverFetchSize,
       sort: this.sortService.buildSortParam(this.sortState()),
     };
     return this.changeRequestService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
@@ -155,15 +221,13 @@ export class ChangeRequestComponent implements OnInit {
 
   protected handleNavigation(page: number, sortState: SortState): void {
     const queryParamsObj = {
-      page,
-      size: this.itemsPerPage,
       sort: this.sortService.buildSortParam(sortState),
     };
-
     this.ngZone.run(() => {
       this.router.navigate(['./'], {
         relativeTo: this.activatedRoute,
         queryParams: queryParamsObj,
+        queryParamsHandling: 'merge',
       });
     });
   }

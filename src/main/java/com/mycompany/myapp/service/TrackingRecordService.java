@@ -1,5 +1,6 @@
 package com.mycompany.myapp.service;
 
+import com.mycompany.myapp.repository.TrackingStats; // <--- OJO: Necesitas importar esto del Repositorio
 import com.mycompany.myapp.service.dto.TrackingRecordDTO;
 import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
@@ -44,7 +45,6 @@ public interface TrackingRecordService {
     /**
      * Returns the number of trackingRecords available.
      * @return the number of entities in the database.
-     *
      */
     Mono<Long> countAll();
 
@@ -63,4 +63,26 @@ public interface TrackingRecordService {
      * @return a Mono to signal the deletion
      */
     Mono<Void> delete(Long id);
+
+    // =================================================================
+    //  MÉTODOS AGREGADOS PARA TU PANTALLA (Historial + Gráficos)
+    // =================================================================
+
+    /**
+     * 1. PARA LA TABLA DE ABAJO (HISTORIAL)
+     * Get all trackingRecords for a specific changeRequestId.
+     */
+    Flux<TrackingRecordDTO> findAllByRequestId(Long changeRequestId);
+
+    /**
+     * 2. PARA EL GRÁFICO SUPERIOR IZQUIERDO (TOP DEPTOS)
+     * Devuelve ID de Depto y Cantidad
+     */
+    Flux<TrackingStats> getDepartmentStats();
+
+    /**
+     * 3. PARA EL GRÁFICO SUPERIOR DERECHO (TOP RESPONSABLES)
+     * Devuelve ID de Responsable y Cantidad
+     */
+    Flux<TrackingStats> getResponsibleStats();
 }

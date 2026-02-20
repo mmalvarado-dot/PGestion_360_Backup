@@ -23,22 +23,37 @@
   <div class="card mb-4 shadow-sm border-primary">
     <div class="card-body bg-light">
       <div class="row g-3">
-        <div class="col-md-7">
-          <label class="form-label fw-bold">Buscar Solicitud:</label>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Buscar:</label>
           <div class="input-group">
             <span class="input-group-text bg-white"><fa-icon icon="search"></fa-icon></span>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Buscar por departamento, título o descripción..."
-              #searchInput
-              (keyup)="onSearch(searchInput.value)"
-            />
+            <input type="text" class="form-control" placeholder="Título, depto..." #searchInput (keyup)="onSearch(searchInput.value)" />
           </div>
         </div>
 
-        <div class="col-md-5">
-          <label class="form-label fw-bold">Filtrar por Estado:</label>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Rango de Fechas:</label>
+
+          <div class="input-group">
+            <input type="date" class="form-control" #fechaInicio (change)="onDateChange('start', $event)" title="Fecha Inicial" />
+
+            <span class="input-group-text bg-light border-start-0 border-end-0">-</span>
+
+            <input type="date" class="form-control" #fechaFin (change)="onDateChange('end', $event)" title="Fecha Final" />
+
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              title="Borrar filtro de fechas"
+              (click)="limpiarFechas(fechaInicio, fechaFin)"
+            >
+              <fa-icon icon="times"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Estado:</label>
           <select class="form-select" #statusFilter (change)="onStatusChange(statusFilter.value)">
             <option value="">TODOS LOS ESTADOS</option>
             <option value="PENDIENTE">PENDIENTE 🟡</option>
@@ -51,12 +66,11 @@
   </div>
 
   <jhi-alert-error />
-
   <jhi-alert />
 
-  @if (changeRequests().length === 0) {
+  @if (requestsFiltrados().length === 0) {
     <div class="alert alert-warning" id="no-result">
-      <span jhiTranslate="pGestion360App.changeRequest.home.notFound">Ningún Change Requests encontrado</span>
+      <span jhiTranslate="pGestion360App.changeRequest.home.notFound"> No se encontraron solicitudes con esos filtros. </span>
     </div>
   } @else {
     <div class="table-responsive table-entities" id="entities">
@@ -66,125 +80,75 @@
             <th scope="col" jhiSortBy="id">
               <div class="d-flex">
                 <span jhiTranslate="global.field.id">ID</span>
-
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
             <th scope="col" jhiSortBy="title">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.changeRequest.title">Title</span>
-
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
             <th scope="col" jhiSortBy="description">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.changeRequest.description">Description</span>
-
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
             <th scope="col" jhiSortBy="createdDate">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.changeRequest.createdDate">Created Date</span>
-
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="updatedDate">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.updatedDate">Updated Date</span>
-
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
             <th scope="col" jhiSortBy="priority">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.changeRequest.priority">Priority</span>
-
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="impact">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.impact">Impact</span>
 
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
             <th scope="col" jhiSortBy="status">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.changeRequest.status">Status</span>
-
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="fechaEntrega">
+
+            <th scope="col" jhiSortBy="responsible.name">
               <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.fechaEntrega">Fecha Entrega</span>
-
+                <span jhiTranslate="pGestion360App.changeRequest.responsible">Responsable</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="observaciones">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.observaciones">Observaciones</span>
 
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="archivoAdjunto">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.archivoAdjunto">Archivo Adjunto</span>
-
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="solicitante">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</span>
-
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
             <th scope="col" jhiSortBy="departamento">
               <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</span>
+                <span jhiTranslate="pGestion360App.changeRequest.departamento">Depto</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
 
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="responsible.id">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.responsible">Responsible</span>
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="itemCatalogue.id">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.itemCatalogue">Item Catalogue</span>
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
             <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
-          @for (changeRequest of requestsFiltrados(); track trackId(changeRequest)) {
+          @for (changeRequest of requestsVisibles(); track trackId(changeRequest)) {
             <tr data-cy="entityTable">
               <td>
                 <a [routerLink]="['/change-request', changeRequest.id, 'view']">{{ changeRequest.id }}</a>
               </td>
               <td>{{ changeRequest.title }}</td>
-              <td>{{ changeRequest.description }}</td>
+              <td>
+                {{ changeRequest.description?.slice(0, 50)
+                }}{{ changeRequest.description && changeRequest.description.length > 50 ? '...' : '' }}
+              </td>
               <td>{{ changeRequest.createdDate | formatMediumDate }}</td>
-              <td>{{ changeRequest.updatedDate | formatMediumDate }}</td>
+
               <td [jhiTranslate]="'pGestion360App.prioridad.' + (changeRequest.priority ?? 'null')">
                 {{ { null: '', ALTA: 'ALTA', MEDIA: 'MEDIA', BAJA: 'BAJA' }[changeRequest.priority ?? 'null'] }}
               </td>
-              <td [jhiTranslate]="'pGestion360App.Impacto.' + (changeRequest.impact ?? 'null')">
-                {{ { null: '', ALTO: 'ALTO', MEDIO: 'MEDIO', BAJO: 'BAJO' }[changeRequest.impact ?? 'null'] }}
-              </td>
+
               <td>
                 <span
                   class="badge rounded-pill"
@@ -194,53 +158,30 @@
                     'bg-success text-white': changeRequest.status === 'FINALIZADO' || changeRequest.status === 'APROBADO',
                   }"
                 >
-                  <fa-icon [icon]="changeRequest.status === 'FINALIZADO' ? 'check-circle' : 'info-circle'"></fa-icon>
                   {{ changeRequest.status }}
                 </span>
               </td>
-              <td>{{ changeRequest.fechaEntrega | formatMediumDate }}</td>
-              <td>{{ changeRequest.observaciones }}</td>
-              <td>
-                @if (changeRequest.archivoAdjunto) {
-                  <a
-                    (click)="openFile(changeRequest.archivoAdjunto, changeRequest.archivoAdjuntoContentType)"
-                    jhiTranslate="entity.action.open"
-                    >Abrir</a
-                  >
-                  <span>{{ changeRequest.archivoAdjuntoContentType }}, {{ byteSize(changeRequest.archivoAdjunto) }}</span>
-                }
-              </td>
-              <td>{{ changeRequest.solicitante }}</td>
-              <td>{{ changeRequest.departamento }}</td>
+
               <td>
                 @if (changeRequest.responsible) {
-                  <div>
-                    <a [routerLink]="['/responsible', changeRequest.responsible.id, 'view']">{{ changeRequest.responsible.id }}</a>
-                  </div>
+                  <a [routerLink]="['/responsible', changeRequest.responsible.id, 'view']"> {{ changeRequest.responsible.name }} </a>
                 }
               </td>
-              <td>
-                @if (changeRequest.itemCatalogue) {
-                  <div>
-                    <a [routerLink]="['/item-catalogue', changeRequest.itemCatalogue.id, 'view']">{{ changeRequest.itemCatalogue.id }}</a>
-                  </div>
-                }
-              </td>
+
+              <td>{{ changeRequest.departamento }}</td>
+
               <td class="text-end">
                 <div class="btn-group">
                   <a [routerLink]="['/change-request', changeRequest.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
                     <fa-icon icon="eye"></fa-icon>
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Vista</span>
                   </a>
 
                   <a [routerLink]="['/change-request', changeRequest.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
                     <fa-icon icon="pencil-alt"></fa-icon>
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Editar</span>
                   </a>
 
                   <button type="submit" (click)="delete(changeRequest)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
                     <fa-icon icon="times"></fa-icon>
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Eliminar</span>
                   </button>
                 </div>
               </td>
@@ -250,21 +191,22 @@
       </table>
     </div>
   }
-  @if (changeRequests().length > 0) {
-    <div>
-      <div class="d-flex justify-content-center">
-        <jhi-item-count [params]="{ page, totalItems, itemsPerPage }" />
+
+  @if (requestsFiltrados().length > 0) {
+    <div class="mt-4">
+      <div class="d-flex justify-content-center mb-2 text-muted">
+        <span> Mostrando {{ requestsVisibles().length }} de {{ requestsFiltrados().length }} resultados </span>
       </div>
 
       <div class="d-flex justify-content-center">
         <ngb-pagination
-          [collectionSize]="totalItems"
-          [page]="page"
-          [pageSize]="itemsPerPage"
+          [collectionSize]="requestsFiltrados().length"
+          [page]="page()"
+          (pageChange)="page.set($event)"
+          [pageSize]="pageSize"
           [maxSize]="5"
           [rotate]="true"
           [boundaryLinks]="true"
-          (pageChange)="navigateToPage($event)"
         ></ngb-pagination>
       </div>
     </div>

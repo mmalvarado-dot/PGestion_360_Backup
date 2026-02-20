@@ -67,7 +67,7 @@
           <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
             <option [ngValue]="null"></option>
             @for (userOption of usersSharedCollection; track $index) {
-              <option [ngValue]="userOption">{{ userOption.id }}</option>
+              <option [ngValue]="userOption">{{ userOption.login }}</option>
             }
           </select>
         </div>
@@ -84,7 +84,7 @@
           >
             <option [ngValue]="null"></option>
             @for (responsibleOption of responsiblesSharedCollection; track $index) {
-              <option [ngValue]="responsibleOption">{{ responsibleOption.id }}</option>
+              <option [ngValue]="responsibleOption">{{ responsibleOption.name }}</option>
             }
           </select>
         </div>
@@ -104,6 +104,23 @@
             <option [ngValue]="null"></option>
             @for (changeRequestOption of changeRequestsSharedCollection; track $index) {
               <option [ngValue]="changeRequestOption">{{ changeRequestOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_department" jhiTranslate="pGestion360App.trackingRecord.department">Department</label>
+          <select
+            class="form-control"
+            id="field_department"
+            data-cy="department"
+            name="department"
+            formControlName="department"
+            [compareWith]="compareDepartment"
+          >
+            <option [ngValue]="null"></option>
+            @for (departmentOption of departmentsSharedCollection; track $index) {
+              <option [ngValue]="departmentOption">{{ departmentOption.departmentName }}</option>
             }
           </select>
         </div>

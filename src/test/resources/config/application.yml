@@ -2,23 +2,43 @@
 # Spring Boot configuration.
 #
 # This configuration is used for unit/integration tests.
-#
-# More information on profiles: https://www.jhipster.tech/profiles/
-# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
-
-# ===================================================================
-# Standard Spring Boot properties.
-# Full reference is available at:
-# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
 spring:
   application:
     name: pGestion360
-  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+
+  # ### INICIO CONFIGURACION BASE DE DATOS ###
+
+  # 1. Configuración Reactiva (R2DBC)
+  r2dbc:
+    # OJO: Aquí se agrega ;MODE=PostgreSQL dentro de options
+    url: r2dbc:h2:mem:///pGestion360?options=DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    pool:
+      enabled: true
+      initial-size: 5
+      max-size: 20
+
+  # 2. Configuración Clásica (JDBC)
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    # OJO: Aquí también se agrega ;MODE=PostgreSQL
+    url: jdbc:h2:mem:pGestion360;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  # 3. Liquibase
   liquibase:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:pGestion360;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    user: sa
+    password:
     contexts: test
+  # ### FIN CONFIGURACION BASE DE DATOS ###
+
   jackson:
     serialization:
       write-durations-as-timestamps: false
@@ -54,8 +74,6 @@ server:
 
 # ===================================================================
 # JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 jhipster:
   clientApp:
@@ -74,22 +92,15 @@ jhipster:
   security:
     authentication:
       jwt:
-        # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
+        # This token must be encoded using Base64
         base64-secret: Njk1MjNhYjU1ZDYzY2E3MWU5Mzg0YjBjYmExMmI2OTU0ZDQ3MDAxNjMwMWZkMzUyNWViNDI2ZGQ3ODE2OTc5OThiOTkwYzk3MjRmZGM2MTE2N2UzNjNjMDc3NzFkYzQwMzU3YmY3OGM0YTE5NGRkYWQ3ZjQ4OTM2MzE5YjI0ODQ=
-        # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 86400
 
 # ===================================================================
 # Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
 management:
   health:
     mail:

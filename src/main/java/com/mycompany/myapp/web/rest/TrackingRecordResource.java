@@ -1,6 +1,7 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.repository.TrackingRecordRepository;
+import com.mycompany.myapp.repository.TrackingStats;
 import com.mycompany.myapp.service.TrackingRecordService;
 import com.mycompany.myapp.service.dto.TrackingRecordDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
@@ -22,27 +23,23 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.ForwardedHeaderUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.reactive.ResponseUtil;
 
-/**
- * REST controller for managing {@link com.mycompany.myapp.domain.TrackingRecord}.
- */
 @RestController
 @RequestMapping("/api/tracking-records")
 public class TrackingRecordResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrackingRecordResource.class);
-
     private static final String ENTITY_NAME = "trackingRecord";
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private final TrackingRecordService trackingRecordService;
-
     private final TrackingRecordRepository trackingRecordRepository;
 
     public TrackingRecordResource(TrackingRecordService trackingRecordService, TrackingRecordRepository trackingRecordRepository) {
@@ -50,13 +47,6 @@ public class TrackingRecordResource {
         this.trackingRecordRepository = trackingRecordRepository;
     }
 
-    /**
-     * {@code POST  /tracking-records} : Create a new trackingRecord.
-     *
-     * @param trackingRecordDTO the trackingRecordDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new trackingRecordDTO, or with status {@code 400 (Bad Request)} if the trackingRecord has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PostMapping("")
     public Mono<ResponseEntity<TrackingRecordDTO>> createTrackingRecord(@Valid @RequestBody TrackingRecordDTO trackingRecordDTO)
         throws URISyntaxException {
@@ -77,16 +67,6 @@ public class TrackingRecordResource {
             });
     }
 
-    /**
-     * {@code PUT  /tracking-records/:id} : Updates an existing trackingRecord.
-     *
-     * @param id the id of the trackingRecordDTO to save.
-     * @param trackingRecordDTO the trackingRecordDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated trackingRecordDTO,
-     * or with status {@code 400 (Bad Request)} if the trackingRecordDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the trackingRecordDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PutMapping("/{id}")
     public Mono<ResponseEntity<TrackingRecordDTO>> updateTrackingRecord(
         @PathVariable(value = "id", required = false) final Long id,
@@ -106,7 +86,6 @@ public class TrackingRecordResource {
                 if (!exists) {
                     return Mono.error(new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
                 }
-
                 return trackingRecordService
                     .update(trackingRecordDTO)
                     .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
@@ -118,57 +97,7 @@ public class TrackingRecordResource {
             });
     }
 
-    /**
-     * {@code PATCH  /tracking-records/:id} : Partial updates given fields of an existing trackingRecord, field will ignore if it is null
-     *
-     * @param id the id of the trackingRecordDTO to save.
-     * @param trackingRecordDTO the trackingRecordDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated trackingRecordDTO,
-     * or with status {@code 400 (Bad Request)} if the trackingRecordDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the trackingRecordDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the trackingRecordDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
-    @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public Mono<ResponseEntity<TrackingRecordDTO>> partialUpdateTrackingRecord(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody TrackingRecordDTO trackingRecordDTO
-    ) throws URISyntaxException {
-        LOG.debug("REST request to partial update TrackingRecord partially : {}, {}", id, trackingRecordDTO);
-        if (trackingRecordDTO.getId() == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        if (!Objects.equals(id, trackingRecordDTO.getId())) {
-            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        return trackingRecordRepository
-            .existsById(id)
-            .flatMap(exists -> {
-                if (!exists) {
-                    return Mono.error(new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
-                }
-
-                Mono<TrackingRecordDTO> result = trackingRecordService.partialUpdate(trackingRecordDTO);
-
-                return result
-                    .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-                    .map(res ->
-                        ResponseEntity.ok()
-                            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, res.getId().toString()))
-                            .body(res)
-                    );
-            });
-    }
-
-    /**
-     * {@code GET  /tracking-records} : get all the trackingRecords.
-     *
-     * @param pageable the pagination information.
-     * @param request a {@link ServerHttpRequest} request.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of trackingRecords in body.
-     */
-    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("")
     public Mono<ResponseEntity<List<TrackingRecordDTO>>> getAllTrackingRecords(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         ServerHttpRequest request
@@ -189,25 +118,24 @@ public class TrackingRecordResource {
             );
     }
 
-    /**
-     * {@code GET  /tracking-records/:id} : get the "id" trackingRecord.
-     *
-     * @param id the id of the trackingRecordDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the trackingRecordDTO, or with status {@code 404 (Not Found)}.
-     */
     @GetMapping("/{id}")
     public Mono<ResponseEntity<TrackingRecordDTO>> getTrackingRecord(@PathVariable("id") Long id) {
         LOG.debug("REST request to get TrackingRecord : {}", id);
-        Mono<TrackingRecordDTO> trackingRecordDTO = trackingRecordService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(trackingRecordDTO);
+        return ResponseUtil.wrapOrNotFound(trackingRecordService.findOne(id));
     }
 
     /**
-     * {@code DELETE  /tracking-records/:id} : delete the "id" trackingRecord.
-     *
-     * @param id the id of the trackingRecordDTO to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     * BUSCADOR: Obtiene el historial por ID de solicitud (Change Request)
      */
+    @GetMapping("/request/{id}")
+    public Mono<ResponseEntity<List<TrackingRecordDTO>>> getAllByRequestId(@PathVariable Long id) {
+        LOG.debug("REST request to get TrackingHistory for ChangeRequest : {}", id);
+        return trackingRecordService
+            .findAllByRequestId(id) // <--- Asegúrate que este método exista en el Service
+            .collectList()
+            .map(items -> ResponseEntity.ok().body(items));
+    }
+
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteTrackingRecord(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete TrackingRecord : {}", id);
@@ -220,5 +148,17 @@ public class TrackingRecordResource {
                         .build()
                 )
             );
+    }
+
+    // --- ESTADÍSTICAS ---
+
+    @GetMapping(value = "/stats/departments", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<TrackingStats> getDepartmentStats() {
+        return trackingRecordService.getDepartmentStats();
+    }
+
+    @GetMapping(value = "/stats/responsibles", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<TrackingStats> getResponsibleStats() {
+        return trackingRecordService.getResponsibleStats();
     }
 }

@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest(classes = { PGestion360App.class, JacksonConfiguration.class, AsyncSyncConfiguration.class })
-@EmbeddedSQL
 public @interface IntegrationTest {
     // 5s is Spring's default https://github.com/spring-projects/spring-framework/blob/main/spring-test/src/main/java/org/springframework/test/web/reactive/server/DefaultWebTestClient.java#L106
     String DEFAULT_TIMEOUT = "PT5S";

@@ -80,7 +80,7 @@
           <dd>
             @if (changeRequest()!.responsible) {
               <div>
-                <a [routerLink]="['/responsible', changeRequest()!.responsible?.id, 'view']">{{ changeRequestRef.responsible?.id }}</a>
+                <a [routerLink]="['/responsible', changeRequest()!.responsible?.id, 'view']">{{ changeRequestRef.responsible?.name }}</a>
               </div>
             }
           </dd>

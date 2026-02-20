@@ -10,6 +10,13 @@ import { ApplicationConfigService } from 'app/core/config/application-config.ser
 import { createRequestOption } from 'app/core/request/request-util';
 import { ITrackingRecord, NewTrackingRecord } from '../tracking-record.model';
 
+// Interfaz para los datos de las gráficas
+export interface ITrackingStats {
+  id: number;
+  nombre: string;
+  total: number;
+}
+
 export type PartialUpdateTrackingRecord = Partial<ITrackingRecord> & Pick<ITrackingRecord, 'id'>;
 
 type RestOf<T extends ITrackingRecord | NewTrackingRecord> = Omit<T, 'changeDate'> & {
@@ -17,9 +24,7 @@ type RestOf<T extends ITrackingRecord | NewTrackingRecord> = Omit<T, 'changeDate
 };
 
 export type RestTrackingRecord = RestOf<ITrackingRecord>;
-
 export type NewRestTrackingRecord = RestOf<NewTrackingRecord>;
-
 export type PartialUpdateRestTrackingRecord = RestOf<PartialUpdateTrackingRecord>;
 
 export type EntityResponseType = HttpResponse<ITrackingRecord>;
@@ -31,6 +36,26 @@ export class TrackingRecordService {
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/tracking-records');
+
+  // --- MÉTODOS PARA EL BUSCADOR POR ID DE SOLICITUD ---
+
+  findByRequestId(id: number): Observable<EntityArrayResponseType> {
+    return this.http
+      .get<RestTrackingRecord[]>(`${this.resourceUrl}/request/${id}`, { observe: 'response' })
+      .pipe(map(res => this.convertResponseArrayFromServer(res)));
+  }
+
+  // --- MÉTODOS PARA GRÁFICOS (TOPS) ---
+
+  getStatsByDepartment(): Observable<HttpResponse<ITrackingStats[]>> {
+    return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/departments`, { observe: 'response' });
+  }
+
+  getStatsByResponsible(): Observable<HttpResponse<ITrackingStats[]>> {
+    return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/responsibles`, { observe: 'response' });
+  }
+
+  // --- MÉTODOS ESTÁNDAR DE JHIPSTER ---
 
   create(trackingRecord: NewTrackingRecord): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(trackingRecord);
@@ -105,24 +130,24 @@ export class TrackingRecordService {
   ): RestOf<T> {
     return {
       ...trackingRecord,
-      changeDate: trackingRecord.changeDate?.format(DATE_FORMAT) ?? null,
+      changeDate: trackingRecord.changeDate?.toJSON() ?? null,
     };
   }
 
-  protected convertDateFromServer(restTrackingRecord: RestTrackingRecord): ITrackingRecord {
+  protected convertDateFromServer(restTrackingRecord: RestOf<ITrackingRecord>): ITrackingRecord {
     return {
       ...restTrackingRecord,
       changeDate: restTrackingRecord.changeDate ? dayjs(restTrackingRecord.changeDate) : undefined,
     };
   }
 
-  protected convertResponseFromServer(res: HttpResponse<RestTrackingRecord>): HttpResponse<ITrackingRecord> {
+  protected convertResponseFromServer(res: HttpResponse<RestOf<ITrackingRecord>>): HttpResponse<ITrackingRecord> {
     return res.clone({
       body: res.body ? this.convertDateFromServer(res.body) : null,
     });
   }
 
-  protected convertResponseArrayFromServer(res: HttpResponse<RestTrackingRecord[]>): HttpResponse<ITrackingRecord[]> {
+  protected convertResponseArrayFromServer(res: HttpResponse<RestOf<ITrackingRecord>[]>): HttpResponse<ITrackingRecord[]> {
     return res.clone({
       body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
     });

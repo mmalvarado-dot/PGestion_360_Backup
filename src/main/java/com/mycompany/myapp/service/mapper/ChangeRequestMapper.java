@@ -20,6 +20,7 @@ public interface ChangeRequestMapper extends EntityMapper<ChangeRequestDTO, Chan
     @Named("responsibleId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
     ResponsibleDTO toDtoResponsibleId(Responsible responsible);
 
     @Named("itemCatalogueId")

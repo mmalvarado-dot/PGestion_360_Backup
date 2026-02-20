@@ -20,6 +20,11 @@ import { ChangeRequestService } from '../service/change-request.service';
 import { IChangeRequest } from '../change-request.model';
 import { ChangeRequestFormGroup, ChangeRequestFormService } from './change-request-form.service';
 
+import { DATE_TIME_FORMAT } from 'app/config/input.constants';
+import dayjs from 'dayjs/esm';
+import { IDepartment } from 'app/entities/department/department.model';
+import { DepartmentService } from 'app/entities/department/service/department.service';
+
 @Component({
   selector: 'jhi-change-request-update',
   templateUrl: './change-request-update.component.html',
@@ -31,12 +36,16 @@ export class ChangeRequestUpdateComponent implements OnInit {
   prioridadValues = Object.keys(prioridad);
   impactoValues = Object.keys(Impacto);
 
+  // --- AQUÍ DECLARAMOS LA LISTA QUE VIENE DE LA BD ---
+  departmentsSharedCollection: IDepartment[] = [];
+
   responsiblesSharedCollection: IResponsible[] = [];
   itemCataloguesSharedCollection: IItemCatalogue[] = [];
 
   protected dataUtils = inject(DataUtils);
   protected eventManager = inject(EventManager);
   protected changeRequestService = inject(ChangeRequestService);
+  protected departmentService = inject(DepartmentService);
   protected changeRequestFormService = inject(ChangeRequestFormService);
   protected responsibleService = inject(ResponsibleService);
   protected itemCatalogueService = inject(ItemCatalogueService);
@@ -58,6 +67,7 @@ export class ChangeRequestUpdateComponent implements OnInit {
       }
 
       this.loadRelationshipsOptions();
+      this.loadDepartments(); // <--- LLAMADA A CARGAR DEPARTAMENTOS
     });
   }
 
@@ -146,5 +156,10 @@ export class ChangeRequestUpdateComponent implements OnInit {
         ),
       )
       .subscribe((itemCatalogues: IItemCatalogue[]) => (this.itemCataloguesSharedCollection = itemCatalogues));
+  }
+
+  // --- NUEVO MÉTODO PARA CARGAR DEPARTAMENTOS ---
+  protected loadDepartments(): void {
+    this.departmentService.query().subscribe((res: HttpResponse<IDepartment[]>) => (this.departmentsSharedCollection = res.body ?? []));
   }
 }

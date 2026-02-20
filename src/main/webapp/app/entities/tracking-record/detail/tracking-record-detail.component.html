@@ -17,37 +17,56 @@
           <dd>
             <span>{{ trackingRecordRef.id }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.trackingRecord.changeDate">Change Date</span></dt>
           <dd>
             <span>{{ trackingRecordRef.changeDate | formatMediumDate }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.trackingRecord.status">Status</span></dt>
           <dd>
             <span>{{ trackingRecordRef.status }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.trackingRecord.comments">Comments</span></dt>
           <dd>
             <span>{{ trackingRecordRef.comments }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.trackingRecord.user">User</span></dt>
           <dd>
-            <span>{{ trackingRecordRef.user?.id }}</span>
+            <span>{{ trackingRecordRef.user?.login }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.trackingRecord.responsible">Responsible</span></dt>
           <dd>
-            @if (trackingRecord()!.responsible) {
+            @if (trackingRecordRef.responsible) {
               <div>
-                <a [routerLink]="['/responsible', trackingRecord()!.responsible?.id, 'view']">{{ trackingRecordRef.responsible?.id }}</a>
+                <a [routerLink]="['/responsible', trackingRecordRef.responsible?.id, 'view']">
+                  {{ trackingRecordRef.responsible?.name }}
+                </a>
               </div>
             }
           </dd>
+
+          <dt><span>Department</span></dt>
+          <dd>
+            @if (trackingRecordRef.department) {
+              <div>
+                <a [routerLink]="['/department', trackingRecordRef.department?.id, 'view']">
+                  {{ trackingRecordRef.department?.departmentName }}
+                </a>
+              </div>
+            }
+          </dd>
+
           <dt><span jhiTranslate="pGestion360App.trackingRecord.changeRequest">Change Request</span></dt>
           <dd>
-            @if (trackingRecord()!.changeRequest) {
+            @if (trackingRecordRef.changeRequest) {
               <div>
-                <a [routerLink]="['/change-request', trackingRecord()!.changeRequest?.id, 'view']">{{
-                  trackingRecordRef.changeRequest?.id
-                }}</a>
+                <a [routerLink]="['/change-request', trackingRecordRef.changeRequest?.id, 'view']">
+                  {{ trackingRecordRef.changeRequest?.id }}
+                </a>
               </div>
             }
           </dd>

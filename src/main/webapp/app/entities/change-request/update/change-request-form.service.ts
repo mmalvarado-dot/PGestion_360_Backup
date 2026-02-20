@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+// 1. IMPORTACIÓN AGREGADA: Necesaria para generar la fecha de hoy
+import dayjs from 'dayjs/esm';
+import { DATE_TIME_FORMAT } from 'app/config/input.constants';
+
 import { IChangeRequest, NewChangeRequest } from '../change-request.model';
 
 /**
@@ -14,7 +18,8 @@ type PartialWithRequiredKeyOf<T extends { id: unknown }> = Partial<Omit<T, 'id'>
  */
 type ChangeRequestFormGroupInput = IChangeRequest | PartialWithRequiredKeyOf<NewChangeRequest>;
 
-type ChangeRequestFormDefaults = Pick<NewChangeRequest, 'id'>;
+// 2. TIPO ACTUALIZADO: Agregamos 'createdDate' y 'status' para poder darles valores por defecto
+type ChangeRequestFormDefaults = Pick<NewChangeRequest, 'id' | 'createdDate' | 'status'>;
 
 type ChangeRequestFormGroupContent = {
   id: FormControl<IChangeRequest['id'] | NewChangeRequest['id']>;
@@ -92,9 +97,12 @@ export class ChangeRequestFormService {
     );
   }
 
+  // 3. LÓGICA AGREGADA: Aquí definimos los valores iniciales
   private getFormDefaults(): ChangeRequestFormDefaults {
     return {
       id: null,
-    };
+      createdDate: dayjs(), // Pone la fecha y hora actual
+      status: 'PENDIENTE', // Pone el estado inicial (Revisa mayúsculas/minúsculas si falla)
+    } as any;
   }
 }

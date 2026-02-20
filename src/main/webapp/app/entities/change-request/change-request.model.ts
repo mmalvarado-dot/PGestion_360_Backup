@@ -19,7 +19,7 @@ export interface IChangeRequest {
   archivoAdjuntoContentType?: string | null;
   solicitante?: string | null;
   departamento?: string | null;
-  responsible?: Pick<IResponsible, 'id'> | null;
+  responsible?: Pick<IResponsible, 'id' | 'name'> | null;
   itemCatalogue?: Pick<IItemCatalogue, 'id'> | null;
 }
 

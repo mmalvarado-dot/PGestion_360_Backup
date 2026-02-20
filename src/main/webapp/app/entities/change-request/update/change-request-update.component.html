@@ -225,14 +225,14 @@
 
         <div class="mb-3">
           <label class="form-label" for="field_departamento" jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</label>
-          <input
-            type="text"
-            class="form-control"
-            name="departamento"
-            id="field_departamento"
-            data-cy="departamento"
-            formControlName="departamento"
-          />
+          <select class="form-select" name="departamento" formControlName="departamento" id="field_departamento" data-cy="departamento">
+            <option [ngValue]="null">Seleccione un departamento...</option>
+            @for (dept of departmentsSharedCollection; track $index) {
+              <option [value]="dept.departmentName">
+                {{ dept.departmentName }}
+              </option>
+            }
+          </select>
         </div>
 
         <div class="mb-3">
@@ -247,7 +247,9 @@
           >
             <option [ngValue]="null"></option>
             @for (responsibleOption of responsiblesSharedCollection; track $index) {
-              <option [ngValue]="responsibleOption">{{ responsibleOption.id }}</option>
+              <option [ngValue]="responsibleOption">
+                {{ responsibleOption.name ? responsibleOption.name : responsibleOption.id }}
+              </option>
             }
           </select>
         </div>
