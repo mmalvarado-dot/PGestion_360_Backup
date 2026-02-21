@@ -22,6 +22,11 @@ public interface DepartmentRepository extends ReactiveCrudRepository<Department,
     @Query("SELECT * FROM department entity WHERE entity.parent_department_id IS NULL")
     Flux<Department> findAllWhereParentDepartmentIsNull();
 
+    // ========================================================================
+    // AQUÍ ESTÁ LA MAGIA: El método nuevo para buscar por nombre
+    // ========================================================================
+    Mono<Department> findByDepartmentName(String departmentName);
+
     @Override
     <S extends Department> Mono<S> save(S entity);
 

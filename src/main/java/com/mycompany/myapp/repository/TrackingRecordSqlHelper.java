@@ -10,14 +10,24 @@ public class TrackingRecordSqlHelper {
 
     public static List<Expression> getColumns(Table table, String columnPrefix) {
         List<Expression> columns = new ArrayList<>();
-        columns.add(Column.aliased("id", table, columnPrefix + "_id"));
-        columns.add(Column.aliased("change_date", table, columnPrefix + "_change_date"));
-        columns.add(Column.aliased("status", table, columnPrefix + "_status"));
-        columns.add(Column.aliased("comments", table, columnPrefix + "_comments"));
 
-        columns.add(Column.aliased("user_id", table, columnPrefix + "_user_id"));
-        columns.add(Column.aliased("responsible_id", table, columnPrefix + "_responsible_id"));
-        columns.add(Column.aliased("change_request_id", table, columnPrefix + "_change_request_id"));
+        // Escudo protector contra el doble guión bajo
+        String p = (columnPrefix != null && columnPrefix.endsWith("_"))
+            ? columnPrefix.substring(0, columnPrefix.length() - 1)
+            : columnPrefix;
+        String prefix = (p == null || p.isEmpty()) ? "" : p + "_";
+
+        columns.add(Column.aliased("id", table, prefix + "id"));
+        columns.add(Column.aliased("change_date", table, prefix + "change_date"));
+        columns.add(Column.aliased("status", table, prefix + "status"));
+        columns.add(Column.aliased("comments", table, prefix + "comments"));
+        columns.add(Column.aliased("action_type", table, prefix + "action_type")); // ¡Agregado!
+
+        columns.add(Column.aliased("user_id", table, prefix + "user_id"));
+        columns.add(Column.aliased("responsible_id", table, prefix + "responsible_id"));
+        columns.add(Column.aliased("change_request_id", table, prefix + "change_request_id"));
+        columns.add(Column.aliased("department_id", table, prefix + "department_id")); // ¡Agregado!
+
         return columns;
     }
 }

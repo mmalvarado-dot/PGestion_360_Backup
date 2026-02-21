@@ -69,12 +69,3 @@ public interface TrackingRecordRepository extends ReactiveCrudRepository<Trackin
     @Override
     Mono<Void> deleteById(Long id);
 }
-
-interface TrackingRecordRepositoryInternal {
-    <S extends TrackingRecord> Mono<S> save(S entity);
-    Flux<TrackingRecord> findAllBy(Pageable pageable);
-    Flux<TrackingRecord> findAll();
-    Mono<TrackingRecord> findById(Long id);
-    // Añadimos esto para que el historial también use el mapeo manual
-    Flux<TrackingRecord> findByChangeRequestId(Long id);
-}

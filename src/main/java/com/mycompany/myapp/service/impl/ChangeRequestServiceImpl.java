@@ -2,13 +2,14 @@ package com.mycompany.myapp.service.impl;
 
 import com.mycompany.myapp.domain.ChangeRequest;
 import com.mycompany.myapp.domain.TrackingRecord;
-import com.mycompany.myapp.domain.enumeration.TrackingActionType; // <--- IMPORTANTE
+import com.mycompany.myapp.domain.enumeration.TrackingActionType;
 import com.mycompany.myapp.repository.ChangeRequestRepository;
+import com.mycompany.myapp.repository.DepartmentRepository; // <--- NUEVO IMPORT
 import com.mycompany.myapp.repository.TrackingRecordRepository;
 import com.mycompany.myapp.service.ChangeRequestService;
 import com.mycompany.myapp.service.dto.ChangeRequestDTO;
 import com.mycompany.myapp.service.mapper.ChangeRequestMapper;
-import java.time.Instant; // <--- IMPORTANTE: Usamos Instant, no LocalDate
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -29,15 +30,18 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     private final ChangeRequestRepository changeRequestRepository;
     private final ChangeRequestMapper changeRequestMapper;
     private final TrackingRecordRepository trackingRecordRepository;
+    private final DepartmentRepository departmentRepository; // <--- NUEVA DEPENDENCIA
 
     public ChangeRequestServiceImpl(
         ChangeRequestRepository changeRequestRepository,
         ChangeRequestMapper changeRequestMapper,
-        TrackingRecordRepository trackingRecordRepository
+        TrackingRecordRepository trackingRecordRepository,
+        DepartmentRepository departmentRepository // <--- INYECTAMOS AQUÍ
     ) {
         this.changeRequestRepository = changeRequestRepository;
         this.changeRequestMapper = changeRequestMapper;
         this.trackingRecordRepository = trackingRecordRepository;
+        this.departmentRepository = departmentRepository; // <--- ASIGNAMOS AQUÍ
     }
 
     @Override
@@ -45,10 +49,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         LOG.debug("Request to save ChangeRequest : {}", changeRequestDTO);
         return changeRequestRepository
             .save(changeRequestMapper.toEntity(changeRequestDTO))
-            .flatMap(savedRequest ->
-                // Al crear, SIEMPRE es un Cambio de Estado (de Nada -> Creado)
-                saveTrackingHistory(savedRequest, TrackingActionType.CAMBIO_ESTADO).thenReturn(savedRequest)
-            )
+            .flatMap(savedRequest -> saveTrackingHistory(savedRequest, TrackingActionType.CAMBIO_ESTADO).thenReturn(savedRequest))
             .map(changeRequestMapper::toDto);
     }
 
@@ -59,13 +60,8 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         return changeRequestRepository
             .findById(changeRequestDTO.getId())
             .flatMap(existingRequest -> {
-                // 1. Capturamos el estado ANTES de actualizar
                 String oldStatus = existingRequest.getStatus();
-
-                // 2. Actualizamos la entidad con los datos nuevos
                 ChangeRequest updatedEntity = changeRequestMapper.toEntity(changeRequestDTO);
-
-                // 3. Detectamos qué tipo de acción es
                 TrackingActionType type = detectActionType(oldStatus, updatedEntity.getStatus());
 
                 return changeRequestRepository.save(updatedEntity).flatMap(saved -> saveTrackingHistory(saved, type).thenReturn(saved));
@@ -80,21 +76,10 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         return changeRequestRepository
             .findById(changeRequestDTO.getId())
             .map(existingChangeRequest -> {
-                // 1. Capturamos el estado ANTES de actualizar
                 String oldStatus = existingChangeRequest.getStatus();
-
-                // 2. Aplicamos los cambios
                 changeRequestMapper.partialUpdate(existingChangeRequest, changeRequestDTO);
-
-                // 3. Comparamos para saber qué pasó (Detectamos el cambio)
                 String newStatus = existingChangeRequest.getStatus();
                 TrackingActionType type = detectActionType(oldStatus, newStatus);
-
-                // Guardamos el tipo en un objeto temporal o contexto si fuera necesario,
-                // pero aquí lo pasamos directo al saveTrackingHistory abajo
-                // (Truco: Usamos un Pair o simplemente pasamos el 'type' al siguiente flatMap si pudiéramos,
-                // pero para simplificar R2DBC, llamaremos al saveTracking dentro del flujo).
-
                 return new Wrapper(existingChangeRequest, type);
             })
             .flatMap(wrapper ->
@@ -103,7 +88,6 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
             .map(changeRequestMapper::toDto);
     }
 
-    // Clase auxiliar pequeña para pasar datos en el flujo reactivo
     private static class Wrapper {
 
         ChangeRequest request;
@@ -143,9 +127,6 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     //  EL CEREBRO: LÓGICA AUTOMÁTICA
     // ========================================================================
 
-    /**
-     * Compara estados y decide si es Edición o Cambio de Estado
-     */
     private TrackingActionType detectActionType(String oldStatus, String newStatus) {
         if (oldStatus == null && newStatus != null) return TrackingActionType.CAMBIO_ESTADO;
         if (oldStatus != null && !oldStatus.equals(newStatus)) {
@@ -160,31 +141,38 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     private Mono<TrackingRecord> saveTrackingHistory(ChangeRequest request, TrackingActionType actionType) {
         TrackingRecord tracking = new TrackingRecord();
 
-        tracking.setChangeDate(Instant.now()); // <--- Corregido a Instant
+        tracking.setChangeDate(Instant.now());
         tracking.setStatus(request.getStatus());
-        tracking.setActionType(actionType); // <--- Guardamos si fue Edición o Cambio
+        tracking.setActionType(actionType);
 
-        // Generamos un comentario automático
         if (actionType == TrackingActionType.CAMBIO_ESTADO) {
             tracking.setComments("El estado cambió a: " + request.getStatus());
         } else {
             tracking.setComments("Se actualizaron detalles de la solicitud.");
         }
 
-        // Conexiones
         tracking.setChangeRequestId(request.getId());
         tracking.setResponsibleId(request.getResponsibleId());
 
-        // Como en ChangeRequest el departamento es un String,
-        // lo guardamos en los comentarios del historial por ahora
-        // para no perder la información en las estadísticas.
-        if (request.getDepartamento() != null) {
-            tracking.setComments(tracking.getComments() + " - Dept: " + request.getDepartamento());
+        // MAGIA NUEVA: Buscamos el ID del departamento por su nombre
+        if (request.getDepartamento() != null && !request.getDepartamento().trim().isEmpty()) {
+            return departmentRepository
+                .findByDepartmentName(request.getDepartamento())
+                .flatMap(department -> {
+                    // Si lo encuentra, le asignamos el ID real
+                    tracking.setDepartmentId(department.getId());
+                    return trackingRecordRepository.save(tracking);
+                })
+                .switchIfEmpty(
+                    Mono.defer(() -> {
+                        // Si no lo encuentra (o escribieron mal el nombre), guardamos sin ID
+                        LOG.warn("No se encontró el departamento con nombre: {}", request.getDepartamento());
+                        return trackingRecordRepository.save(tracking);
+                    })
+                );
+        } else {
+            // Si la solicitud no tiene departamento, guardamos normal
+            return trackingRecordRepository.save(tracking);
         }
-
-        // Para que no de error, dejamos el ID en null o lo comentamos:
-        // tracking.setDepartmentId(null);
-
-        return trackingRecordRepository.save(tracking);
     }
 }
