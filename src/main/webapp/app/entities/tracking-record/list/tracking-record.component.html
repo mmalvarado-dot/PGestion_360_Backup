@@ -7,16 +7,6 @@
         <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
         <span jhiTranslate="pGestion360App.trackingRecord.home.refreshListLabel">Refrescar lista</span>
       </button>
-
-      <button
-        id="jh-create-entity"
-        data-cy="entityCreateButton"
-        class="btn btn-primary jh-create-entity create-tracking-record"
-        [routerLink]="['/tracking-record/new']"
-      >
-        <fa-icon icon="plus"></fa-icon>
-        <span jhiTranslate="pGestion360App.trackingRecord.home.createLabel">Crear nuevo Tracking Record</span>
-      </button>
     </div>
   </h2>
 
@@ -30,48 +20,54 @@
       (click)="toggleStats()"
     >
       <span>
-        <fa-icon [icon]="isStatsCollapsed() ? 'plus' : 'minus'"></fa-icon>
+        @if (isStatsCollapsed) {
+          <fa-icon icon="sync"></fa-icon>
+        } @else {
+          <fa-icon icon="times"></fa-icon>
+        }
         <strong> Resumen de Actividad (Tops)</strong>
       </span>
       <span class="badge rounded-pill bg-primary">Click para visualizar</span>
     </div>
 
-    <div [ngbCollapse]="isStatsCollapsed()">
-      <div class="card-body bg-light">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="card h-100">
-              <div class="card-header bg-info text-white">Top Departamentos</div>
-              <ul class="list-group list-group-flush">
-                @for (dept of statsDepartments(); track dept.id) {
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ dept.nombre }}
-                    <span class="badge bg-primary rounded-pill">{{ dept.total }}</span>
-                  </li>
-                } @empty {
-                  <li class="list-group-item text-muted">No hay datos disponibles</li>
-                }
-              </ul>
+    @if (!isStatsCollapsed) {
+      <div>
+        <div class="card-body bg-light">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header bg-info text-white">Top Departamentos</div>
+                <ul class="list-group list-group-flush">
+                  @for (dept of statsDepartments(); track dept.id) {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      {{ dept.nombre }}
+                      <span class="badge bg-primary rounded-pill">{{ dept.total }}</span>
+                    </li>
+                  } @empty {
+                    <li class="list-group-item text-muted">No hay datos disponibles</li>
+                  }
+                </ul>
+              </div>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card h-100">
-              <div class="card-header bg-success text-white">Top Responsables</div>
-              <ul class="list-group list-group-flush">
-                @for (resp of statsResponsibles(); track resp.id) {
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ resp.nombre }}
-                    <span class="badge bg-success rounded-pill">{{ resp.total }}</span>
-                  </li>
-                } @empty {
-                  <li class="list-group-item text-muted">No hay datos disponibles</li>
-                }
-              </ul>
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header bg-success text-white">Top Responsables</div>
+                <ul class="list-group list-group-flush">
+                  @for (resp of statsResponsibles(); track resp.id) {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      {{ resp.nombre }}
+                      <span class="badge bg-success rounded-pill">{{ resp.total }}</span>
+                    </li>
+                  } @empty {
+                    <li class="list-group-item text-muted">No hay datos disponibles</li>
+                  }
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 
   <div class="row mb-4">
@@ -99,9 +95,9 @@
       <span jhiTranslate="pGestion360App.trackingRecord.home.notFound">Ningún Tracking Records encontrado</span>
     </div>
   } @else {
-    <div class="table-responsive table-entities shadow-sm border rounded" id="entities">
-      <table class="table table-striped mb-0" aria-describedby="page-heading">
-        <thead>
+    <div class="table-responsive table-entities shadow-sm border rounded bg-white" id="entities">
+      <table class="table table-hover align-middle mb-0" aria-describedby="page-heading">
+        <thead class="bg-light">
           <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
             <th scope="col" jhiSortBy="id">
               <div class="d-flex"><span jhiTranslate="global.field.id">ID</span><fa-icon class="p-1" icon="sort"></fa-icon></div>
@@ -111,6 +107,7 @@
                 <span jhiTranslate="pGestion360App.trackingRecord.changeDate">Date</span><fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
+
             <th scope="col" jhiSortBy="status">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.trackingRecord.status">Status</span><fa-icon class="p-1" icon="sort"></fa-icon>
@@ -128,9 +125,10 @@
               </div>
             </th>
 
-            <th scope="col" jhiSortBy="changeRequest.id">
-              <div class="d-flex"><span>Request ID</span><fa-icon class="p-1" icon="sort"></fa-icon></div>
+            <th scope="col" jhiSortBy="comments">
+              <div class="d-flex"><span>Acción / Comentario</span><fa-icon class="p-1" icon="sort"></fa-icon></div>
             </th>
+
             <th scope="col"></th>
           </tr>
         </thead>
@@ -138,18 +136,38 @@
           @for (trackingRecord of trackingRecords(); track trackingRecord.id) {
             <tr data-cy="entityTable">
               <td>
-                <a [routerLink]="['/tracking-record', trackingRecord.id, 'view']">{{ trackingRecord.id }}</a>
+                <a [routerLink]="['/tracking-record', trackingRecord.id, 'view']" class="fw-bold text-dark text-decoration-underline">{{
+                  trackingRecord.id
+                }}</a>
               </td>
 
-              <td class="fw-bold text-primary">
+              <td class="text-secondary">
                 {{ trackingRecord.changeDate?.toDate() | date: 'dd/MM/yyyy HH:mm:ss' }}
               </td>
 
-              <td>{{ trackingRecord.status }}</td>
+              <td>
+                <span
+                  class="badge rounded-pill"
+                  [ngClass]="{
+                    'bg-warning text-dark': trackingRecord.status === 'PENDIENTE',
+                    'bg-primary': trackingRecord.status === 'EN_PROCESO' || trackingRecord.status === 'EN PROCESO',
+                    'bg-success':
+                      trackingRecord.status === 'TERMINADO' ||
+                      trackingRecord.status === 'COMPLETADO' ||
+                      trackingRecord.status === 'APROBADO',
+                    'bg-danger': trackingRecord.status === 'RECHAZADO',
+                  }"
+                >
+                  {{ trackingRecord.status }}
+                </span>
+              </td>
 
               <td>
                 @if (trackingRecord.responsible) {
-                  <a [routerLink]="['/responsible', trackingRecord.responsible.id, 'view']" class="text-decoration-none fw-bold">
+                  <a
+                    [routerLink]="['/responsible', trackingRecord.responsible.id, 'view']"
+                    class="text-decoration-underline fw-bold text-dark"
+                  >
                     {{ trackingRecord.responsible.name }}
                   </a>
                 } @else {
@@ -158,24 +176,17 @@
               </td>
 
               <td>
-                {{ trackingRecord.department }}
+                {{ trackingRecord.department?.departmentName }}
               </td>
 
-              <td>
-                @if (trackingRecord.changeRequest) {
-                  <a [routerLink]="['/change-request', trackingRecord.changeRequest?.id, 'view']" class="text-decoration-none">
-                    {{ trackingRecord.changeRequest?.id }}
-                  </a>
-                }
+              <td class="text-wrap text-secondary fst-italic" style="max-width: 300px">
+                {{ trackingRecord.comments }}
               </td>
 
               <td class="text-end">
                 <div class="btn-group">
                   <a [routerLink]="['/tracking-record', trackingRecord.id, 'view']" class="btn btn-info btn-sm" title="Ver detalle">
                     <fa-icon icon="eye"></fa-icon>
-                  </a>
-                  <a [routerLink]="['/tracking-record', trackingRecord.id, 'edit']" class="btn btn-primary btn-sm" title="Editar">
-                    <fa-icon icon="pencil-alt"></fa-icon>
                   </a>
                   <button type="submit" (click)="delete(trackingRecord)" class="btn btn-danger btn-sm" title="Eliminar">
                     <fa-icon icon="times"></fa-icon>

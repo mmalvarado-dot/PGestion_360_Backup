@@ -40,11 +40,10 @@ export class TrackingRecordComponent implements OnInit {
   statsResponsibles = signal<ITrackingStats[]>([]);
 
   searchRequestId = signal<number | null>(null);
-  isStatsCollapsed = signal(true);
+  isStatsCollapsed = true;
 
   isLoading = false;
 
-  // Inicializamos el estado de ordenamiento
   sortState = sortStateSignal(inject(SortService).parseSortParam('changeDate,desc'));
 
   itemsPerPage = ITEMS_PER_PAGE;
@@ -70,26 +69,23 @@ export class TrackingRecordComponent implements OnInit {
   }
 
   load(): void {
-    // Si hay un ID de búsqueda activo, usamos ese método
     if (this.searchRequestId()) {
       this.searchByRequest();
     } else {
-      // Si no, cargamos la lista paginada normal
       this.queryBackend().subscribe({
         next: (res: EntityArrayResponseType) => {
           this.onResponseSuccess(res);
         },
       });
     }
-    // Cargamos estadísticas siempre (opcional, podrías moverlo para que solo cargue al abrir el acordeón)
-    // Pero está bien dejarlo aquí si no son pesadas.
-    // this.loadStats();
   }
 
-  // Método específico para cargar estadísticas al abrir el panel (Optimización opcional)
+  // --- AQUÍ ESTÁ LA PRUEBA DEFINITIVA ---
   toggleStats(): void {
-    this.isStatsCollapsed.update(v => !v);
-    if (!this.isStatsCollapsed() && this.statsDepartments().length === 0) {
+    this.isStatsCollapsed = !this.isStatsCollapsed;
+    console.log('¡Clic detectado! El panel ahora está colapsado:', this.isStatsCollapsed);
+
+    if (!this.isStatsCollapsed && this.statsDepartments().length === 0) {
       this.loadStats();
     }
   }
@@ -114,7 +110,6 @@ export class TrackingRecordComponent implements OnInit {
         next: (res: EntityArrayResponseType) => {
           this.isLoading = false;
           this.trackingRecords.set(res.body ?? []);
-          // Cuando buscamos por ID, asumimos que es una lista pequeña, ajustamos totalItems
           this.totalItems = res.body?.length ?? 0;
         },
         error: () => {
@@ -123,14 +118,12 @@ export class TrackingRecordComponent implements OnInit {
         },
       });
     } else {
-      // Si borran el ID y dan enter, recargamos todo
       this.load();
     }
   }
 
   clearSearch(): void {
     this.searchRequestId.set(null);
-    // IMPORTANTE: Al limpiar, debemos volver a cargar la paginación normal
     this.queryBackend().subscribe({
       next: (res: EntityArrayResponseType) => {
         this.onResponseSuccess(res);
