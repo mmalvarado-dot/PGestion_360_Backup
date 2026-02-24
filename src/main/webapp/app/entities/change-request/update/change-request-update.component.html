@@ -188,10 +188,12 @@
             }
             <input
               type="file"
+              class="form-control"
               id="file_archivoAdjunto"
               data-cy="archivoAdjunto"
               (change)="setFileData($event, 'archivoAdjunto', false)"
               jhiTranslate="entity.action.addblob"
+              multiple
             />
           </div>
           <input

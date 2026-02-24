@@ -39,6 +39,15 @@ spring:
     user: postgres
     password: 1234
 
+  # --- 4. CONFIGURACIÓN AÑADIDA PARA PERMITIR ARCHIVOS DE HASTA 100MB ---
+  codec:
+    max-in-memory-size: 100MB
+  webflux:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  # ----------------------------------------------------------------------
+
   mail:
     host: localhost
     port: 25
