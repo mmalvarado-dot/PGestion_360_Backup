@@ -76,14 +76,16 @@
           <dd>
             <span>{{ changeRequestRef.departamento }}</span>
           </dd>
-          <dt><span jhiTranslate="pGestion360App.changeRequest.responsible">Responsible</span></dt>
+
+          <dt><span>Usuario Asignado</span></dt>
           <dd>
-            @if (changeRequest()!.responsible) {
+            @if (changeRequest()!.user) {
               <div>
-                <a [routerLink]="['/responsible', changeRequest()!.responsible?.id, 'view']">{{ changeRequestRef.responsible?.name }}</a>
+                <span class="badge bg-secondary">{{ changeRequestRef.user?.login }}</span>
               </div>
             }
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.itemCatalogue">Item Catalogue</span></dt>
           <dd>
             @if (changeRequest()!.itemCatalogue) {

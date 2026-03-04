@@ -17,10 +17,23 @@ import { IChangeRequest } from '../change-request.model';
 import { ChangeRequestService, EntityArrayResponseType } from '../service/change-request.service';
 import { ChangeRequestDeleteDialogComponent } from '../delete/change-request-delete-dialog.component';
 
+// 👇 AQUÍ ESTÁ EL IMPORT CLAVE PARA EL CANDADO DE PERMISOS 👇
+import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
+
 @Component({
   selector: 'jhi-change-request',
   templateUrl: './change-request.component.html',
-  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective, FormatMediumDatePipe, ItemCountComponent],
+  // 👇 AQUÍ SE DECLARA LA DIRECTIVA PARA QUE EL HTML LA PUEDA USAR 👇
+  imports: [
+    RouterModule,
+    FormsModule,
+    SharedModule,
+    SortDirective,
+    SortByDirective,
+    FormatMediumDatePipe,
+    ItemCountComponent,
+    HasAnyAuthorityDirective,
+  ],
 })
 export class ChangeRequestComponent implements OnInit {
   subscription: Subscription | null = null;
@@ -104,7 +117,6 @@ export class ChangeRequestComponent implements OnInit {
     this.page.set(1);
   }
 
-  // 👇 --- PEGA ESTO AQUÍ --- 👇
   limpiarFechas(inputInicio: HTMLInputElement, inputFin: HTMLInputElement): void {
     // 1. Limpiar visualmente las cajitas de texto HTML
     inputInicio.value = '';
@@ -120,8 +132,6 @@ export class ChangeRequestComponent implements OnInit {
     // NOTA: No hace falta llamar a this.load() ni nada más.
     // Como usas 'computed', al cambiar la señal, la lista se actualiza sola.
   }
-
-  // --- FIN BLOQUE ---
 
   sortState = sortStateSignal({});
   totalItems = 0;
@@ -181,7 +191,6 @@ export class ChangeRequestComponent implements OnInit {
     this.handleNavigation(page, this.sortState());
   }
 
-  // --- AQUÍ ESTÁ EL CAMBIO CLAVE PARA EL ORDEN ---
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
     // 1. Verificamos si hay un orden en la URL (ej: clickeaste una columna)
     const sortParam = params.get(SORT);

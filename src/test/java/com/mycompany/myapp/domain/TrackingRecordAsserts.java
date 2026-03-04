@@ -61,7 +61,7 @@ public class TrackingRecordAsserts {
     public static void assertTrackingRecordUpdatableRelationshipsEquals(TrackingRecord expected, TrackingRecord actual) {
         assertThat(actual)
             .as("Verify TrackingRecord relationships")
-            .satisfies(a -> assertThat(a.getResponsible()).as("check responsible").isEqualTo(expected.getResponsible()))
+            //.satisfies(a -> assertThat(a.getResponsible()).as("check responsible").isEqualTo(expected.getResponsible()))
             .satisfies(a -> assertThat(a.getChangeRequest()).as("check changeRequest").isEqualTo(expected.getChangeRequest()));
     }
 }

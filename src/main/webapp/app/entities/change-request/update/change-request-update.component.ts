@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs/operators';
 
 import SharedModule from 'app/shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -10,20 +10,32 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AlertError } from 'app/shared/alert/alert-error.model';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
-import { IResponsible } from 'app/entities/responsible/responsible.model';
-import { ResponsibleService } from 'app/entities/responsible/service/responsible.service';
+
 import { IItemCatalogue } from 'app/entities/item-catalogue/item-catalogue.model';
 import { ItemCatalogueService } from 'app/entities/item-catalogue/service/item-catalogue.service';
 import { prioridad } from 'app/entities/enumerations/prioridad.model';
 import { Impacto } from 'app/entities/enumerations/impacto.model';
 import { ChangeRequestService } from '../service/change-request.service';
-import { IChangeRequest } from '../change-request.model';
+import { IChangeRequest, IUser } from '../change-request.model';
 import { ChangeRequestFormGroup, ChangeRequestFormService } from './change-request-form.service';
 
 import { DATE_TIME_FORMAT } from 'app/config/input.constants';
 import dayjs from 'dayjs/esm';
 import { IDepartment } from 'app/entities/department/department.model';
 import { DepartmentService } from 'app/entities/department/service/department.service';
+
+// --- IMPORTACIONES DE FILE RECORD ---
+import { IFileRecord, NewFileRecord } from 'app/entities/file-record/file-record.model';
+import { FileRecordService } from 'app/entities/file-record/service/file-record.service';
+
+// 👇 IMPORTACIÓN DEL SERVICIO DE USUARIOS 👇
+import { UserService } from 'app/entities/user/service/user.service';
+
+interface PendingFile {
+  file: File;
+  base64Content: string;
+  contentType: string;
+}
 
 @Component({
   selector: 'jhi-change-request-update',
@@ -36,28 +48,36 @@ export class ChangeRequestUpdateComponent implements OnInit {
   prioridadValues = Object.keys(prioridad);
   impactoValues = Object.keys(Impacto);
 
-  // --- AQUÍ DECLARAMOS LA LISTA QUE VIENE DE LA BD ---
   departmentsSharedCollection: IDepartment[] = [];
-
-  responsiblesSharedCollection: IResponsible[] = [];
   itemCataloguesSharedCollection: IItemCatalogue[] = [];
+
+  // Lista de usuarios reales
+  usersSharedCollection: IUser[] = [];
+
+  // Lista para almacenar los múltiples archivos seleccionados
+  selectedFiles: PendingFile[] = [];
 
   protected dataUtils = inject(DataUtils);
   protected eventManager = inject(EventManager);
   protected changeRequestService = inject(ChangeRequestService);
   protected departmentService = inject(DepartmentService);
   protected changeRequestFormService = inject(ChangeRequestFormService);
-  protected responsibleService = inject(ResponsibleService);
   protected itemCatalogueService = inject(ItemCatalogueService);
   protected activatedRoute = inject(ActivatedRoute);
+
+  protected fileRecordService = inject(FileRecordService);
+
+  // Inyectamos el servicio de usuarios
+  protected userService = inject(UserService);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: ChangeRequestFormGroup = this.changeRequestFormService.createChangeRequestFormGroup();
 
-  compareResponsible = (o1: IResponsible | null, o2: IResponsible | null): boolean => this.responsibleService.compareResponsible(o1, o2);
-
   compareItemCatalogue = (o1: IItemCatalogue | null, o2: IItemCatalogue | null): boolean =>
     this.itemCatalogueService.compareItemCatalogue(o1, o2);
+
+  // Compara usuarios para dejar seleccionado el correcto al editar
+  compareUser = (o1: IUser | null, o2: IUser | null): boolean => (o1 && o2 ? o1.id === o2.id : o1 === o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ changeRequest }) => {
@@ -67,7 +87,7 @@ export class ChangeRequestUpdateComponent implements OnInit {
       }
 
       this.loadRelationshipsOptions();
-      this.loadDepartments(); // <--- LLAMADA A CARGAR DEPARTAMENTOS
+      this.loadDepartments();
     });
   }
 
@@ -80,10 +100,26 @@ export class ChangeRequestUpdateComponent implements OnInit {
   }
 
   setFileData(event: Event, field: string, isImage: boolean): void {
-    this.dataUtils.loadFileToForm(event, this.editForm, field, isImage).subscribe({
-      error: (err: FileLoadError) =>
-        this.eventManager.broadcast(new EventWithContent<AlertError>('pGestion360App.error', { ...err, key: `error.file.${err.key}` })),
-    });
+    const target = event.target as HTMLInputElement;
+    if (target && target.files && target.files.length > 0) {
+      Array.from(target.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          const base64Data = e.target.result.split(',')[1];
+          this.selectedFiles.push({
+            file: file,
+            base64Content: base64Data,
+            contentType: file.type,
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+      target.value = '';
+    }
+  }
+
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
   }
 
   previousState(): void {
@@ -93,11 +129,49 @@ export class ChangeRequestUpdateComponent implements OnInit {
   save(): void {
     this.isSaving = true;
     const changeRequest = this.changeRequestFormService.getChangeRequest(this.editForm);
+
+    let saveObservable: Observable<HttpResponse<IChangeRequest>>;
+
     if (changeRequest.id !== null) {
-      this.subscribeToSaveResponse(this.changeRequestService.update(changeRequest));
+      saveObservable = this.changeRequestService.update(changeRequest);
     } else {
-      this.subscribeToSaveResponse(this.changeRequestService.create(changeRequest));
+      saveObservable = this.changeRequestService.create(changeRequest);
     }
+
+    saveObservable
+      .pipe(
+        switchMap((res: HttpResponse<IChangeRequest>) => {
+          const savedChangeRequest = res.body!;
+
+          if (this.selectedFiles.length > 0) {
+            const fileSaveObservables = this.selectedFiles.map(pendingFile => {
+              const fileRecord: NewFileRecord = {
+                id: null,
+                fileName: pendingFile.file.name,
+                filePath: pendingFile.file.name,
+                fileType: pendingFile.contentType,
+                content: pendingFile.base64Content,
+                contentContentType: pendingFile.contentType,
+                changeRequest: savedChangeRequest,
+              };
+
+              return this.fileRecordService.create(fileRecord);
+            });
+
+            return forkJoin(fileSaveObservables).pipe(map(() => res));
+          }
+
+          return Observable.create((observer: any) => {
+            observer.next(res);
+            observer.complete();
+          });
+        }),
+        finalize(() => this.onSaveFinalize()),
+      )
+      .subscribe({
+        next: () => this.onSaveSuccess(),
+        error: () => this.onSaveError(),
+      });
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IChangeRequest>>): void {
@@ -123,42 +197,41 @@ export class ChangeRequestUpdateComponent implements OnInit {
     this.changeRequest = changeRequest;
     this.changeRequestFormService.resetForm(this.editForm, changeRequest);
 
-    this.responsiblesSharedCollection = this.responsibleService.addResponsibleToCollectionIfMissing<IResponsible>(
-      this.responsiblesSharedCollection,
-      changeRequest.responsible,
-    );
     this.itemCataloguesSharedCollection = this.itemCatalogueService.addItemCatalogueToCollectionIfMissing<IItemCatalogue>(
       this.itemCataloguesSharedCollection,
       changeRequest.itemCatalogue,
     );
+
+    if (changeRequest.user) {
+      this.usersSharedCollection = [changeRequest.user];
+    }
   }
 
   protected loadRelationshipsOptions(): void {
-    this.responsibleService
-      .query()
-      .pipe(map((res: HttpResponse<IResponsible[]>) => res.body ?? []))
-      .pipe(
-        map((responsibles: IResponsible[]) =>
-          this.responsibleService.addResponsibleToCollectionIfMissing<IResponsible>(responsibles, this.changeRequest?.responsible),
-        ),
-      )
-      .subscribe((responsibles: IResponsible[]) => (this.responsiblesSharedCollection = responsibles));
-
+    // 1. Catálogo
     this.itemCatalogueService
       .query()
-      .pipe(map((res: HttpResponse<IItemCatalogue[]>) => res.body ?? []))
       .pipe(
-        map((itemCatalogues: IItemCatalogue[]) =>
+        map(res => res.body ?? []),
+        map(itemCatalogues =>
           this.itemCatalogueService.addItemCatalogueToCollectionIfMissing<IItemCatalogue>(
             itemCatalogues,
             this.changeRequest?.itemCatalogue,
           ),
         ),
       )
-      .subscribe((itemCatalogues: IItemCatalogue[]) => (this.itemCataloguesSharedCollection = itemCatalogues));
+      .subscribe(itemCatalogues => (this.itemCataloguesSharedCollection = itemCatalogues));
+
+    // 👇 2. LLAMADA AL BACKEND CON SOLUCIÓN AL CHOQUE DE INTERFACES 👇
+    this.userService
+      .query()
+      .pipe(
+        map(res => res.body ?? []),
+        map(users => this.userService.addUserToCollectionIfMissing(users, this.changeRequest?.user as any)),
+      )
+      .subscribe(users => (this.usersSharedCollection = users as any));
   }
 
-  // --- NUEVO MÉTODO PARA CARGAR DEPARTAMENTOS ---
   protected loadDepartments(): void {
     this.departmentService.query().subscribe((res: HttpResponse<IDepartment[]>) => (this.departmentsSharedCollection = res.body ?? []));
   }

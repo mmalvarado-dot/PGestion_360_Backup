@@ -1,19 +1,14 @@
 package com.mycompany.myapp.service.dto;
 
 import com.mycompany.myapp.domain.enumeration.TrackingActionType;
-// Asegúrate de que estos imports existan.
-// Si ChangeRequestDTO, ResponsibleDTO, etc. están en este mismo paquete, no hace falta importarlos explícitamente,
-// pero UserDTO suele necesitar import si es la versión estándar.
 import com.mycompany.myapp.service.dto.UserDTO;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
-// Si usas AdminUserDTO, cambia el import y el tipo abajo.
-
 /**
- * A DTO for the {@link com.mycompany.myapp.domain.TrackingRecord} entity.
+ * A DTO for the TrackingRecord entity.
  */
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class TrackingRecordDTO implements Serializable {
@@ -33,13 +28,8 @@ public class TrackingRecordDTO implements Serializable {
     // --- RELACIONES COMO OBJETOS COMPLETOS ---
     private ChangeRequestDTO changeRequest;
 
-    private ResponsibleDTO responsible;
-
-    // Lo estándar en JHipster es UserDTO para relaciones.
-    // Si tu mapper devuelve AdminUserDTO, cambia esto a AdminUserDTO.
     private UserDTO user;
 
-    // ¡ESTO ES LO QUE ARREGLA TU PROBLEMA!
     private DepartmentDTO department;
 
     // --- GETTERS Y SETTERS ---
@@ -92,14 +82,6 @@ public class TrackingRecordDTO implements Serializable {
         this.changeRequest = changeRequest;
     }
 
-    public ResponsibleDTO getResponsible() {
-        return responsible;
-    }
-
-    public void setResponsible(ResponsibleDTO responsible) {
-        this.responsible = responsible;
-    }
-
     public UserDTO getUser() {
         return user;
     }
@@ -150,8 +132,6 @@ public class TrackingRecordDTO implements Serializable {
             "'" +
             ", changeRequest=" +
             (getChangeRequest() != null ? getChangeRequest().getId() : "null") +
-            ", responsible=" +
-            (getResponsible() != null ? getResponsible().getId() : "null") +
             ", user=" +
             (getUser() != null ? getUser().getId() : "null") +
             ", department=" +

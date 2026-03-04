@@ -8,17 +8,9 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/**
- * Spring Data R2DBC repository for the TrackingRecord entity.
- */
-@SuppressWarnings("unused")
 @Repository
 public interface TrackingRecordRepository extends ReactiveCrudRepository<TrackingRecord, Long>, TrackingRecordRepositoryInternal {
-    // ELIMINADO @Query: Al quitarlo, Spring usa TrackingRecordRepositoryInternalImpl.findAllBy
-    // que es donde configuramos los JOINs y el mapeo manual de los objetos.
     Flux<TrackingRecord> findAllBy(Pageable pageable);
-
-    // --- BÚSQUEDAS ESTÁNDAR ---
 
     @Query("SELECT * FROM tracking_record entity WHERE entity.user_id = :id")
     Flux<TrackingRecord> findByUser(Long id);
@@ -26,18 +18,7 @@ public interface TrackingRecordRepository extends ReactiveCrudRepository<Trackin
     @Query("SELECT * FROM tracking_record entity WHERE entity.user_id IS NULL")
     Flux<TrackingRecord> findAllWhereUserIsNull();
 
-    @Query("SELECT * FROM tracking_record entity WHERE entity.responsible_id = :id")
-    Flux<TrackingRecord> findByResponsible(Long id);
-
-    // --- BÚSQUEDAS PARA EL HISTORIAL ---
-
-    // También quitamos el @Query aquí para que use la implementación interna con mapeo
     Flux<TrackingRecord> findByChangeRequestId(Long id);
-
-    @Query("SELECT * FROM tracking_record entity WHERE entity.department_id = :id ORDER BY change_date DESC")
-    Flux<TrackingRecord> findByDepartmentId(Long id);
-
-    // --- CONSULTAS PARA ESTADÍSTICAS ---
 
     @Query(
         "SELECT tr.department_id AS id, dep.department_name AS nombre, CAST(COUNT(*) AS int) AS total " +
@@ -48,14 +29,12 @@ public interface TrackingRecordRepository extends ReactiveCrudRepository<Trackin
     Flux<TrackingStats> countMovementsByDepartment();
 
     @Query(
-        "SELECT tr.responsible_id AS id, res.name AS nombre, CAST(COUNT(*) AS int) AS total " +
+        "SELECT tr.user_id AS id, u.login AS nombre, CAST(COUNT(*) AS int) AS total " +
         "FROM tracking_record tr " +
-        "JOIN responsible res ON res.id = tr.responsible_id " +
-        "GROUP BY tr.responsible_id, res.name ORDER BY total DESC"
+        "JOIN jhi_user u ON u.id = tr.user_id " +
+        "GROUP BY tr.user_id, u.login ORDER BY total DESC"
     )
-    Flux<TrackingStats> countMovementsByResponsible();
-
-    // -------------------------------------------------------------------------
+    Flux<TrackingStats> countMovementsByUser();
 
     @Override
     <S extends TrackingRecord> Mono<S> save(S entity);

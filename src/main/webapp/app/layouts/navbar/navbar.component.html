@@ -27,7 +27,6 @@
             </span>
           </a>
         </li>
-        <!-- jhipster-needle-add-element-to-menu - JHipster will add new menu items here -->
         @if (account() !== null) {
           <li
             ngbDropdown
@@ -43,7 +42,7 @@
               </span>
             </a>
             <ul class="dropdown-menu" ngbDropdownMenu aria-labelledby="entity-menu">
-              <li>
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/catalogue"
@@ -55,7 +54,8 @@
                   <span jhiTranslate="global.menu.entities.catalogue">Catalogue</span>
                 </a>
               </li>
-              <li>
+
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/item-catalogue"
@@ -67,7 +67,8 @@
                   <span jhiTranslate="global.menu.entities.itemCatalogue">Item Catalogue</span>
                 </a>
               </li>
-              <li>
+
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/responsible"
@@ -79,7 +80,8 @@
                   <span jhiTranslate="global.menu.entities.responsible">Responsible</span>
                 </a>
               </li>
-              <li>
+
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/department"
@@ -91,7 +93,8 @@
                   <span jhiTranslate="global.menu.entities.department">Department</span>
                 </a>
               </li>
-              <li>
+
+              <li *jhiHasAnyAuthority="['ROLE_USER', 'ROLE_ADMIN']">
                 <a
                   class="dropdown-item"
                   routerLink="/change-request"
@@ -103,7 +106,8 @@
                   <span jhiTranslate="global.menu.entities.changeRequest">Change Request</span>
                 </a>
               </li>
-              <li>
+
+              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
                   routerLink="/tracking-record"
@@ -115,7 +119,8 @@
                   <span jhiTranslate="global.menu.entities.trackingRecord">Tracking Record</span>
                 </a>
               </li>
-              <li>
+
+              <li *jhiHasAnyAuthority="['ROLE_USER', 'ROLE_ADMIN']">
                 <a
                   class="dropdown-item"
                   routerLink="/file-record"
@@ -127,10 +132,10 @@
                   <span jhiTranslate="global.menu.entities.fileRecord">File Record</span>
                 </a>
               </li>
-              <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
             </ul>
           </li>
         }
+
         <li
           *jhiHasAnyAuthority="'ROLE_ADMIN'"
           ngbDropdown
@@ -158,7 +163,6 @@
                 <span jhiTranslate="global.menu.entities.adminAuthority">Authority</span>
               </a>
             </li>
-            <!-- jhipster-needle-add-element-to-admin-menu - JHipster will add entities to the admin menu here -->
             <li>
               <a class="dropdown-item" routerLink="/admin/user-management" routerLinkActive="active" (click)="collapseNavbar()">
                 <fa-icon icon="users" [fixedWidth]="true"></fa-icon>

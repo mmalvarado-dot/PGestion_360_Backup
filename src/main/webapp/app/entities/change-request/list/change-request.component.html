@@ -9,6 +9,7 @@
       </button>
 
       <button
+        *jhiHasAnyAuthority="['ROLE_ADMIN']"
         id="jh-create-entity"
         data-cy="entityCreateButton"
         class="btn btn-primary jh-create-entity create-change-request"
@@ -33,14 +34,10 @@
 
         <div class="col-md-4">
           <label class="form-label fw-bold">Rango de Fechas:</label>
-
           <div class="input-group">
             <input type="date" class="form-control" #fechaInicio (change)="onDateChange('start', $event)" title="Fecha Inicial" />
-
             <span class="input-group-text bg-light border-start-0 border-end-0">-</span>
-
             <input type="date" class="form-control" #fechaFin (change)="onDateChange('end', $event)" title="Fecha Final" />
-
             <button
               class="btn btn-outline-danger"
               type="button"
@@ -107,7 +104,6 @@
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-
             <th scope="col" jhiSortBy="status">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.changeRequest.status">Status</span>
@@ -115,9 +111,9 @@
               </div>
             </th>
 
-            <th scope="col" jhiSortBy="responsible.name">
+            <th scope="col" jhiSortBy="user.login">
               <div class="d-flex">
-                <span jhiTranslate="pGestion360App.changeRequest.responsible">Responsable</span>
+                <span>Usuario Asignado</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
@@ -163,8 +159,8 @@
               </td>
 
               <td>
-                @if (changeRequest.responsible) {
-                  <a [routerLink]="['/responsible', changeRequest.responsible.id, 'view']"> {{ changeRequest.responsible.name }} </a>
+                @if (changeRequest.user) {
+                  <span class="badge bg-secondary">{{ changeRequest.user.login }}</span>
                 }
               </td>
 
@@ -180,7 +176,13 @@
                     <fa-icon icon="pencil-alt"></fa-icon>
                   </a>
 
-                  <button type="submit" (click)="delete(changeRequest)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                  <button
+                    *jhiHasAnyAuthority="['ROLE_ADMIN']"
+                    type="submit"
+                    (click)="delete(changeRequest)"
+                    class="btn btn-danger btn-sm"
+                    data-cy="entityDeleteButton"
+                  >
                     <fa-icon icon="times"></fa-icon>
                   </button>
                 </div>

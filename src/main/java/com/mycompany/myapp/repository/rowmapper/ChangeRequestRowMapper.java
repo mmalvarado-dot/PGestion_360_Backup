@@ -41,7 +41,11 @@ public class ChangeRequestRowMapper implements BiFunction<Row, String, ChangeReq
         entity.setArchivoAdjunto(converter.fromRow(row, prefix + "_archivo_adjunto", byte[].class));
         entity.setSolicitante(converter.fromRow(row, prefix + "_solicitante", String.class));
         entity.setDepartamento(converter.fromRow(row, prefix + "_departamento", String.class));
-        entity.setResponsibleId(converter.fromRow(row, prefix + "_responsible_id", Long.class));
+
+        // --- CAMBIO DE RESPONSIBLE A USER ---
+        entity.setUserId(converter.fromRow(row, prefix + "_user_id", Long.class));
+        // ------------------------------------
+
         entity.setItemCatalogueId(converter.fromRow(row, prefix + "_item_catalogue_id", Long.class));
         return entity;
     }

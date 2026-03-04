@@ -25,7 +25,10 @@ public class ChangeRequestSqlHelper {
         columns.add(Column.aliased("solicitante", table, columnPrefix + "_solicitante"));
         columns.add(Column.aliased("departamento", table, columnPrefix + "_departamento"));
 
-        columns.add(Column.aliased("responsible_id", table, columnPrefix + "_responsible_id"));
+        // --- CAMBIADO DE RESPONSIBLE_ID A USER_ID ---
+        columns.add(Column.aliased("user_id", table, columnPrefix + "_user_id"));
+        // --------------------------------------------
+
         columns.add(Column.aliased("item_catalogue_id", table, columnPrefix + "_item_catalogue_id"));
         return columns;
     }

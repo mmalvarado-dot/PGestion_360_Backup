@@ -4,7 +4,7 @@ import com.mycompany.myapp.domain.ChangeRequest;
 import com.mycompany.myapp.domain.TrackingRecord;
 import com.mycompany.myapp.domain.enumeration.TrackingActionType;
 import com.mycompany.myapp.repository.ChangeRequestRepository;
-import com.mycompany.myapp.repository.DepartmentRepository; // <--- NUEVO IMPORT
+import com.mycompany.myapp.repository.DepartmentRepository;
 import com.mycompany.myapp.repository.TrackingRecordRepository;
 import com.mycompany.myapp.service.ChangeRequestService;
 import com.mycompany.myapp.service.dto.ChangeRequestDTO;
@@ -30,18 +30,18 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     private final ChangeRequestRepository changeRequestRepository;
     private final ChangeRequestMapper changeRequestMapper;
     private final TrackingRecordRepository trackingRecordRepository;
-    private final DepartmentRepository departmentRepository; // <--- NUEVA DEPENDENCIA
+    private final DepartmentRepository departmentRepository;
 
     public ChangeRequestServiceImpl(
         ChangeRequestRepository changeRequestRepository,
         ChangeRequestMapper changeRequestMapper,
         TrackingRecordRepository trackingRecordRepository,
-        DepartmentRepository departmentRepository // <--- INYECTAMOS AQUÍ
+        DepartmentRepository departmentRepository
     ) {
         this.changeRequestRepository = changeRequestRepository;
         this.changeRequestMapper = changeRequestMapper;
         this.trackingRecordRepository = trackingRecordRepository;
-        this.departmentRepository = departmentRepository; // <--- ASIGNAMOS AQUÍ
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -152,7 +152,11 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         }
 
         tracking.setChangeRequestId(request.getId());
-        tracking.setResponsibleId(request.getResponsibleId());
+
+        // 🚀 SOLUCIÓN FINAL: Asignamos el ID del Usuario de la Solicitud al Tracking Record
+        if (request.getUserId() != null) {
+            tracking.setUserId(request.getUserId());
+        }
 
         // MAGIA NUEVA: Buscamos el ID del departamento por su nombre
         if (request.getDepartamento() != null && !request.getDepartamento().trim().isEmpty()) {

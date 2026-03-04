@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-// 1. IMPORTACIÓN AGREGADA: Necesaria para generar la fecha de hoy
 import dayjs from 'dayjs/esm';
 import { DATE_TIME_FORMAT } from 'app/config/input.constants';
 
@@ -18,7 +17,6 @@ type PartialWithRequiredKeyOf<T extends { id: unknown }> = Partial<Omit<T, 'id'>
  */
 type ChangeRequestFormGroupInput = IChangeRequest | PartialWithRequiredKeyOf<NewChangeRequest>;
 
-// 2. TIPO ACTUALIZADO: Agregamos 'createdDate' y 'status' para poder darles valores por defecto
 type ChangeRequestFormDefaults = Pick<NewChangeRequest, 'id' | 'createdDate' | 'status'>;
 
 type ChangeRequestFormGroupContent = {
@@ -36,7 +34,7 @@ type ChangeRequestFormGroupContent = {
   archivoAdjuntoContentType: FormControl<IChangeRequest['archivoAdjuntoContentType']>;
   solicitante: FormControl<IChangeRequest['solicitante']>;
   departamento: FormControl<IChangeRequest['departamento']>;
-  responsible: FormControl<IChangeRequest['responsible']>;
+  user: FormControl<IChangeRequest['user']>; // <-- CAMBIO AQUÍ
   itemCatalogue: FormControl<IChangeRequest['itemCatalogue']>;
 };
 
@@ -78,7 +76,7 @@ export class ChangeRequestFormService {
       archivoAdjuntoContentType: new FormControl(changeRequestRawValue.archivoAdjuntoContentType),
       solicitante: new FormControl(changeRequestRawValue.solicitante),
       departamento: new FormControl(changeRequestRawValue.departamento),
-      responsible: new FormControl(changeRequestRawValue.responsible),
+      user: new FormControl(changeRequestRawValue.user), // <-- CAMBIO AQUÍ
       itemCatalogue: new FormControl(changeRequestRawValue.itemCatalogue),
     });
   }
@@ -97,12 +95,11 @@ export class ChangeRequestFormService {
     );
   }
 
-  // 3. LÓGICA AGREGADA: Aquí definimos los valores iniciales
   private getFormDefaults(): ChangeRequestFormDefaults {
     return {
       id: null,
       createdDate: dayjs(), // Pone la fecha y hora actual
-      status: 'PENDIENTE', // Pone el estado inicial (Revisa mayúsculas/minúsculas si falla)
+      status: 'PENDIENTE', // Pone el estado inicial
     } as any;
   }
 }

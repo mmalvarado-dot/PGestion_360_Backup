@@ -48,7 +48,8 @@ public class ChangeRequestDTO implements Serializable {
 
     private String departamento;
 
-    private ResponsibleDTO responsible;
+    // --- CAMBIO DE RESPONSIBLE A USER ---
+    private UserDTO user;
 
     private ItemCatalogueDTO itemCatalogue;
 
@@ -164,13 +165,16 @@ public class ChangeRequestDTO implements Serializable {
         this.departamento = departamento;
     }
 
-    public ResponsibleDTO getResponsible() {
-        return responsible;
+    // --- GETTERS Y SETTERS ACTUALIZADOS PARA USER ---
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setResponsible(ResponsibleDTO responsible) {
-        this.responsible = responsible;
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
+
+    // ------------------------------------------------
 
     public ItemCatalogueDTO getItemCatalogue() {
         return itemCatalogue;
@@ -218,7 +222,7 @@ public class ChangeRequestDTO implements Serializable {
             ", archivoAdjunto='" + getArchivoAdjunto() + "'" +
             ", solicitante='" + getSolicitante() + "'" +
             ", departamento='" + getDepartamento() + "'" +
-            ", responsible=" + getResponsible() +
+            ", user=" + getUser() + // Cambiado aquí
             ", itemCatalogue=" + getItemCatalogue() +
             "}";
     }

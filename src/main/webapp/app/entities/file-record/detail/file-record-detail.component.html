@@ -52,7 +52,12 @@
           <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
         </button>
 
-        <button type="button" [routerLink]="['/file-record', fileRecordRef.id, 'edit']" class="btn btn-primary">
+        <button
+          *jhiHasAnyAuthority="'ROLE_ADMIN'"
+          type="button"
+          [routerLink]="['/file-record', fileRecordRef.id, 'edit']"
+          class="btn btn-primary"
+        >
           <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
         </button>
       </div>

@@ -1,8 +1,13 @@
 import dayjs from 'dayjs/esm';
-import { IResponsible } from 'app/entities/responsible/responsible.model';
 import { IItemCatalogue } from 'app/entities/item-catalogue/item-catalogue.model';
 import { prioridad } from 'app/entities/enumerations/prioridad.model';
 import { Impacto } from 'app/entities/enumerations/impacto.model';
+
+// Agregamos una interfaz muy básica para el Usuario (para que Angular no llore)
+export interface IUser {
+  id: number;
+  login: string;
+}
 
 export interface IChangeRequest {
   id: number;
@@ -19,7 +24,7 @@ export interface IChangeRequest {
   archivoAdjuntoContentType?: string | null;
   solicitante?: string | null;
   departamento?: string | null;
-  responsible?: Pick<IResponsible, 'id' | 'name'> | null;
+  user?: Pick<IUser, 'id' | 'login'> | null; // <--- ¡AQUÍ ESTÁ LA MAGIA!
   itemCatalogue?: Pick<IItemCatalogue, 'id'> | null;
 }
 

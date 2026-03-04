@@ -25,18 +25,6 @@ class TrackingRecordTest {
     }
 
     @Test
-    void responsibleTest() {
-        TrackingRecord trackingRecord = getTrackingRecordRandomSampleGenerator();
-        Responsible responsibleBack = getResponsibleRandomSampleGenerator();
-
-        trackingRecord.setResponsible(responsibleBack);
-        assertThat(trackingRecord.getResponsible()).isEqualTo(responsibleBack);
-
-        trackingRecord.responsible(null);
-        assertThat(trackingRecord.getResponsible()).isNull();
-    }
-
-    @Test
     void changeRequestTest() {
         TrackingRecord trackingRecord = getTrackingRecordRandomSampleGenerator();
         ChangeRequest changeRequestBack = getChangeRequestRandomSampleGenerator();

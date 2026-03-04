@@ -75,7 +75,9 @@ public class ChangeRequestAsserts {
     public static void assertChangeRequestUpdatableRelationshipsEquals(ChangeRequest expected, ChangeRequest actual) {
         assertThat(actual)
             .as("Verify ChangeRequest relationships")
-            .satisfies(a -> assertThat(a.getResponsible()).as("check responsible").isEqualTo(expected.getResponsible()))
+            // --- CAMBIADO DE RESPONSIBLE A USER ---
+            .satisfies(a -> assertThat(a.getUser()).as("check user").isEqualTo(expected.getUser()))
+            // --------------------------------------
             .satisfies(a -> assertThat(a.getItemCatalogue()).as("check itemCatalogue").isEqualTo(expected.getItemCatalogue()));
     }
 }

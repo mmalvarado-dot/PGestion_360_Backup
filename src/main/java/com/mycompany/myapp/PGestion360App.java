@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.TimeZone; // <-- 1. Importado para manejar el tiempo
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +34,13 @@ public class PGestion360App {
 
     /**
      * Initializes pGestion360.
-     * <p>
-     * Spring profiles can be configured with a program argument --spring.profiles.active=your-active-profile
-     * <p>
-     * You can find more information on how profiles work with JHipster on <a href="https://www.jhipster.tech/profiles/">https://www.jhipster.tech/profiles/</a>.
      */
     @PostConstruct
     public void initApplication() {
+        // 2. CONFIGURACIÓN DE HORA LOCAL (ECUADOR)
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Guayaquil"));
+        LOG.info("Zona horaria configurada a: {}", TimeZone.getDefault().getID());
+
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         if (
             activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT) &&

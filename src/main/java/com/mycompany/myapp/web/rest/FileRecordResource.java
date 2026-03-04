@@ -50,13 +50,6 @@ public class FileRecordResource {
         this.fileRecordRepository = fileRecordRepository;
     }
 
-    /**
-     * {@code POST  /file-records} : Create a new fileRecord.
-     *
-     * @param fileRecordDTO the fileRecordDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new fileRecordDTO, or with status {@code 400 (Bad Request)} if the fileRecord has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PostMapping("")
     public Mono<ResponseEntity<FileRecordDTO>> createFileRecord(@Valid @RequestBody FileRecordDTO fileRecordDTO) throws URISyntaxException {
         LOG.debug("REST request to save FileRecord : {}", fileRecordDTO);
@@ -76,16 +69,6 @@ public class FileRecordResource {
             });
     }
 
-    /**
-     * {@code PUT  /file-records/:id} : Updates an existing fileRecord.
-     *
-     * @param id the id of the fileRecordDTO to save.
-     * @param fileRecordDTO the fileRecordDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated fileRecordDTO,
-     * or with status {@code 400 (Bad Request)} if the fileRecordDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the fileRecordDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PutMapping("/{id}")
     public Mono<ResponseEntity<FileRecordDTO>> updateFileRecord(
         @PathVariable(value = "id", required = false) final Long id,
@@ -117,17 +100,6 @@ public class FileRecordResource {
             });
     }
 
-    /**
-     * {@code PATCH  /file-records/:id} : Partial updates given fields of an existing fileRecord, field will ignore if it is null
-     *
-     * @param id the id of the fileRecordDTO to save.
-     * @param fileRecordDTO the fileRecordDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated fileRecordDTO,
-     * or with status {@code 400 (Bad Request)} if the fileRecordDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the fileRecordDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the fileRecordDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public Mono<ResponseEntity<FileRecordDTO>> partialUpdateFileRecord(
         @PathVariable(value = "id", required = false) final Long id,
@@ -160,22 +132,28 @@ public class FileRecordResource {
             });
     }
 
-    /**
-     * {@code GET  /file-records} : get all the fileRecords.
-     *
-     * @param pageable the pagination information.
-     * @param request a {@link ServerHttpRequest} request.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fileRecords in body.
-     */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<List<FileRecordDTO>>> getAllFileRecords(
+        @RequestParam(value = "changeRequestId.equals", required = false) Long changeRequestId,
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         ServerHttpRequest request
     ) {
         LOG.debug("REST request to get a page of FileRecords");
-        return fileRecordService
-            .countAll()
-            .zipWith(fileRecordService.findAll(pageable).collectList())
+
+        Mono<Long> countMono;
+        Mono<List<FileRecordDTO>> listMono;
+
+        // --- NUEVO: Interceptamos si viene un ID o no ---
+        if (changeRequestId != null) {
+            countMono = fileRecordService.countByChangeRequestId(changeRequestId);
+            listMono = fileRecordService.findByChangeRequestId(changeRequestId, pageable).collectList();
+        } else {
+            countMono = fileRecordService.countAll();
+            listMono = fileRecordService.findAll(pageable).collectList();
+        }
+
+        return countMono
+            .zipWith(listMono)
             .map(countWithEntities ->
                 ResponseEntity.ok()
                     .headers(
@@ -188,12 +166,6 @@ public class FileRecordResource {
             );
     }
 
-    /**
-     * {@code GET  /file-records/:id} : get the "id" fileRecord.
-     *
-     * @param id the id of the fileRecordDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the fileRecordDTO, or with status {@code 404 (Not Found)}.
-     */
     @GetMapping("/{id}")
     public Mono<ResponseEntity<FileRecordDTO>> getFileRecord(@PathVariable("id") Long id) {
         LOG.debug("REST request to get FileRecord : {}", id);
@@ -201,12 +173,6 @@ public class FileRecordResource {
         return ResponseUtil.wrapOrNotFound(fileRecordDTO);
     }
 
-    /**
-     * {@code DELETE  /file-records/:id} : delete the "id" fileRecord.
-     *
-     * @param id the id of the fileRecordDTO to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
-     */
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteFileRecord(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete FileRecord : {}", id);

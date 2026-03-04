@@ -160,59 +160,43 @@
           ></textarea>
         </div>
 
-        @let archivoAdjuntoRef = editForm.get('archivoAdjunto')!;
         <div class="mb-3">
-          <label class="form-label" for="field_archivoAdjunto" jhiTranslate="pGestion360App.changeRequest.archivoAdjunto"
-            >Archivo Adjunto</label
-          >
-          <div>
-            @if (archivoAdjuntoRef.value) {
-              <div class="form-text text-danger clearfix">
-                <a
-                  class="pull-start"
-                  (click)="openFile(archivoAdjuntoRef.value!, editForm.get('archivoAdjuntoContentType')!.value!)"
-                  jhiTranslate="entity.action.open"
-                  >Abrir</a
-                ><br />
-                <span class="pull-start"
-                  >{{ editForm.get('archivoAdjuntoContentType')!.value }}, {{ byteSize(archivoAdjuntoRef.value!) }}</span
-                >
-                <button
-                  type="button"
-                  (click)="editForm.patchValue({ archivoAdjunto: undefined, archivoAdjuntoContentType: undefined })"
-                  class="btn btn-secondary btn-xs pull-end"
-                >
-                  <fa-icon icon="times"></fa-icon>
-                </button>
-              </div>
-            }
-            <input
-              type="file"
-              class="form-control"
-              id="file_archivoAdjunto"
-              data-cy="archivoAdjunto"
-              (change)="setFileData($event, 'archivoAdjunto', false)"
-              jhiTranslate="entity.action.addblob"
-              multiple
-            />
-          </div>
-          <input
-            type="hidden"
-            class="form-control"
-            name="archivoAdjunto"
-            id="field_archivoAdjunto"
-            data-cy="archivoAdjunto"
-            formControlName="archivoAdjunto"
-          />
-          <input
-            type="hidden"
-            class="form-control"
-            name="archivoAdjuntoContentType"
-            id="field_archivoAdjuntoContentType"
-            formControlName="archivoAdjuntoContentType"
-          />
-        </div>
+          <label class="form-label" jhiTranslate="pGestion360App.changeRequest.archivoAdjunto">Archivo Adjunto</label>
 
+          <div class="card mb-2">
+            <div class="card-body p-2">
+              @if (selectedFiles.length === 0) {
+                <span class="text-muted small">No se ha elegido ningún archivo aún.</span>
+              } @else {
+                <ul class="list-group list-group-flush">
+                  @for (pending of selectedFiles; track $index) {
+                    <li class="list-group-item d-flex justify-content-between align-items-center p-2">
+                      <span class="text-truncate me-3" style="max-width: 80%" title="{{ pending.file.name }}">
+                        📄 <strong>{{ pending.file.name }}</strong>
+                        <span class="text-muted small">({{ byteSize(pending.base64Content) }})</span>
+                      </span>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFile($index)" title="Quitar archivo">
+                        <fa-icon icon="times"></fa-icon>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </div>
+
+          <input
+            type="file"
+            #fileInput
+            class="d-none"
+            id="file_archivoAdjunto"
+            (change)="setFileData($event, 'archivoAdjunto', false)"
+            multiple
+          />
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="fileInput.click()">
+            <fa-icon icon="plus"></fa-icon> Elegir archivos...
+          </button>
+        </div>
         <div class="mb-3">
           <label class="form-label" for="field_solicitante" jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</label>
           <input
@@ -238,19 +222,12 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="field_responsible" jhiTranslate="pGestion360App.changeRequest.responsible">Responsible</label>
-          <select
-            class="form-control"
-            id="field_responsible"
-            data-cy="responsible"
-            name="responsible"
-            formControlName="responsible"
-            [compareWith]="compareResponsible"
-          >
-            <option [ngValue]="null"></option>
-            @for (responsibleOption of responsiblesSharedCollection; track $index) {
-              <option [ngValue]="responsibleOption">
-                {{ responsibleOption.name ? responsibleOption.name : responsibleOption.id }}
+          <label class="form-label" for="field_user">Usuario Asignado</label>
+          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
+            <option [ngValue]="null">Seleccione un usuario...</option>
+            @for (userOption of usersSharedCollection; track $index) {
+              <option [ngValue]="userOption">
+                {{ userOption.login }}
               </option>
             }
           </select>

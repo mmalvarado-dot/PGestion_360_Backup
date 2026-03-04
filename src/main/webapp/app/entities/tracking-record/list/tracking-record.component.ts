@@ -1,198 +1,94 @@
-import { Component, NgZone, OnInit, inject, signal } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
-import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
-import { Observable, Subscription, combineLatest, filter, tap } from 'rxjs';
-import { NgbModal, NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
+import { combineLatest, filter, tap } from 'rxjs';
+import { NgbModal, NgbCollapseModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import SharedModule from 'app/shared/shared.module';
-import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
-import { FormatMediumDatePipe } from 'app/shared/date';
-import { ItemCountComponent } from 'app/shared/pagination';
-
-import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
-import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
+import { SortDirective, SortByDirective, SortService, sortStateSignal } from 'app/shared/sort';
 import { ITrackingRecord } from '../tracking-record.model';
-import { EntityArrayResponseType, TrackingRecordService, ITrackingStats } from '../service/tracking-record.service';
+import { TrackingRecordService, ITrackingStats } from '../service/tracking-record.service';
 import { TrackingRecordDeleteDialogComponent } from '../delete/tracking-record-delete-dialog.component';
+import { ITEMS_PER_PAGE, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 
 @Component({
   selector: 'jhi-tracking-record',
   templateUrl: './tracking-record.component.html',
-  styleUrls: ['./tracking-record.component.scss'],
   standalone: true,
-  imports: [
-    RouterModule,
-    FormsModule,
-    SharedModule,
-    SortDirective,
-    SortByDirective,
-    FormatMediumDatePipe,
-    ItemCountComponent,
-    NgbCollapseModule,
-  ],
+  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective, NgbCollapseModule, NgbPaginationModule],
 })
 export class TrackingRecordComponent implements OnInit {
-  subscription: Subscription | null = null;
   trackingRecords = signal<ITrackingRecord[]>([]);
-
   statsDepartments = signal<ITrackingStats[]>([]);
-  statsResponsibles = signal<ITrackingStats[]>([]);
+  statsUsers = signal<ITrackingStats[]>([]);
 
   searchRequestId = signal<number | null>(null);
   isStatsCollapsed = true;
-
   isLoading = false;
-
-  sortState = sortStateSignal(inject(SortService).parseSortParam('changeDate,desc'));
-
-  itemsPerPage = ITEMS_PER_PAGE;
   totalItems = 0;
   page = 1;
+  itemsPerPage = ITEMS_PER_PAGE;
+  sortState = sortStateSignal(inject(SortService).parseSortParam('changeDate,desc'));
 
-  public readonly router = inject(Router);
-  protected readonly trackingRecordService = inject(TrackingRecordService);
-  protected readonly activatedRoute = inject(ActivatedRoute);
-  protected readonly sortService = inject(SortService);
+  protected trackingRecordService = inject(TrackingRecordService);
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
   protected modalService = inject(NgbModal);
-  protected ngZone = inject(NgZone);
-
-  trackId = (item: ITrackingRecord): number => this.trackingRecordService.getTrackingRecordIdentifier(item);
+  protected sortService = inject(SortService);
 
   ngOnInit(): void {
-    this.subscription = combineLatest([this.activatedRoute.queryParamMap, this.activatedRoute.data])
+    combineLatest([this.activatedRoute.queryParamMap, this.activatedRoute.data])
       .pipe(
-        tap(([params, data]) => this.fillComponentAttributeFromRoute(params, data)),
+        tap(([params]) => (this.page = +(params.get('page') ?? 1))),
         tap(() => this.load()),
       )
       .subscribe();
   }
 
   load(): void {
+    this.isLoading = true;
     if (this.searchRequestId()) {
-      this.searchByRequest();
-    } else {
-      this.queryBackend().subscribe({
-        next: (res: EntityArrayResponseType) => {
-          this.onResponseSuccess(res);
+      this.trackingRecordService.findByRequestId(this.searchRequestId()!).subscribe({
+        next: res => {
+          this.trackingRecords.set(res.body ?? []);
+          this.isLoading = false;
         },
+        error: () => (this.isLoading = false),
+      });
+    } else {
+      const queryObject = {
+        page: this.page - 1,
+        size: this.itemsPerPage,
+        sort: this.sortService.buildSortParam(this.sortState()),
+      };
+      this.trackingRecordService.query(queryObject).subscribe({
+        next: res => {
+          this.trackingRecords.set(res.body ?? []);
+          this.totalItems = Number(res.headers.get(TOTAL_COUNT_RESPONSE_HEADER));
+          this.isLoading = false;
+        },
+        error: () => (this.isLoading = false),
       });
     }
   }
 
-  // --- AQUÍ ESTÁ LA PRUEBA DEFINITIVA ---
   toggleStats(): void {
     this.isStatsCollapsed = !this.isStatsCollapsed;
-    console.log('¡Clic detectado! El panel ahora está colapsado:', this.isStatsCollapsed);
-
-    if (!this.isStatsCollapsed && this.statsDepartments().length === 0) {
-      this.loadStats();
-    }
+    if (!this.isStatsCollapsed) this.loadStats();
   }
 
   loadStats(): void {
-    this.trackingRecordService.getStatsByDepartment().subscribe({
-      next: res => this.statsDepartments.set(res.body ?? []),
-      error: () => console.error('Error cargando stats de departamentos'),
-    });
-
-    this.trackingRecordService.getStatsByResponsible().subscribe({
-      next: res => this.statsResponsibles.set(res.body ?? []),
-      error: () => console.error('Error cargando stats de responsables'),
-    });
-  }
-
-  searchByRequest(): void {
-    const requestId = this.searchRequestId();
-    if (requestId) {
-      this.isLoading = true;
-      this.trackingRecordService.findByRequestId(requestId).subscribe({
-        next: (res: EntityArrayResponseType) => {
-          this.isLoading = false;
-          this.trackingRecords.set(res.body ?? []);
-          this.totalItems = res.body?.length ?? 0;
-        },
-        error: () => {
-          this.isLoading = false;
-          this.trackingRecords.set([]);
-        },
-      });
-    } else {
-      this.load();
-    }
-  }
-
-  clearSearch(): void {
-    this.searchRequestId.set(null);
-    this.queryBackend().subscribe({
-      next: (res: EntityArrayResponseType) => {
-        this.onResponseSuccess(res);
-      },
-    });
+    this.trackingRecordService.getStatsByDepartment().subscribe(res => this.statsDepartments.set(res.body ?? []));
+    this.trackingRecordService.getStatsByUser().subscribe(res => this.statsUsers.set(res.body ?? []));
   }
 
   delete(trackingRecord: ITrackingRecord): void {
     const modalRef = this.modalService.open(TrackingRecordDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.trackingRecord = trackingRecord;
-    modalRef.closed
-      .pipe(
-        filter(reason => reason === ITEM_DELETED_EVENT),
-        tap(() => this.load()),
-      )
-      .subscribe();
-  }
-
-  navigateToWithComponentValues(event: SortState): void {
-    this.handleNavigation(this.page, event);
+    modalRef.closed.pipe(filter(reason => reason === 'deleted')).subscribe(() => this.load());
   }
 
   navigateToPage(page: number): void {
-    this.handleNavigation(page, this.sortState());
-  }
-
-  protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
-    const page = params.get(PAGE_HEADER);
-    this.page = +(page ?? 1);
-    this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data[DEFAULT_SORT_DATA] ?? 'changeDate,desc'));
-  }
-
-  protected onResponseSuccess(response: EntityArrayResponseType): void {
-    this.fillComponentAttributesFromResponseHeader(response.headers);
-    const dataFromBody = this.fillComponentAttributesFromResponseBody(response.body);
-    this.trackingRecords.set(dataFromBody);
-  }
-
-  protected fillComponentAttributesFromResponseBody(data: ITrackingRecord[] | null): ITrackingRecord[] {
-    return data ?? [];
-  }
-
-  protected fillComponentAttributesFromResponseHeader(headers: HttpHeaders): void {
-    this.totalItems = Number(headers.get(TOTAL_COUNT_RESPONSE_HEADER));
-  }
-
-  protected queryBackend(): Observable<EntityArrayResponseType> {
-    const { page } = this;
-    this.isLoading = true;
-    const queryObject: any = {
-      page: page - 1,
-      size: this.itemsPerPage,
-      sort: this.sortService.buildSortParam(this.sortState()),
-    };
-    return this.trackingRecordService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
-  }
-
-  protected handleNavigation(page: number, sortState: SortState): void {
-    const queryParamsObj = {
-      page,
-      size: this.itemsPerPage,
-      sort: this.sortService.buildSortParam(sortState),
-    };
-
-    this.ngZone.run(() => {
-      this.router.navigate(['./'], {
-        relativeTo: this.activatedRoute,
-        queryParams: queryParamsObj,
-      });
-    });
+    this.page = page;
+    this.load();
   }
 }

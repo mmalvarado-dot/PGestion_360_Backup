@@ -80,4 +80,15 @@ public class FileRecordServiceImpl implements FileRecordService {
         LOG.debug("Request to delete FileRecord : {}", id);
         return fileRecordRepository.deleteById(id);
     }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Flux<FileRecordDTO> findByChangeRequestId(Long changeRequestId, Pageable pageable) {
+        return fileRecordRepository.findByChangeRequestId(changeRequestId, pageable).map(fileRecordMapper::toDto);
+    }
+
+    @Override
+    public Mono<Long> countByChangeRequestId(Long changeRequestId) {
+        return fileRecordRepository.countByChangeRequestId(changeRequestId);
+    }
 }

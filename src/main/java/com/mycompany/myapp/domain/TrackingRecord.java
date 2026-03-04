@@ -1,8 +1,6 @@
 package com.mycompany.myapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-// 1. IMPORT NECESARIO PARA QUE EL MAPPER FUNCIONE
-import com.mycompany.myapp.domain.Department;
 import com.mycompany.myapp.domain.enumeration.TrackingActionType;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -24,7 +22,6 @@ public class TrackingRecord implements Serializable {
     @Column("id")
     private Long id;
 
-    // CAMBIO 1: Usamos Instant en vez de LocalDate
     @NotNull(message = "must not be null")
     @Column("change_date")
     private Instant changeDate;
@@ -33,7 +30,6 @@ public class TrackingRecord implements Serializable {
     @Column("status")
     private String status;
 
-    // CAMBIO 2: Aquí guardamos si fue EDICION o CAMBIO_ESTADO
     @Column("action_type")
     private TrackingActionType actionType;
 
@@ -42,32 +38,29 @@ public class TrackingRecord implements Serializable {
 
     // --- Relaciones (IDs en Base de Datos) ---
 
+    // ¡Aquí está nuestro Usuario Real!
     @Column("user_id")
     private Long userId;
 
-    @Column("responsible_id")
-    private Long responsibleId;
+    // 🧹 ELIMINADO: responsibleId
 
     @Column("change_request_id")
     private Long changeRequestId;
 
-    // CAMBIO 3: ID del departamento
     @Column("department_id")
     private Long departmentId;
 
-    // --- Objetos Transients (Para que Java y el Mapper los vean, pero no se guardan directo en tabla) ---
+    // --- Objetos Transients (Para que Java y el Mapper los vean) ---
 
     @org.springframework.data.annotation.Transient
     private User user;
 
-    @org.springframework.data.annotation.Transient
-    private Responsible responsible;
+    // 🧹 ELIMINADO: Objeto Transient Responsible
 
     @org.springframework.data.annotation.Transient
-    @JsonIgnoreProperties(value = { "responsible", "itemCatalogue" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "itemCatalogue" }, allowSetters = true)
     private ChangeRequest changeRequest;
 
-    // 2. AGREGADO: OBJETO DEPARTAMENTO (El Mapper busca esto)
     @org.springframework.data.annotation.Transient
     @JsonIgnoreProperties(value = { "trackingRecords" }, allowSetters = true)
     private Department department;
@@ -149,13 +142,7 @@ public class TrackingRecord implements Serializable {
         this.userId = userId;
     }
 
-    public Long getResponsibleId() {
-        return this.responsibleId;
-    }
-
-    public void setResponsibleId(Long responsibleId) {
-        this.responsibleId = responsibleId;
-    }
+    // 🧹 ELIMINADOS: Getters y Setters de responsibleId
 
     public Long getChangeRequestId() {
         return this.changeRequestId;
@@ -189,19 +176,7 @@ public class TrackingRecord implements Serializable {
         return this;
     }
 
-    public Responsible getResponsible() {
-        return this.responsible;
-    }
-
-    public void setResponsible(Responsible responsible) {
-        this.responsible = responsible;
-        this.responsibleId = responsible != null ? responsible.getId() : null;
-    }
-
-    public TrackingRecord responsible(Responsible responsible) {
-        this.setResponsible(responsible);
-        return this;
-    }
+    // 🧹 ELIMINADOS: Getters y Setters del objeto Responsible
 
     public ChangeRequest getChangeRequest() {
         return this.changeRequest;
@@ -217,14 +192,12 @@ public class TrackingRecord implements Serializable {
         return this;
     }
 
-    // 3. AGREGADO: MÉTODOS PARA EL DEPARTAMENTO (Esto quita el error rojo del Mapper)
     public Department getDepartment() {
         return this.department;
     }
 
     public void setDepartment(Department department) {
         this.department = department;
-        // Importante: Al poner el objeto, actualizamos también el ID numérico
         this.departmentId = department != null ? department.getId() : null;
     }
 
@@ -249,15 +222,25 @@ public class TrackingRecord implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "TrackingRecord{" +
-            "id=" + getId() +
-            ", changeDate='" + getChangeDate() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", actionType='" + getActionType() + "'" +
-            ", comments='" + getComments() + "'" +
-            "}";
+        return (
+            "TrackingRecord{" +
+            "id=" +
+            getId() +
+            ", changeDate='" +
+            getChangeDate() +
+            "'" +
+            ", status='" +
+            getStatus() +
+            "'" +
+            ", actionType='" +
+            getActionType() +
+            "'" +
+            ", comments='" +
+            getComments() +
+            "'" +
+            "}"
+        );
     }
 }

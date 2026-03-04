@@ -24,6 +24,10 @@ import { FileRecordDeleteDialogComponent } from '../delete/file-record-delete-di
 export class FileRecordComponent implements OnInit {
   subscription: Subscription | null = null;
   fileRecords = signal<IFileRecord[]>([]);
+
+  // Variable para guardar el ID que el usuario quiere buscar
+  searchRequestId = signal<number | null>(null);
+
   isLoading = false;
 
   sortState = sortStateSignal({});
@@ -62,13 +66,18 @@ export class FileRecordComponent implements OnInit {
   delete(fileRecord: IFileRecord): void {
     const modalRef = this.modalService.open(FileRecordDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.fileRecord = fileRecord;
-    // unsubscribe not needed because closed completes on modal close
     modalRef.closed
       .pipe(
         filter(reason => reason === ITEM_DELETED_EVENT),
         tap(() => this.load()),
       )
       .subscribe();
+  }
+
+  // --- NUEVO: Función que se ejecuta al darle al botón de buscar ---
+  onSearch(): void {
+    this.page = 1; // Reiniciamos a la página 1 al buscar
+    this.load();
   }
 
   load(): void {
@@ -90,7 +99,8 @@ export class FileRecordComponent implements OnInit {
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
     const page = params.get(PAGE_HEADER);
     this.page = +(page ?? 1);
-    this.sortState.set(this.sortService.parseSortParam(params.get(SORT) ?? data[DEFAULT_SORT_DATA]));
+    const sortParam = params.get(SORT) ?? 'id,desc'; // Forzamos los más nuevos arriba
+    this.sortState.set(this.sortService.parseSortParam(sortParam));
   }
 
   protected onResponseSuccess(response: EntityArrayResponseType): void {
@@ -117,6 +127,14 @@ export class FileRecordComponent implements OnInit {
       size: this.itemsPerPage,
       sort: this.sortService.buildSortParam(this.sortState()),
     };
+
+    // --- NUEVO: Si el usuario escribió un ID, se lo mandamos al Backend de Java ---
+    const currentSearchId = this.searchRequestId();
+    if (currentSearchId) {
+      // JHipster usa este formato por defecto para filtrar relaciones
+      queryObject['changeRequestId.equals'] = currentSearchId;
+    }
+
     return this.fileRecordService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
   }
 

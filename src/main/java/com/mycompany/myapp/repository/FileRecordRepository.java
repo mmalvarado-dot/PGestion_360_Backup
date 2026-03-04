@@ -19,6 +19,14 @@ public interface FileRecordRepository extends ReactiveCrudRepository<FileRecord,
     @Query("SELECT * FROM file_record entity WHERE entity.change_request_id = :id")
     Flux<FileRecord> findByChangeRequest(Long id);
 
+    // --- NUEVO: Para buscar con paginación por ID de solicitud ---
+    Flux<FileRecord> findByChangeRequestId(Long changeRequestId, Pageable pageable);
+
+    // --- NUEVO: Para contar el total de registros filtrados (vital para la paginación en Angular) ---
+    Mono<Long> countByChangeRequestId(Long changeRequestId);
+
+    // -----------------------------------------------------------------------------------------------
+
     @Query("SELECT * FROM file_record entity WHERE entity.change_request_id IS NULL")
     Flux<FileRecord> findAllWhereChangeRequestIsNull();
 

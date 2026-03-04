@@ -10,6 +10,7 @@ const fileRecordRoute: Routes = [
     loadComponent: () => import('./list/file-record.component').then(m => m.FileRecordComponent),
     data: {
       defaultSort: `id,${ASC}`,
+      authorities: ['ROLE_USER'], // <-- Candado
     },
     canActivate: [UserRouteAccessService],
   },
@@ -19,6 +20,9 @@ const fileRecordRoute: Routes = [
     resolve: {
       fileRecord: FileRecordResolve,
     },
+    data: {
+      authorities: ['ROLE_USER'], // <-- Candado
+    },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -27,6 +31,9 @@ const fileRecordRoute: Routes = [
     resolve: {
       fileRecord: FileRecordResolve,
     },
+    data: {
+      authorities: ['ROLE_USER'], // <-- Candado
+    },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -34,6 +41,9 @@ const fileRecordRoute: Routes = [
     loadComponent: () => import('./update/file-record-update.component').then(m => m.FileRecordUpdateComponent),
     resolve: {
       fileRecord: FileRecordResolve,
+    },
+    data: {
+      authorities: ['ROLE_USER'], // <-- Candado
     },
     canActivate: [UserRouteAccessService],
   },

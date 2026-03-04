@@ -73,23 +73,6 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="field_responsible" jhiTranslate="pGestion360App.trackingRecord.responsible">Responsible</label>
-          <select
-            class="form-control"
-            id="field_responsible"
-            data-cy="responsible"
-            name="responsible"
-            formControlName="responsible"
-            [compareWith]="compareResponsible"
-          >
-            <option [ngValue]="null"></option>
-            @for (responsibleOption of responsiblesSharedCollection; track $index) {
-              <option [ngValue]="responsibleOption">{{ responsibleOption.name }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="mb-3">
           <label class="form-label" for="field_changeRequest" jhiTranslate="pGestion360App.trackingRecord.changeRequest"
             >Change Request</label
           >

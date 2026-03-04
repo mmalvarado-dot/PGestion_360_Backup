@@ -2,10 +2,10 @@ package com.mycompany.myapp.service.mapper;
 
 import com.mycompany.myapp.domain.ChangeRequest;
 import com.mycompany.myapp.domain.ItemCatalogue;
-import com.mycompany.myapp.domain.Responsible;
+import com.mycompany.myapp.domain.User; // <-- Importamos User
 import com.mycompany.myapp.service.dto.ChangeRequestDTO;
 import com.mycompany.myapp.service.dto.ItemCatalogueDTO;
-import com.mycompany.myapp.service.dto.ResponsibleDTO;
+import com.mycompany.myapp.service.dto.UserDTO; // <-- Importamos UserDTO
 import org.mapstruct.*;
 
 /**
@@ -13,15 +13,17 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface ChangeRequestMapper extends EntityMapper<ChangeRequestDTO, ChangeRequest> {
-    @Mapping(target = "responsible", source = "responsible", qualifiedByName = "responsibleId")
+    // Cambiamos 'responsible' por 'user'
+    @Mapping(target = "user", source = "user", qualifiedByName = "userId")
     @Mapping(target = "itemCatalogue", source = "itemCatalogue", qualifiedByName = "itemCatalogueId")
     ChangeRequestDTO toDto(ChangeRequest s);
 
-    @Named("responsibleId")
+    // Creamos el traductor para el User
+    @Named("userId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    @Mapping(target = "name", source = "name")
-    ResponsibleDTO toDtoResponsibleId(Responsible responsible);
+    @Mapping(target = "login", source = "login") // Traemos el nombre de usuario
+    UserDTO toDtoUserId(User user);
 
     @Named("itemCatalogueId")
     @BeanMapping(ignoreByDefault = true)

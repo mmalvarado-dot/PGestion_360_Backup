@@ -2,7 +2,6 @@ package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.TrackingRecord;
 import com.mycompany.myapp.repository.rowmapper.DepartmentRowMapper;
-import com.mycompany.myapp.repository.rowmapper.ResponsibleRowMapper;
 import com.mycompany.myapp.repository.rowmapper.TrackingRecordRowMapper;
 import com.mycompany.myapp.repository.rowmapper.UserRowMapper;
 import io.r2dbc.spi.Row;
@@ -30,12 +29,10 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
     private final EntityManager entityManager;
     private final TrackingRecordRowMapper trackingRecordRowMapper;
     private final UserRowMapper userMapper;
-    private final ResponsibleRowMapper responsibleMapper;
     private final DepartmentRowMapper departmentMapper;
 
     private static final Table entityTable = Table.aliased("tracking_record", EntityManager.ENTITY_ALIAS);
     private static final Table userTable = Table.aliased("jhi_user", "jhiUser");
-    private static final Table responsibleTable = Table.aliased("responsible", "responsible");
     private static final Table departmentTable = Table.aliased("department", "department");
 
     public TrackingRecordRepositoryInternalImpl(
@@ -43,7 +40,6 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
         EntityManager entityManager,
         TrackingRecordRowMapper trackingRecordRowMapper,
         UserRowMapper userMapper,
-        ResponsibleRowMapper responsibleMapper,
         DepartmentRowMapper departmentMapper,
         DatabaseClient db
     ) {
@@ -51,7 +47,6 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
         this.entityManager = entityManager;
         this.trackingRecordRowMapper = trackingRecordRowMapper;
         this.userMapper = userMapper;
-        this.responsibleMapper = responsibleMapper;
         this.departmentMapper = departmentMapper;
         this.db = db;
     }
@@ -67,23 +62,35 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
     }
 
     RowsFetchSpec<TrackingRecord> createQuery(Pageable pageable, Criteria criteria) {
+        // --- INICIO DE LA CORRECCIÓN DE ORDENAMIENTO ---
+        if (pageable != null && pageable.getSort().isSorted()) {
+            org.springframework.data.domain.Sort newSort = org.springframework.data.domain.Sort.by(
+                pageable
+                    .getSort()
+                    .stream()
+                    .map(order -> {
+                        if ("changeDate".equals(order.getProperty())) {
+                            return new org.springframework.data.domain.Sort.Order(order.getDirection(), "change_date");
+                        }
+                        return order;
+                    })
+                    .collect(java.util.stream.Collectors.toList())
+            );
+            pageable = org.springframework.data.domain.PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), newSort);
+        }
+        // --- FIN DE LA CORRECCIÓN ---
+
         List<Expression> columns = TrackingRecordSqlHelper.getColumns(entityTable, EntityManager.ENTITY_ALIAS);
 
-        // Agregamos las columnas de las otras tablas
         columns.addAll(UserSqlHelper.getColumns(userTable, "jhiUser"));
-        columns.addAll(ResponsibleSqlHelper.getColumns(responsibleTable, "responsible"));
         columns.addAll(DepartmentSqlHelper.getColumns(departmentTable, "department"));
 
-        // AQUÍ ESTÁ LA MAGIA: Declaramos el tipo correcto (SelectFromAndJoinCondition) y encadenamos todo
         org.springframework.data.relational.core.sql.SelectBuilder.SelectFromAndJoinCondition selectFrom = Select.builder()
             .select(columns)
             .from(entityTable)
             .leftOuterJoin(userTable)
             .on(Column.create("user_id", entityTable))
             .equals(Column.create("id", userTable))
-            .leftOuterJoin(responsibleTable)
-            .on(Column.create("responsible_id", entityTable))
-            .equals(Column.create("id", responsibleTable))
             .leftOuterJoin(departmentTable)
             .on(Column.create("department_id", entityTable))
             .equals(Column.create("id", departmentTable));
@@ -116,9 +123,7 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
     private TrackingRecord process(Row row, RowMetadata metadata) {
         TrackingRecord entity = trackingRecordRowMapper.apply(row, "e_");
 
-        // Asignamos los objetos completos a la entidad
         entity.setUser(userMapper.apply(row, "jhiUser"));
-        entity.setResponsible(responsibleMapper.apply(row, "responsible"));
         entity.setDepartment(departmentMapper.apply(row, "department"));
 
         return entity;

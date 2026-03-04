@@ -2,7 +2,8 @@ package com.mycompany.myapp.domain;
 
 import static com.mycompany.myapp.domain.ChangeRequestTestSamples.*;
 import static com.mycompany.myapp.domain.ItemCatalogueTestSamples.*;
-import static com.mycompany.myapp.domain.ResponsibleTestSamples.*;
+// Quitamos el import de ResponsibleTestSamples porque ya no existe,
+// y el generador de User en tests suele venir por defecto o no lo necesitamos aquí para esta prueba simple.
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.mycompany.myapp.web.rest.TestUtil;
@@ -25,15 +26,18 @@ class ChangeRequestTest {
     }
 
     @Test
-    void responsibleTest() {
+    void userTest() { // <-- Cambiado el nombre de la prueba
         ChangeRequest changeRequest = getChangeRequestRandomSampleGenerator();
-        Responsible responsibleBack = getResponsibleRandomSampleGenerator();
 
-        changeRequest.setResponsible(responsibleBack);
-        assertThat(changeRequest.getResponsible()).isEqualTo(responsibleBack);
+        // Creamos un User manualmente para la prueba
+        User userBack = new User();
+        userBack.setId(1L); // Le damos un ID cualquiera para que la prueba pase
 
-        changeRequest.responsible(null);
-        assertThat(changeRequest.getResponsible()).isNull();
+        changeRequest.setUser(userBack);
+        assertThat(changeRequest.getUser()).isEqualTo(userBack);
+
+        changeRequest.user(null);
+        assertThat(changeRequest.getUser()).isNull();
     }
 
     @Test

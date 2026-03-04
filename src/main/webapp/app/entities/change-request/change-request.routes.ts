@@ -10,6 +10,7 @@ const changeRequestRoute: Routes = [
     loadComponent: () => import('./list/change-request.component').then(m => m.ChangeRequestComponent),
     data: {
       defaultSort: `id,${ASC}`,
+      authorities: ['ROLE_USER'], // <-- Candado
     },
     canActivate: [UserRouteAccessService],
   },
@@ -19,6 +20,9 @@ const changeRequestRoute: Routes = [
     resolve: {
       changeRequest: ChangeRequestResolve,
     },
+    data: {
+      authorities: ['ROLE_USER'], // <-- Candado
+    },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -27,6 +31,9 @@ const changeRequestRoute: Routes = [
     resolve: {
       changeRequest: ChangeRequestResolve,
     },
+    data: {
+      authorities: ['ROLE_USER'], // <-- Candado
+    },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -34,6 +41,9 @@ const changeRequestRoute: Routes = [
     loadComponent: () => import('./update/change-request-update.component').then(m => m.ChangeRequestUpdateComponent),
     resolve: {
       changeRequest: ChangeRequestResolve,
+    },
+    data: {
+      authorities: ['ROLE_USER'], // <-- Candado
     },
     canActivate: [UserRouteAccessService],
   },

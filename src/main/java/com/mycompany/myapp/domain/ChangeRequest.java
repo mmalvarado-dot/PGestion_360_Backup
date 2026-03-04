@@ -66,15 +66,16 @@ public class ChangeRequest implements Serializable {
     @Column("departamento")
     private String departamento;
 
+    // --- AQUÍ EMPIEZAN LOS CAMBIOS DE RESPONSIBLE A USER ---
     @org.springframework.data.annotation.Transient
-    private Responsible responsible;
+    private User user; // Cambiado a User
 
     @org.springframework.data.annotation.Transient
     @JsonIgnoreProperties(value = { "catalogue" }, allowSetters = true)
     private ItemCatalogue itemCatalogue;
 
-    @Column("responsible_id")
-    private Long responsibleId;
+    @Column("user_id") // Cambiamos el nombre de la columna para la BD
+    private Long userId;
 
     @Column("item_catalogue_id")
     private Long itemCatalogueId;
@@ -263,19 +264,30 @@ public class ChangeRequest implements Serializable {
         this.departamento = departamento;
     }
 
-    public Responsible getResponsible() {
-        return this.responsible;
+    // --- GETTERS Y SETTERS ACTUALIZADOS PARA USER ---
+    public User getUser() {
+        return this.user;
     }
 
-    public void setResponsible(Responsible responsible) {
-        this.responsible = responsible;
-        this.responsibleId = responsible != null ? responsible.getId() : null;
+    public void setUser(User user) {
+        this.user = user;
+        this.userId = user != null ? user.getId() : null;
     }
 
-    public ChangeRequest responsible(Responsible responsible) {
-        this.setResponsible(responsible);
+    public ChangeRequest user(User user) {
+        this.setUser(user);
         return this;
     }
+
+    public Long getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    // ------------------------------------------------
 
     public ItemCatalogue getItemCatalogue() {
         return this.itemCatalogue;
@@ -289,14 +301,6 @@ public class ChangeRequest implements Serializable {
     public ChangeRequest itemCatalogue(ItemCatalogue itemCatalogue) {
         this.setItemCatalogue(itemCatalogue);
         return this;
-    }
-
-    public Long getResponsibleId() {
-        return this.responsibleId;
-    }
-
-    public void setResponsibleId(Long responsible) {
-        this.responsibleId = responsible;
     }
 
     public Long getItemCatalogueId() {

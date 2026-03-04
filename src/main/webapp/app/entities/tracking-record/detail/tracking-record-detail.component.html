@@ -38,17 +38,6 @@
             <span>{{ trackingRecordRef.user?.login }}</span>
           </dd>
 
-          <dt><span jhiTranslate="pGestion360App.trackingRecord.responsible">Responsible</span></dt>
-          <dd>
-            @if (trackingRecordRef.responsible) {
-              <div>
-                <a [routerLink]="['/responsible', trackingRecordRef.responsible?.id, 'view']">
-                  {{ trackingRecordRef.responsible?.name }}
-                </a>
-              </div>
-            }
-          </dd>
-
           <dt><span>Department</span></dt>
           <dd>
             @if (trackingRecordRef.department) {
@@ -75,10 +64,6 @@
         <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
           <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
         </button>
-        <!-- COMETADO PARA QUE NO SALGA EL EDITAR EN LOS DETALLES DE TRACKING RECORDS -->
-        <!-- */<button type="button" [routerLink]="['/tracking-record', trackingRecordRef.id, 'edit']" class="btn btn-primary"> -->
-        <!-- <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span> -->
-        <!-- </button> -->
       </div>
     }
   </div>

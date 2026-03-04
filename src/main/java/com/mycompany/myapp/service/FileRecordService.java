@@ -63,4 +63,7 @@ public interface FileRecordService {
      * @return a Mono to signal the deletion
      */
     Mono<Void> delete(Long id);
+
+    Flux<FileRecordDTO> findByChangeRequestId(Long changeRequestId, Pageable pageable);
+    Mono<Long> countByChangeRequestId(Long changeRequestId);
 }

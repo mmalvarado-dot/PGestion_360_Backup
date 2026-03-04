@@ -46,7 +46,7 @@ public class TrackingRecordRowMapper implements BiFunction<Row, String, Tracking
 
         // --- RELACIONES (IDs) ---
         entity.setUserId(converter.fromRow(row, cleanPrefix + "user_id", Long.class));
-        entity.setResponsibleId(converter.fromRow(row, cleanPrefix + "responsible_id", Long.class));
+        //entity.setResponsibleId(converter.fromRow(row, cleanPrefix + "responsible_id", Long.class));
         entity.setChangeRequestId(converter.fromRow(row, cleanPrefix + "change_request_id", Long.class));
         entity.setDepartmentId(converter.fromRow(row, cleanPrefix + "department_id", Long.class));
 
