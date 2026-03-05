@@ -16,14 +16,11 @@ spring:
     serialization:
       indent-output: true
 
-  # 1. DOCKER APAGADO
   docker:
     compose:
       enabled: false
 
-  # 2. CONFIGURACIÓN REACTIVA (R2DBC) - ¡ESTA FALTABA!
   r2dbc:
-    # Nota que empieza con "r2dbc:", no "jdbc:"
     url: r2dbc:postgresql://localhost:5432/PGestion_360
     username: postgres
     password: 1234
@@ -31,28 +28,34 @@ spring:
       initial-size: 5
       max-size: 20
 
-  # 3. CONFIGURACIÓN DE LIQUIBASE (Usa JDBC clásico para crear tablas)
   liquibase:
     contexts: dev, faker
-    # Nota que este sí es "jdbc:"
     url: jdbc:postgresql://localhost:5432/PGestion_360
     user: postgres
     password: 1234
 
-  # --- 4. CONFIGURACIÓN AÑADIDA PARA PERMITIR ARCHIVOS DE HASTA 100MB ---
   codec:
     max-in-memory-size: 100MB
   webflux:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-  # ----------------------------------------------------------------------
 
+  # --- CONFIGURACIÓN DE CORREO CORREGIDA ---
   mail:
-    host: localhost
-    port: 25
-    username:
-    password:
+    host: smtp.gmail.com
+    port: 587
+    username: mxcalvx@gmail.com
+    password: jlreupdtgvmmiuvj
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  # -----------------------------------------
+
   messages:
     cache-duration: PT1S
   thymeleaf:

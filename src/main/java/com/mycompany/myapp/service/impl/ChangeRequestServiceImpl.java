@@ -6,7 +6,11 @@ import com.mycompany.myapp.domain.enumeration.TrackingActionType;
 import com.mycompany.myapp.repository.ChangeRequestRepository;
 import com.mycompany.myapp.repository.DepartmentRepository;
 import com.mycompany.myapp.repository.TrackingRecordRepository;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.security.AuthoritiesConstants; // <-- AÑADIDO PARA SEGURIDAD
+import com.mycompany.myapp.security.SecurityUtils; // <-- AÑADIDO PARA SEGURIDAD
 import com.mycompany.myapp.service.ChangeRequestService;
+import com.mycompany.myapp.service.MailService;
 import com.mycompany.myapp.service.dto.ChangeRequestDTO;
 import com.mycompany.myapp.service.mapper.ChangeRequestMapper;
 import java.time.Instant;
@@ -31,17 +35,23 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     private final ChangeRequestMapper changeRequestMapper;
     private final TrackingRecordRepository trackingRecordRepository;
     private final DepartmentRepository departmentRepository;
+    private final MailService mailService;
+    private final UserRepository userRepository;
 
     public ChangeRequestServiceImpl(
         ChangeRequestRepository changeRequestRepository,
         ChangeRequestMapper changeRequestMapper,
         TrackingRecordRepository trackingRecordRepository,
-        DepartmentRepository departmentRepository
+        DepartmentRepository departmentRepository,
+        MailService mailService,
+        UserRepository userRepository
     ) {
         this.changeRequestRepository = changeRequestRepository;
         this.changeRequestMapper = changeRequestMapper;
         this.trackingRecordRepository = trackingRecordRepository;
         this.departmentRepository = departmentRepository;
+        this.mailService = mailService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -50,6 +60,14 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         return changeRequestRepository
             .save(changeRequestMapper.toEntity(changeRequestDTO))
             .flatMap(savedRequest -> saveTrackingHistory(savedRequest, TrackingActionType.CAMBIO_ESTADO).thenReturn(savedRequest))
+            .doOnSuccess(savedRequest -> {
+                // MAGIA: Dispara el correo en segundo plano si hay un usuario asignado
+                if (savedRequest != null && savedRequest.getUserId() != null) {
+                    userRepository
+                        .findById(savedRequest.getUserId())
+                        .subscribe(user -> mailService.sendChangeRequestAssignmentEmail(user, changeRequestMapper.toDto(savedRequest)));
+                }
+            })
             .map(changeRequestMapper::toDto);
     }
 
@@ -99,15 +117,45 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         }
     }
 
+    // ========================================================================
+    //  🚀 MAGIA NUEVA: AISLAMIENTO DE DATOS (MÉTODO FIND ALL)
+    // ========================================================================
     @Override
     @Transactional(readOnly = true)
     public Flux<ChangeRequestDTO> findAll(Pageable pageable) {
-        LOG.debug("Request to get all ChangeRequests");
-        return changeRequestRepository.findAllBy(pageable).map(changeRequestMapper::toDto);
+        LOG.debug("Request to get all ChangeRequests con Aislamiento de Datos");
+
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+            .flatMapMany(isAdmin -> {
+                if (Boolean.TRUE.equals(isAdmin)) {
+                    // 👑 Si es Admin, le mostramos TODO
+                    return changeRequestRepository.findAllBy(pageable);
+                } else {
+                    // 👤 Si es un usuario normal, le mostramos solo lo suyo
+                    return SecurityUtils.getCurrentUserLogin()
+                        .flatMap(login -> userRepository.findOneByLogin(login))
+                        .flatMapMany(user -> changeRequestRepository.findByUserId(user.getId(), pageable));
+                }
+            })
+            .map(changeRequestMapper::toDto);
     }
 
+    // ========================================================================
+    //  🚀 MAGIA NUEVA: AISLAMIENTO DE DATOS (MÉTODO COUNT)
+    // ========================================================================
     public Mono<Long> countAll() {
-        return changeRequestRepository.count();
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN).flatMap(isAdmin -> {
+            if (Boolean.TRUE.equals(isAdmin)) {
+                // 👑 Si es Admin, contamos TODO
+                return changeRequestRepository.count();
+            } else {
+                // 👤 Si es un usuario normal, contamos solo lo suyo
+                return SecurityUtils.getCurrentUserLogin()
+                    .flatMap(login -> userRepository.findOneByLogin(login))
+                    .flatMap(user -> changeRequestRepository.countByUserId(user.getId()))
+                    .switchIfEmpty(Mono.just(0L));
+            }
+        });
     }
 
     @Override
@@ -124,7 +172,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     }
 
     // ========================================================================
-    //  EL CEREBRO: LÓGICA AUTOMÁTICA
+    //  EL CEREBRO: LÓGICA AUTOMÁTICA DEL TRACKING
     // ========================================================================
 
     private TrackingActionType detectActionType(String oldStatus, String newStatus) {
@@ -153,29 +201,24 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
         tracking.setChangeRequestId(request.getId());
 
-        // 🚀 SOLUCIÓN FINAL: Asignamos el ID del Usuario de la Solicitud al Tracking Record
         if (request.getUserId() != null) {
             tracking.setUserId(request.getUserId());
         }
 
-        // MAGIA NUEVA: Buscamos el ID del departamento por su nombre
         if (request.getDepartamento() != null && !request.getDepartamento().trim().isEmpty()) {
             return departmentRepository
                 .findByDepartmentName(request.getDepartamento())
                 .flatMap(department -> {
-                    // Si lo encuentra, le asignamos el ID real
                     tracking.setDepartmentId(department.getId());
                     return trackingRecordRepository.save(tracking);
                 })
                 .switchIfEmpty(
                     Mono.defer(() -> {
-                        // Si no lo encuentra (o escribieron mal el nombre), guardamos sin ID
                         LOG.warn("No se encontró el departamento con nombre: {}", request.getDepartamento());
                         return trackingRecordRepository.save(tracking);
                     })
                 );
         } else {
-            // Si la solicitud no tiene departamento, guardamos normal
             return trackingRecordRepository.save(tracking);
         }
     }

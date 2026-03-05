@@ -57,6 +57,12 @@
       <div class="input-group" style="max-width: 500px">
         <span class="input-group-text bg-primary text-white">ID Solicitud</span>
         <input type="number" class="form-control" placeholder="Escriba el ID..." [(ngModel)]="searchRequestId" (keyup.enter)="load()" />
+
+        @if (searchRequestId()) {
+          <button class="btn btn-danger" title="Limpiar búsqueda" (click)="searchRequestId.set(null); load()">
+            <fa-icon icon="times"></fa-icon>
+          </button>
+        }
         <button class="btn btn-primary" (click)="load()"><fa-icon icon="search"></fa-icon></button>
       </div>
     </div>
@@ -66,11 +72,13 @@
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
         <tr>
-          <th>ID</th>
+          <th class="text-muted">ID Reg.</th>
+          <th>Solicitud</th>
           <th>Fecha y Hora</th>
           <th>Estado</th>
           <th>Usuario</th>
           <th>Departamento</th>
+          <th>Comentario / Acción</th>
           <th class="text-end">Acciones</th>
         </tr>
       </thead>
@@ -78,14 +86,38 @@
         @for (tr of trackingRecords(); track tr.id) {
           <tr>
             <td>
-              <a [routerLink]="['/tracking-record', tr.id, 'view']" class="fw-bold">{{ tr.id }}</a>
+              <span class="text-muted small">#{{ tr.id }}</span>
             </td>
-            <td>{{ tr.changeDate?.subtract(5, 'hours')?.format('DD/MM/YYYY HH:mm:ss') }}</td>
+
             <td>
-              <span class="badge bg-warning text-dark">{{ tr.status }}</span>
+              @if (tr.changeRequest?.id) {
+                <span class="badge bg-primary fs-6">Sol. #{{ tr.changeRequest?.id }}</span>
+              } @else {
+                <span class="text-muted">N/A</span>
+              }
+            </td>
+
+            <td>{{ tr.changeDate?.subtract(5, 'hours')?.format('DD/MM/YYYY HH:mm:ss') }}</td>
+
+            <td>
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-warning text-dark': tr.status === 'PENDIENTE',
+                  'bg-primary': tr.status === 'EN_PROCESO',
+                  'bg-success': tr.status === 'FINALIZADO',
+                }"
+              >
+                {{ tr.status }}
+              </span>
             </td>
             <td>{{ tr.user?.login || 'Sin asignar' }}</td>
             <td>{{ tr.department?.departmentName }}</td>
+
+            <td style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" title="{{ tr.comments }}">
+              {{ tr.comments || 'Sin comentarios' }}
+            </td>
+
             <td class="text-end">
               <div class="btn-group">
                 <button [routerLink]="['/tracking-record', tr.id, 'view']" class="btn btn-info btn-sm text-white">
@@ -99,7 +131,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="6" class="text-center py-5">
+            <td colspan="8" class="text-center py-5">
               <fa-icon icon="info-circle" class="text-muted fa-2x mb-3"></fa-icon>
               <p class="text-muted">No se encontraron registros de seguimiento en la base de datos.</p>
             </td>

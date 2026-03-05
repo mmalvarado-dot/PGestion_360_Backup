@@ -25,7 +25,9 @@ public interface FileRecordRepository extends ReactiveCrudRepository<FileRecord,
     // --- NUEVO: Para contar el total de registros filtrados (vital para la paginación en Angular) ---
     Mono<Long> countByChangeRequestId(Long changeRequestId);
 
-    // -----------------------------------------------------------------------------------------------
+    // 🚀 MAGIA: Cuenta los archivos cruzando con la tabla de ChangeRequest para ver de qué usuario son
+    @Query("SELECT COUNT(fr.id) FROM file_record fr JOIN change_request cr ON fr.change_request_id = cr.id WHERE cr.user_id = :userId")
+    Mono<Long> countByChangeRequestUserId(Long userId);
 
     @Query("SELECT * FROM file_record entity WHERE entity.change_request_id IS NULL")
     Flux<FileRecord> findAllWhereChangeRequestIsNull();
@@ -48,9 +50,10 @@ interface FileRecordRepositoryInternal {
 
     Flux<FileRecord> findAllBy(Pageable pageable);
 
+    // 🚀 MAGIA: Obliga a JHipster a buscar por el usuario de la solicitud
+    Flux<FileRecord> findByChangeRequestUserId(Long userId, Pageable pageable);
+
     Flux<FileRecord> findAll();
 
     Mono<FileRecord> findById(Long id);
-    // this is not supported at the moment because of https://github.com/jhipster/generator-jhipster/issues/18269
-    // Flux<FileRecord> findAllBy(Pageable pageable, Criteria criteria);
 }

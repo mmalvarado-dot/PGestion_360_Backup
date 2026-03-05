@@ -1,6 +1,9 @@
 package com.mycompany.myapp.service.impl;
 
 import com.mycompany.myapp.repository.FileRecordRepository;
+import com.mycompany.myapp.repository.UserRepository; // <-- AÑADIDO PARA SEGURIDAD
+import com.mycompany.myapp.security.AuthoritiesConstants; // <-- AÑADIDO PARA SEGURIDAD
+import com.mycompany.myapp.security.SecurityUtils; // <-- AÑADIDO PARA SEGURIDAD
 import com.mycompany.myapp.service.FileRecordService;
 import com.mycompany.myapp.service.dto.FileRecordDTO;
 import com.mycompany.myapp.service.mapper.FileRecordMapper;
@@ -22,12 +25,17 @@ public class FileRecordServiceImpl implements FileRecordService {
     private static final Logger LOG = LoggerFactory.getLogger(FileRecordServiceImpl.class);
 
     private final FileRecordRepository fileRecordRepository;
-
     private final FileRecordMapper fileRecordMapper;
+    private final UserRepository userRepository; // <-- AÑADIDO PARA SEGURIDAD
 
-    public FileRecordServiceImpl(FileRecordRepository fileRecordRepository, FileRecordMapper fileRecordMapper) {
+    public FileRecordServiceImpl(
+        FileRecordRepository fileRecordRepository,
+        FileRecordMapper fileRecordMapper,
+        UserRepository userRepository // <-- AÑADIDO PARA SEGURIDAD
+    ) {
         this.fileRecordRepository = fileRecordRepository;
         this.fileRecordMapper = fileRecordMapper;
+        this.userRepository = userRepository; // <-- AÑADIDO PARA SEGURIDAD
     }
 
     @Override
@@ -50,22 +58,48 @@ public class FileRecordServiceImpl implements FileRecordService {
             .findById(fileRecordDTO.getId())
             .map(existingFileRecord -> {
                 fileRecordMapper.partialUpdate(existingFileRecord, fileRecordDTO);
-
                 return existingFileRecord;
             })
             .flatMap(fileRecordRepository::save)
             .map(fileRecordMapper::toDto);
     }
 
+    // ========================================================================
+    //  🚀 MAGIA NUEVA: AISLAMIENTO DE DATOS EN ARCHIVOS (FIND ALL)
+    // ========================================================================
     @Override
     @Transactional(readOnly = true)
     public Flux<FileRecordDTO> findAll(Pageable pageable) {
-        LOG.debug("Request to get all FileRecords");
-        return fileRecordRepository.findAllBy(pageable).map(fileRecordMapper::toDto);
+        LOG.debug("Request to get all FileRecords con Aislamiento de Datos");
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+            .flatMapMany(isAdmin -> {
+                if (Boolean.TRUE.equals(isAdmin)) {
+                    // 👑 Si es Admin, le mostramos todos los archivos
+                    return fileRecordRepository.findAllBy(pageable);
+                } else {
+                    // 👤 Si es un usuario normal, buscamos a qué ChangeRequests pertenece y mostramos sus archivos
+                    return SecurityUtils.getCurrentUserLogin()
+                        .flatMap(login -> userRepository.findOneByLogin(login))
+                        .flatMapMany(user -> fileRecordRepository.findByChangeRequestUserId(user.getId(), pageable));
+                }
+            })
+            .map(fileRecordMapper::toDto);
     }
 
+    // ========================================================================
+    //  🚀 MAGIA NUEVA: AISLAMIENTO DE DATOS EN ARCHIVOS (COUNT ALL)
+    // ========================================================================
     public Mono<Long> countAll() {
-        return fileRecordRepository.count();
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN).flatMap(isAdmin -> {
+            if (Boolean.TRUE.equals(isAdmin)) {
+                return fileRecordRepository.count();
+            } else {
+                return SecurityUtils.getCurrentUserLogin()
+                    .flatMap(login -> userRepository.findOneByLogin(login))
+                    .flatMap(user -> fileRecordRepository.countByChangeRequestUserId(user.getId()))
+                    .switchIfEmpty(Mono.just(0L));
+            }
+        });
     }
 
     @Override

@@ -16,6 +16,9 @@ import reactor.core.publisher.Mono;
 public interface ChangeRequestRepository extends ReactiveCrudRepository<ChangeRequest, Long>, ChangeRequestRepositoryInternal {
     Flux<ChangeRequest> findAllBy(Pageable pageable);
 
+    // Solo dejamos el count aquí, es rápido y no necesita JOINs
+    Mono<Long> countByUserId(Long userId);
+
     @Query("SELECT * FROM change_request entity WHERE entity.responsible_id = :id")
     Flux<ChangeRequest> findByResponsible(Long id);
 
@@ -46,9 +49,10 @@ interface ChangeRequestRepositoryInternal {
 
     Flux<ChangeRequest> findAllBy(Pageable pageable);
 
+    // 🚀 MOVIMOS ESTA LÍNEA AQUÍ: Obliga a JHipster a usar el Maestro de los JOINs
+    Flux<ChangeRequest> findByUserId(Long userId, Pageable pageable);
+
     Flux<ChangeRequest> findAll();
 
     Mono<ChangeRequest> findById(Long id);
-    // this is not supported at the moment because of https://github.com/jhipster/generator-jhipster/issues/18269
-    // Flux<ChangeRequest> findAllBy(Pageable pageable, Criteria criteria);
 }

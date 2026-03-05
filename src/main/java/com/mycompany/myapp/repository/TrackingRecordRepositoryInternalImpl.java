@@ -1,6 +1,8 @@
 package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.TrackingRecord;
+// 1. IMPORTAMOS EL MAPPER DE LA SOLICITUD
+import com.mycompany.myapp.repository.rowmapper.ChangeRequestRowMapper;
 import com.mycompany.myapp.repository.rowmapper.DepartmentRowMapper;
 import com.mycompany.myapp.repository.rowmapper.TrackingRecordRowMapper;
 import com.mycompany.myapp.repository.rowmapper.UserRowMapper;
@@ -30,10 +32,14 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
     private final TrackingRecordRowMapper trackingRecordRowMapper;
     private final UserRowMapper userMapper;
     private final DepartmentRowMapper departmentMapper;
+    // 2. DECLARAMOS EL MAPPER DE LA SOLICITUD
+    private final ChangeRequestRowMapper changeRequestMapper;
 
     private static final Table entityTable = Table.aliased("tracking_record", EntityManager.ENTITY_ALIAS);
     private static final Table userTable = Table.aliased("jhi_user", "jhiUser");
     private static final Table departmentTable = Table.aliased("department", "department");
+    // 3. DECLARAMOS LA TABLA DE LA SOLICITUD
+    private static final Table changeRequestTable = Table.aliased("change_request", "changeRequest");
 
     public TrackingRecordRepositoryInternalImpl(
         R2dbcEntityTemplate r2dbcEntityTemplate,
@@ -41,6 +47,7 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
         TrackingRecordRowMapper trackingRecordRowMapper,
         UserRowMapper userMapper,
         DepartmentRowMapper departmentMapper,
+        ChangeRequestRowMapper changeRequestMapper, // 4. LO AGREGAMOS AL CONSTRUCTOR
         DatabaseClient db
     ) {
         this.r2dbcEntityTemplate = r2dbcEntityTemplate;
@@ -48,6 +55,7 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
         this.trackingRecordRowMapper = trackingRecordRowMapper;
         this.userMapper = userMapper;
         this.departmentMapper = departmentMapper;
+        this.changeRequestMapper = changeRequestMapper; // 5. LO INICIALIZAMOS
         this.db = db;
     }
 
@@ -84,6 +92,8 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
 
         columns.addAll(UserSqlHelper.getColumns(userTable, "jhiUser"));
         columns.addAll(DepartmentSqlHelper.getColumns(departmentTable, "department"));
+        // 6. LE DECIMOS A SQL QUE TRAIGA LAS COLUMNAS DE LA SOLICITUD
+        columns.addAll(ChangeRequestSqlHelper.getColumns(changeRequestTable, "changeRequest"));
 
         org.springframework.data.relational.core.sql.SelectBuilder.SelectFromAndJoinCondition selectFrom = Select.builder()
             .select(columns)
@@ -93,7 +103,11 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
             .equals(Column.create("id", userTable))
             .leftOuterJoin(departmentTable)
             .on(Column.create("department_id", entityTable))
-            .equals(Column.create("id", departmentTable));
+            .equals(Column.create("id", departmentTable))
+            // 7. HACEMOS EL JOIN (LA UNIÓN) EN LA BASE DE DATOS
+            .leftOuterJoin(changeRequestTable)
+            .on(Column.create("change_request_id", entityTable))
+            .equals(Column.create("id", changeRequestTable));
 
         Condition where = null;
 
@@ -125,6 +139,9 @@ class TrackingRecordRepositoryInternalImpl implements TrackingRecordRepositoryIn
 
         entity.setUser(userMapper.apply(row, "jhiUser"));
         entity.setDepartment(departmentMapper.apply(row, "department"));
+
+        // 8. ¡ENSAMBLAMOS LA SOLICITUD AL FIN!
+        entity.setChangeRequest(changeRequestMapper.apply(row, "changeRequest"));
 
         return entity;
     }

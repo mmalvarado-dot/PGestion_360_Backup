@@ -3,7 +3,7 @@ package com.mycompany.myapp.repository;
 import com.mycompany.myapp.domain.ChangeRequest;
 import com.mycompany.myapp.repository.rowmapper.ChangeRequestRowMapper;
 import com.mycompany.myapp.repository.rowmapper.ItemCatalogueRowMapper;
-import com.mycompany.myapp.repository.rowmapper.UserRowMapper; // <-- Importamos el mapper de User
+import com.mycompany.myapp.repository.rowmapper.UserRowMapper;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import java.util.List;
@@ -36,18 +36,18 @@ class ChangeRequestRepositoryInternalImpl extends SimpleR2dbcRepository<ChangeRe
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
     private final EntityManager entityManager;
 
-    private final UserRowMapper userMapper; // <-- Cambiado a User
+    private final UserRowMapper userMapper;
     private final ItemCatalogueRowMapper itemcatalogueMapper;
     private final ChangeRequestRowMapper changerequestMapper;
 
     private static final Table entityTable = Table.aliased("change_request", EntityManager.ENTITY_ALIAS);
-    private static final Table userTable = Table.aliased("jhi_user", "jhi_user"); // <-- Tabla de usuarios
+    private static final Table userTable = Table.aliased("jhi_user", "jhi_user");
     private static final Table itemCatalogueTable = Table.aliased("item_catalogue", "itemCatalogue");
 
     public ChangeRequestRepositoryInternalImpl(
         R2dbcEntityTemplate template,
         EntityManager entityManager,
-        UserRowMapper userMapper, // <-- Cambiado a User
+        UserRowMapper userMapper,
         ItemCatalogueRowMapper itemcatalogueMapper,
         ChangeRequestRowMapper changerequestMapper,
         R2dbcEntityOperations entityOperations,
@@ -61,7 +61,7 @@ class ChangeRequestRepositoryInternalImpl extends SimpleR2dbcRepository<ChangeRe
         this.db = template.getDatabaseClient();
         this.r2dbcEntityTemplate = template;
         this.entityManager = entityManager;
-        this.userMapper = userMapper; // <-- Cambiado a User
+        this.userMapper = userMapper;
         this.itemcatalogueMapper = itemcatalogueMapper;
         this.changerequestMapper = changerequestMapper;
     }
@@ -71,15 +71,26 @@ class ChangeRequestRepositoryInternalImpl extends SimpleR2dbcRepository<ChangeRe
         return createQuery(pageable, null).all();
     }
 
+    // ========================================================================
+    //  🚀 LA MAGIA: Método que busca por usuario Y hace los JOINs
+    // ========================================================================
+    @Override
+    public Flux<ChangeRequest> findByUserId(Long userId, Pageable pageable) {
+        Comparison whereClause = Conditions.isEqual(entityTable.column("user_id"), Conditions.just(userId.toString()));
+        return createQuery(pageable, whereClause).all();
+    }
+
+    // ========================================================================
+
     RowsFetchSpec<ChangeRequest> createQuery(Pageable pageable, Condition whereClause) {
         List<Expression> columns = ChangeRequestSqlHelper.getColumns(entityTable, EntityManager.ENTITY_ALIAS);
-        columns.addAll(UserSqlHelper.getColumns(userTable, "jhi_user")); // <-- Cambiado a User
+        columns.addAll(UserSqlHelper.getColumns(userTable, "jhi_user"));
         columns.addAll(ItemCatalogueSqlHelper.getColumns(itemCatalogueTable, "itemCatalogue"));
         SelectFromAndJoinCondition selectFrom = Select.builder()
             .select(columns)
             .from(entityTable)
-            .leftOuterJoin(userTable) // <-- Cambiado a User
-            .on(Column.create("user_id", entityTable)) // <-- user_id
+            .leftOuterJoin(userTable)
+            .on(Column.create("user_id", entityTable))
             .equals(Column.create("id", userTable))
             .leftOuterJoin(itemCatalogueTable)
             .on(Column.create("item_catalogue_id", entityTable))
@@ -102,7 +113,7 @@ class ChangeRequestRepositoryInternalImpl extends SimpleR2dbcRepository<ChangeRe
 
     private ChangeRequest process(Row row, RowMetadata metadata) {
         ChangeRequest entity = changerequestMapper.apply(row, "e");
-        entity.setUser(userMapper.apply(row, "jhi_user")); // <-- Cambiado a User
+        entity.setUser(userMapper.apply(row, "jhi_user"));
         entity.setItemCatalogue(itemcatalogueMapper.apply(row, "itemCatalogue"));
         return entity;
     }

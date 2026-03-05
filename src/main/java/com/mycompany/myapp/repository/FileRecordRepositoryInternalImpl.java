@@ -66,6 +66,17 @@ class FileRecordRepositoryInternalImpl extends SimpleR2dbcRepository<FileRecord,
         return createQuery(pageable, null).all();
     }
 
+    // ========================================================================
+    //  🚀 LA MAGIA: Método que busca por usuario revisando la tabla cruzada
+    // ========================================================================
+    @Override
+    public Flux<FileRecord> findByChangeRequestUserId(Long userId, Pageable pageable) {
+        Comparison whereClause = Conditions.isEqual(changeRequestTable.column("user_id"), Conditions.just(userId.toString()));
+        return createQuery(pageable, whereClause).all();
+    }
+
+    // ========================================================================
+
     RowsFetchSpec<FileRecord> createQuery(Pageable pageable, Condition whereClause) {
         List<Expression> columns = FileRecordSqlHelper.getColumns(entityTable, EntityManager.ENTITY_ALIAS);
         columns.addAll(ChangeRequestSqlHelper.getColumns(changeRequestTable, "changeRequest"));

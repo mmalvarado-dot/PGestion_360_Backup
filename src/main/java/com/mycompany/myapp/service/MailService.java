@@ -1,6 +1,7 @@
 package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.User;
+import com.mycompany.myapp.service.dto.ChangeRequestDTO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
@@ -115,5 +116,24 @@ public class MailService {
     public void sendPasswordResetMail(User user) {
         LOG.debug("Sending password reset email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
+    }
+
+    // --- NUEVO MÉTODO AGREGADO PARA LAS SOLICITUDES DE CAMBIO ---
+    public void sendChangeRequestAssignmentEmail(User user, ChangeRequestDTO changeRequest) {
+        LOG.debug("Enviando correo de asignación de solicitud a '{}'", user.getEmail());
+
+        String subject = "Nueva Solicitud Asignada - ID: " + changeRequest.getId();
+        String content =
+            "Hola " +
+            user.getLogin() +
+            ",\n\n" +
+            "Se te ha asignado una nueva Solicitud de Cambio en el sistema.\n" +
+            "ID de la Solicitud: " +
+            changeRequest.getId() +
+            "\n\n" +
+            "Por favor, ingresa a la plataforma para revisar los detalles.\n\n" +
+            "Saludos,\nEl Sistema de Gestión";
+
+        sendEmail(user.getEmail(), subject, content, false, false);
     }
 }
