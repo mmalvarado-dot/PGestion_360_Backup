@@ -1,5 +1,5 @@
 import { Component, NgZone, OnInit, inject, signal } from '@angular/core';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpResponse, HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { Observable, Subscription, combineLatest, filter, tap } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -43,6 +43,9 @@ export class FileRecordComponent implements OnInit {
   protected dataUtils = inject(DataUtils);
   protected modalService = inject(NgbModal);
   protected ngZone = inject(NgZone);
+
+  // 👇 Inyectamos HttpClient para hacer la petición segura llevando nuestro Token
+  private readonly http = inject(HttpClient);
 
   trackId = (item: IFileRecord): number => this.fileRecordService.getFileRecordIdentifier(item);
 
@@ -150,6 +153,47 @@ export class FileRecordComponent implements OnInit {
         relativeTo: this.activatedRoute,
         queryParams: queryParamsObj,
       });
+    });
+  }
+
+  // 👇 NUEVA FUNCIÓN PARA DESCARGAR O VER ARCHIVOS CON SEGURIDAD 👇
+  downloadPhysicalFile(fileId: number, descargar: boolean): void {
+    const url = `/api/change-requests/archivo/${fileId}/descargar?descargar=${descargar}`;
+
+    // Hacemos la petición pidiendo un Blob (archivo binario)
+    this.http.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
+      next: (response: HttpResponse<Blob>) => {
+        if (!response.body) return;
+
+        // Creamos una URL temporal para el archivo en la memoria del navegador
+        const fileUrl = window.URL.createObjectURL(response.body);
+
+        if (descargar) {
+          // Si es descargar, creamos un enlace invisible y lo "clickeamos"
+          let fileName = 'archivo';
+          const disposition = response.headers.get('content-disposition');
+          if (disposition && disposition.indexOf('filename=') !== -1) {
+            const matches = /filename="([^"]*)"/.exec(disposition);
+            if (matches != null && matches[1]) fileName = matches[1];
+          }
+
+          const a = document.createElement('a');
+          a.href = fileUrl;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          // Si es solo "ver", abrimos la URL temporal en una nueva pestaña
+          window.open(fileUrl, '_blank');
+        }
+
+        // Limpiamos la memoria
+        setTimeout(() => window.URL.revokeObjectURL(fileUrl), 1000);
+      },
+      error: () => {
+        alert('Error: No se pudo cargar o encontrar el archivo físico. Verifica la consola del servidor.');
+      },
     });
   }
 }

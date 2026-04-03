@@ -21,7 +21,11 @@ export class TrackingRecordComponent implements OnInit {
   statsDepartments = signal<ITrackingStats[]>([]);
   statsUsers = signal<ITrackingStats[]>([]);
 
+  // Filtros de búsqueda y estadísticas
   searchRequestId = signal<number | null>(null);
+  filterYear = signal<number | null>(null);
+  filterMonth = signal<number | null>(null);
+
   isStatsCollapsed = true;
   isLoading = false;
   totalItems = 0;
@@ -76,9 +80,27 @@ export class TrackingRecordComponent implements OnInit {
     if (!this.isStatsCollapsed) this.loadStats();
   }
 
+  updateStats(): void {
+    this.loadStats();
+  }
+
   loadStats(): void {
-    this.trackingRecordService.getStatsByDepartment().subscribe(res => this.statsDepartments.set(res.body ?? []));
-    this.trackingRecordService.getStatsByUser().subscribe(res => this.statsUsers.set(res.body ?? []));
+    // Solo agregamos al objeto los filtros que tengan un valor real (no null)
+    const filters: any = {};
+    if (this.filterYear() !== null) {
+      filters.year = this.filterYear();
+    }
+    if (this.filterMonth() !== null) {
+      filters.month = this.filterMonth();
+    }
+
+    this.trackingRecordService.getStatsByDepartment(filters).subscribe(res => {
+      this.statsDepartments.set(res.body ?? []);
+    });
+
+    this.trackingRecordService.getStatsByUser(filters).subscribe(res => {
+      this.statsUsers.set(res.body ?? []);
+    });
   }
 
   delete(trackingRecord: ITrackingRecord): void {

@@ -17,6 +17,8 @@ public class FileRecordSqlHelper {
         columns.add(Column.aliased("content", table, columnPrefix + "_content"));
         columns.add(Column.aliased("content_content_type", table, columnPrefix + "_content_content_type"));
 
+        columns.add(Column.aliased("upload_date", table, columnPrefix + "_upload_date"));
+
         columns.add(Column.aliased("change_request_id", table, columnPrefix + "_change_request_id"));
         return columns;
     }

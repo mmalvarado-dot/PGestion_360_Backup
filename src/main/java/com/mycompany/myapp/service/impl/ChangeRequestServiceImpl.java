@@ -7,8 +7,8 @@ import com.mycompany.myapp.repository.ChangeRequestRepository;
 import com.mycompany.myapp.repository.DepartmentRepository;
 import com.mycompany.myapp.repository.TrackingRecordRepository;
 import com.mycompany.myapp.repository.UserRepository;
-import com.mycompany.myapp.security.AuthoritiesConstants; // <-- AÑADIDO PARA SEGURIDAD
-import com.mycompany.myapp.security.SecurityUtils; // <-- AÑADIDO PARA SEGURIDAD
+import com.mycompany.myapp.security.AuthoritiesConstants;
+import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.ChangeRequestService;
 import com.mycompany.myapp.service.MailService;
 import com.mycompany.myapp.service.dto.ChangeRequestDTO;
@@ -22,9 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/**
- * Service Implementation for managing {@link com.mycompany.myapp.domain.ChangeRequest}.
- */
 @Service
 @Transactional
 public class ChangeRequestServiceImpl implements ChangeRequestService {
@@ -59,9 +56,10 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         LOG.debug("Request to save ChangeRequest : {}", changeRequestDTO);
         return changeRequestRepository
             .save(changeRequestMapper.toEntity(changeRequestDTO))
-            .flatMap(savedRequest -> saveTrackingHistory(savedRequest, TrackingActionType.CAMBIO_ESTADO).thenReturn(savedRequest))
+            .flatMap(savedRequest ->
+                saveTrackingHistory(savedRequest, TrackingActionType.CAMBIO_ESTADO, "Solicitud creada.").thenReturn(savedRequest)
+            )
             .doOnSuccess(savedRequest -> {
-                // MAGIA: Dispara el correo en segundo plano si hay un usuario asignado
                 if (savedRequest != null && savedRequest.getUserId() != null) {
                     userRepository
                         .findById(savedRequest.getUserId())
@@ -78,11 +76,13 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         return changeRequestRepository
             .findById(changeRequestDTO.getId())
             .flatMap(existingRequest -> {
-                String oldStatus = existingRequest.getStatus();
                 ChangeRequest updatedEntity = changeRequestMapper.toEntity(changeRequestDTO);
-                TrackingActionType type = detectActionType(oldStatus, updatedEntity.getStatus());
+                TrackingActionType type = detectActionType(existingRequest.getStatus(), updatedEntity.getStatus());
+                String details = buildChangeMessage(existingRequest, updatedEntity);
 
-                return changeRequestRepository.save(updatedEntity).flatMap(saved -> saveTrackingHistory(saved, type).thenReturn(saved));
+                return changeRequestRepository
+                    .save(updatedEntity)
+                    .flatMap(saved -> saveTrackingHistory(saved, type, details).thenReturn(saved));
             })
             .map(changeRequestMapper::toDto);
     }
@@ -94,14 +94,18 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
         return changeRequestRepository
             .findById(changeRequestDTO.getId())
             .map(existingChangeRequest -> {
-                String oldStatus = existingChangeRequest.getStatus();
+                ChangeRequest oldState = changeRequestMapper.toEntity(changeRequestMapper.toDto(existingChangeRequest));
                 changeRequestMapper.partialUpdate(existingChangeRequest, changeRequestDTO);
-                String newStatus = existingChangeRequest.getStatus();
-                TrackingActionType type = detectActionType(oldStatus, newStatus);
-                return new Wrapper(existingChangeRequest, type);
+
+                TrackingActionType type = detectActionType(oldState.getStatus(), existingChangeRequest.getStatus());
+                String details = buildChangeMessage(oldState, existingChangeRequest);
+
+                return new Wrapper(existingChangeRequest, type, details);
             })
             .flatMap(wrapper ->
-                changeRequestRepository.save(wrapper.request).flatMap(saved -> saveTrackingHistory(saved, wrapper.type).thenReturn(saved))
+                changeRequestRepository
+                    .save(wrapper.request)
+                    .flatMap(saved -> saveTrackingHistory(saved, wrapper.type, wrapper.details).thenReturn(saved))
             )
             .map(changeRequestMapper::toDto);
     }
@@ -110,28 +114,23 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
         ChangeRequest request;
         TrackingActionType type;
+        String details;
 
-        Wrapper(ChangeRequest r, TrackingActionType t) {
+        Wrapper(ChangeRequest r, TrackingActionType t, String d) {
             this.request = r;
             this.type = t;
+            this.details = d;
         }
     }
 
-    // ========================================================================
-    //  🚀 MAGIA NUEVA: AISLAMIENTO DE DATOS (MÉTODO FIND ALL)
-    // ========================================================================
     @Override
     @Transactional(readOnly = true)
     public Flux<ChangeRequestDTO> findAll(Pageable pageable) {
-        LOG.debug("Request to get all ChangeRequests con Aislamiento de Datos");
-
         return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
             .flatMapMany(isAdmin -> {
                 if (Boolean.TRUE.equals(isAdmin)) {
-                    // 👑 Si es Admin, le mostramos TODO
                     return changeRequestRepository.findAllBy(pageable);
                 } else {
-                    // 👤 Si es un usuario normal, le mostramos solo lo suyo
                     return SecurityUtils.getCurrentUserLogin()
                         .flatMap(login -> userRepository.findOneByLogin(login))
                         .flatMapMany(user -> changeRequestRepository.findByUserId(user.getId(), pageable));
@@ -140,16 +139,13 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
             .map(changeRequestMapper::toDto);
     }
 
-    // ========================================================================
-    //  🚀 MAGIA NUEVA: AISLAMIENTO DE DATOS (MÉTODO COUNT)
-    // ========================================================================
+    @Override
+    @Transactional(readOnly = true)
     public Mono<Long> countAll() {
         return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN).flatMap(isAdmin -> {
             if (Boolean.TRUE.equals(isAdmin)) {
-                // 👑 Si es Admin, contamos TODO
                 return changeRequestRepository.count();
             } else {
-                // 👤 Si es un usuario normal, contamos solo lo suyo
                 return SecurityUtils.getCurrentUserLogin()
                     .flatMap(login -> userRepository.findOneByLogin(login))
                     .flatMap(user -> changeRequestRepository.countByUserId(user.getId()))
@@ -160,66 +156,119 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
     @Override
     @Transactional(readOnly = true)
+    public Flux<ChangeRequestDTO> findByFilters(String search, String status, Instant startDate, Instant endDate, Pageable pageable) {
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+            .flatMapMany(isAdmin -> {
+                if (Boolean.TRUE.equals(isAdmin)) {
+                    return changeRequestRepository.findAllByFilters(
+                        search,
+                        status,
+                        startDate,
+                        endDate,
+                        pageable.getPageSize(),
+                        pageable.getOffset()
+                    );
+                } else {
+                    return SecurityUtils.getCurrentUserLogin()
+                        .flatMap(login -> userRepository.findOneByLogin(login))
+                        .flatMapMany(user ->
+                            changeRequestRepository.findByUserIdAndFilters(
+                                search,
+                                status,
+                                startDate,
+                                endDate,
+                                user.getId(),
+                                pageable.getPageSize(),
+                                pageable.getOffset()
+                            )
+                        );
+                }
+            })
+            .concatMap(partialEntity -> changeRequestRepository.findById(partialEntity.getId()))
+            .map(changeRequestMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Mono<Long> countByFilters(String search, String status, Instant startDate, Instant endDate) {
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN).flatMap(isAdmin -> {
+            if (Boolean.TRUE.equals(isAdmin)) {
+                return changeRequestRepository.countAllByFilters(search, status, startDate, endDate);
+            } else {
+                return SecurityUtils.getCurrentUserLogin()
+                    .flatMap(login -> userRepository.findOneByLogin(login))
+                    .flatMap(user -> changeRequestRepository.countByUserIdAndFilters(search, status, startDate, endDate, user.getId()))
+                    .switchIfEmpty(Mono.just(0L));
+            }
+        });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Mono<ChangeRequestDTO> findOne(Long id) {
-        LOG.debug("Request to get ChangeRequest : {}", id);
         return changeRequestRepository.findById(id).map(changeRequestMapper::toDto);
     }
 
     @Override
     public Mono<Void> delete(Long id) {
-        LOG.debug("Request to delete ChangeRequest : {}", id);
         return changeRequestRepository.deleteById(id);
     }
 
-    // ========================================================================
-    //  EL CEREBRO: LÓGICA AUTOMÁTICA DEL TRACKING
-    // ========================================================================
+    @Override
+    public Mono<Void> recordFileTracking(Long id, String fileName) {
+        return changeRequestRepository
+            .findById(id)
+            .flatMap(req -> saveTrackingHistory(req, TrackingActionType.EDICION, "Se adjuntó el archivo: " + fileName))
+            .then();
+    }
 
     private TrackingActionType detectActionType(String oldStatus, String newStatus) {
-        if (oldStatus == null && newStatus != null) return TrackingActionType.CAMBIO_ESTADO;
-        if (oldStatus != null && !oldStatus.equals(newStatus)) {
-            return TrackingActionType.CAMBIO_ESTADO;
-        }
+        if (oldStatus != null && !oldStatus.equals(newStatus)) return TrackingActionType.CAMBIO_ESTADO;
         return TrackingActionType.EDICION;
     }
 
-    /**
-     * Guarda el historial en la tabla tracking_record
-     */
-    private Mono<TrackingRecord> saveTrackingHistory(ChangeRequest request, TrackingActionType actionType) {
-        TrackingRecord tracking = new TrackingRecord();
+    private String buildChangeMessage(ChangeRequest oldReq, ChangeRequest newReq) {
+        if (oldReq == null) return "Solicitud creada.";
+        java.util.List<String> changes = new java.util.ArrayList<>();
 
+        if (!java.util.Objects.equals(oldReq.getTitle(), newReq.getTitle())) changes.add("Título: '" + newReq.getTitle() + "'");
+
+        if (!java.util.Objects.equals(oldReq.getDescription(), newReq.getDescription())) {
+            String oldDesc = oldReq.getDescription() != null ? oldReq.getDescription() : "vacío";
+            String newDesc = newReq.getDescription() != null ? newReq.getDescription() : "vacío";
+            changes.add("Descripción cambió de: [" + oldDesc + "] a: [" + newDesc + "]");
+        }
+
+        if (!java.util.Objects.equals(oldReq.getStatus(), newReq.getStatus())) changes.add("Estado cambió a: '" + newReq.getStatus() + "'");
+
+        if (!java.util.Objects.equals(oldReq.getObservaciones(), newReq.getObservaciones())) {
+            String oldObs = oldReq.getObservaciones() != null ? oldReq.getObservaciones() : "vacío";
+            String newObs = newReq.getObservaciones() != null ? newReq.getObservaciones() : "vacío";
+            changes.add("Observaciones cambió de: [" + oldObs + "] a: [" + newObs + "]");
+        }
+
+        if (changes.isEmpty()) return "Se actualizaron detalles menores.";
+        return String.join(" | ", changes);
+    }
+
+    private Mono<TrackingRecord> saveTrackingHistory(ChangeRequest request, TrackingActionType actionType, String comments) {
+        TrackingRecord tracking = new TrackingRecord();
         tracking.setChangeDate(Instant.now());
         tracking.setStatus(request.getStatus());
         tracking.setActionType(actionType);
-
-        if (actionType == TrackingActionType.CAMBIO_ESTADO) {
-            tracking.setComments("El estado cambió a: " + request.getStatus());
-        } else {
-            tracking.setComments("Se actualizaron detalles de la solicitud.");
-        }
-
+        tracking.setComments(comments);
         tracking.setChangeRequestId(request.getId());
-
-        if (request.getUserId() != null) {
-            tracking.setUserId(request.getUserId());
-        }
+        if (request.getUserId() != null) tracking.setUserId(request.getUserId());
 
         if (request.getDepartamento() != null && !request.getDepartamento().trim().isEmpty()) {
             return departmentRepository
                 .findByDepartmentName(request.getDepartamento())
-                .flatMap(department -> {
-                    tracking.setDepartmentId(department.getId());
+                .flatMap(dept -> {
+                    tracking.setDepartmentId(dept.getId());
                     return trackingRecordRepository.save(tracking);
                 })
-                .switchIfEmpty(
-                    Mono.defer(() -> {
-                        LOG.warn("No se encontró el departamento con nombre: {}", request.getDepartamento());
-                        return trackingRecordRepository.save(tracking);
-                    })
-                );
-        } else {
-            return trackingRecordRepository.save(tracking);
+                .switchIfEmpty(Mono.defer(() -> trackingRecordRepository.save(tracking)));
         }
+        return trackingRecordRepository.save(tracking);
     }
 }

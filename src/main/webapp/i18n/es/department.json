@@ -2,25 +2,25 @@
   "pGestion360App": {
     "department": {
       "home": {
-        "title": "Departments",
+        "title": "Departamentos",
         "refreshListLabel": "Refrescar lista",
-        "createLabel": "Crear nuevo Department",
-        "createOrEditLabel": "Crear o editar Department",
-        "notFound": "Ningún Departments encontrado"
+        "createLabel": "Crear nuevo Departamento",
+        "createOrEditLabel": "Crear o editar Departamento",
+        "notFound": "No se encontraron Departamentos"
       },
-      "created": "Un nuevo Department ha sido creado con el identificador {{ param }}",
-      "updated": "Un Department ha sido actualizado con el identificador {{ param }}",
-      "deleted": "Un Department ha sido eliminado con el identificador {{ param }}",
+      "created": "Un nuevo Departamento ha sido creado con el identificador {{ param }}",
+      "updated": "El Departamento ha sido actualizado con el identificador {{ param }}",
+      "deleted": "El Departamento ha sido eliminado con el identificador {{ param }}",
       "delete": {
-        "question": "¿Seguro que quiere eliminar Department {{ id }}?"
+        "question": "¿Está seguro de que desea eliminar el Departamento {{ id }}?"
       },
       "detail": {
-        "title": "Department"
+        "title": "Detalle del Departamento"
       },
       "id": "ID",
-      "departmentName": "Department Name",
-      "field": "Field",
-      "parentDepartment": "Parent Department"
+      "departmentName": "Nombre del Departamento",
+      "field": "Área",
+      "parentDepartment": "Departamento Superior"
     }
   }
 }

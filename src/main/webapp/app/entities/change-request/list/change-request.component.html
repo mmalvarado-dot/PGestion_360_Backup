@@ -27,7 +27,13 @@
           <label class="form-label fw-bold">Buscar:</label>
           <div class="input-group">
             <span class="input-group-text bg-white"><fa-icon icon="search"></fa-icon></span>
-            <input type="text" class="form-control" placeholder="Título, depto..." #searchInput (keyup)="onSearch(searchInput.value)" />
+            <input
+              type="text"
+              class="form-control"
+              placeholder="ID, título, depto, o usuario..."
+              #searchInput
+              (keyup)="onSearch(searchInput.value)"
+            />
           </div>
         </div>
 
@@ -64,7 +70,7 @@
   <jhi-alert-error />
   <jhi-alert />
 
-  @if (requestsFiltrados().length === 0) {
+  @if (requestsVisibles().length === 0) {
     <div class="alert alert-warning" id="no-result">
       <span jhiTranslate="pGestion360App.changeRequest.home.notFound"> No se encontraron solicitudes con esos filtros. </span>
     </div>
@@ -193,17 +199,17 @@
     </div>
   }
 
-  @if (requestsFiltrados().length > 0) {
+  @if (totalItems > 0) {
     <div class="mt-4">
       <div class="d-flex justify-content-center mb-2 text-muted">
-        <span> Mostrando {{ requestsVisibles().length }} de {{ requestsFiltrados().length }} resultados </span>
+        <span> Mostrando {{ requestsVisibles().length }} de {{ totalItems }} resultados </span>
       </div>
 
       <div class="d-flex justify-content-center">
         <ngb-pagination
-          [collectionSize]="requestsFiltrados().length"
+          [collectionSize]="totalItems"
           [page]="page()"
-          (pageChange)="page.set($event)"
+          (pageChange)="navigateToPage($event)"
           [pageSize]="pageSize"
           [maxSize]="5"
           [rotate]="true"

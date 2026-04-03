@@ -2,36 +2,36 @@
   "pGestion360App": {
     "changeRequest": {
       "home": {
-        "title": "Change Requests",
+        "title": "Solicitudes de Cambio",
         "refreshListLabel": "Refrescar lista",
-        "createLabel": "Crear nuevo Change Request",
-        "createOrEditLabel": "Crear o editar Change Request",
-        "notFound": "Ningún Change Requests encontrado"
+        "createLabel": "Crear nueva Solicitud de Cambio",
+        "createOrEditLabel": "Crear o editar Solicitud de Cambio",
+        "notFound": "No se encontraron Solicitudes de Cambio"
       },
-      "created": "Un nuevo Change Request ha sido creado con el identificador {{ param }}",
-      "updated": "Un Change Request ha sido actualizado con el identificador {{ param }}",
-      "deleted": "Un Change Request ha sido eliminado con el identificador {{ param }}",
+      "created": "Una nueva Solicitud de Cambio ha sido creada con el identificador {{ param }}",
+      "updated": "La Solicitud de Cambio ha sido actualizada con el identificador {{ param }}",
+      "deleted": "La Solicitud de Cambio ha sido eliminada con el identificador {{ param }}",
       "delete": {
-        "question": "¿Seguro que quiere eliminar Change Request {{ id }}?"
+        "question": "¿Está seguro de que desea eliminar la Solicitud de Cambio {{ id }}?"
       },
       "detail": {
-        "title": "Change Request"
+        "title": "Detalle de la Solicitud de Cambio"
       },
       "id": "ID",
-      "title": "Title",
-      "description": "Description",
-      "createdDate": "Created Date",
-      "updatedDate": "Updated Date",
-      "priority": "Priority",
-      "impact": "Impact",
-      "status": "Status",
-      "fechaEntrega": "Fecha Entrega",
+      "title": "Título",
+      "description": "Descripción",
+      "createdDate": "Fecha de Creación",
+      "updatedDate": "Fecha de Actualización",
+      "priority": "Prioridad",
+      "impact": "Impacto",
+      "status": "Estado",
+      "fechaEntrega": "Fecha de Entrega",
       "observaciones": "Observaciones",
       "archivoAdjunto": "Archivo Adjunto",
       "solicitante": "Solicitante",
       "departamento": "Departamento",
-      "responsible": "Responsible",
-      "itemCatalogue": "Item Catalogue"
+      "responsible": "Responsable",
+      "itemCatalogue": "Catálogo de Ítems"
     }
   }
 }

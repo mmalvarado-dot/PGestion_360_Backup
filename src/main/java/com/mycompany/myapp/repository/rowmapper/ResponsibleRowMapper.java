@@ -27,8 +27,6 @@ public class ResponsibleRowMapper implements BiFunction<Row, String, Responsible
         // 1. Extraemos el ID primero.
         Object id = converter.fromRow(row, prefix + "_id", Long.class);
 
-        // 2. Si el ID es nulo, significa que el LEFT JOIN no encontró responsable.
-        // Devolvemos NULL para no crear "objetos fantasma".
         if (id == null) {
             return null;
         }

@@ -143,7 +143,6 @@ public class FileRecordResource {
         Mono<Long> countMono;
         Mono<List<FileRecordDTO>> listMono;
 
-        // --- NUEVO: Interceptamos si viene un ID o no ---
         if (changeRequestId != null) {
             countMono = fileRecordService.countByChangeRequestId(changeRequestId);
             listMono = fileRecordService.findByChangeRequestId(changeRequestId, pageable).collectList();

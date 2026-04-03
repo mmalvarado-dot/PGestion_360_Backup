@@ -22,7 +22,6 @@ type TrackingRecordFormGroupContent = {
   status: FormControl<ITrackingRecord['status']>;
   comments: FormControl<ITrackingRecord['comments']>;
   user: FormControl<ITrackingRecord['user']>;
-  responsible: FormControl<ITrackingRecord['responsible']>;
   changeRequest: FormControl<ITrackingRecord['changeRequest']>;
   department: FormControl<ITrackingRecord['department']>;
 };
@@ -52,7 +51,6 @@ export class TrackingRecordFormService {
       }),
       comments: new FormControl(trackingRecordRawValue.comments),
       user: new FormControl(trackingRecordRawValue.user),
-      responsible: new FormControl(trackingRecordRawValue.responsible),
       changeRequest: new FormControl(trackingRecordRawValue.changeRequest),
       department: new FormControl(trackingRecordRawValue.department),
     });

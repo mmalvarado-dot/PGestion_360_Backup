@@ -2,27 +2,27 @@
   "pGestion360App": {
     "fileRecord": {
       "home": {
-        "title": "File Records",
+        "title": "Registros de Archivo",
         "refreshListLabel": "Refrescar lista",
-        "createLabel": "Crear nuevo File Record",
-        "createOrEditLabel": "Crear o editar File Record",
-        "notFound": "Ningún File Records encontrado"
+        "createLabel": "Crear nuevo Registro de Archivo",
+        "createOrEditLabel": "Crear o editar Registro de Archivo",
+        "notFound": "No se encontraron Registros de Archivo"
       },
-      "created": "Un nuevo File Record ha sido creado con el identificador {{ param }}",
-      "updated": "Un File Record ha sido actualizado con el identificador {{ param }}",
-      "deleted": "Un File Record ha sido eliminado con el identificador {{ param }}",
+      "created": "Un nuevo Registro de Archivo ha sido creado con el identificador {{ param }}",
+      "updated": "El Registro de Archivo ha sido actualizado con el identificador {{ param }}",
+      "deleted": "El Registro de Archivo ha sido eliminado con el identificador {{ param }}",
       "delete": {
-        "question": "¿Seguro que quiere eliminar File Record {{ id }}?"
+        "question": "¿Está seguro de que desea eliminar el Registro de Archivo {{ id }}?"
       },
       "detail": {
-        "title": "File Record"
+        "title": "Detalle del Registro de Archivo"
       },
       "id": "ID",
-      "fileName": "File Name",
-      "filePath": "File Path",
-      "fileType": "File Type",
-      "content": "Content",
-      "changeRequest": "Change Request"
+      "fileName": "Nombre del Archivo",
+      "filePath": "Ruta del Archivo",
+      "fileType": "Tipo de Archivo",
+      "content": "Contenido",
+      "changeRequest": "Solicitud de Cambio"
     }
   }
 }

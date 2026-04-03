@@ -35,14 +35,14 @@
         @let descriptionRef = editForm.get('description')!;
         <div class="mb-3">
           <label class="form-label" for="field_description" jhiTranslate="pGestion360App.changeRequest.description">Description</label>
-          <input
-            type="text"
+          <textarea
             class="form-control"
             name="description"
             id="field_description"
             data-cy="description"
             formControlName="description"
-          />
+            rows="5"
+          ></textarea>
           @if (descriptionRef.invalid && (descriptionRef.dirty || descriptionRef.touched)) {
             <div>
               @if (editForm.get('description')?.errors?.required) {
@@ -120,11 +120,16 @@
 
         <div class="mb-3">
           <label class="form-label" for="field_status">Estado de la Solicitud</label>
-          <select class="form-control" name="status" id="field_status" data-cy="status" formControlName="status">
-            <option [ngValue]="null">Seleccione un estado...</option>
+          <select
+            class="form-control"
+            name="status"
+            id="field_status"
+            data-cy="status"
+            formControlName="status"
+            style="pointer-events: none; background-color: #e9ecef"
+            tabindex="-1"
+          >
             <option value="PENDIENTE">PENDIENTE</option>
-            <option value="EN_PROCESO">EN PROCESO</option>
-            <option value="FINALIZADO">FINALIZADO</option>
           </select>
         </div>
 
@@ -140,24 +145,12 @@
               ngbDatepicker
               #fechaEntregaDp="ngbDatepicker"
               formControlName="fechaEntrega"
+              [minDate]="minDate"
             />
             <button type="button" class="btn btn-secondary" (click)="fechaEntregaDp.toggle()">
               <fa-icon icon="calendar-alt"></fa-icon>
             </button>
           </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_observaciones" jhiTranslate="pGestion360App.changeRequest.observaciones"
-            >Observaciones</label
-          >
-          <textarea
-            class="form-control"
-            name="observaciones"
-            id="field_observaciones"
-            data-cy="observaciones"
-            formControlName="observaciones"
-          ></textarea>
         </div>
 
         <div class="mb-3">
@@ -173,7 +166,7 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center p-2">
                       <span class="text-truncate me-3" style="max-width: 80%" title="{{ pending.file.name }}">
                         📄 <strong>{{ pending.file.name }}</strong>
-                        <span class="text-muted small">({{ byteSize(pending.base64Content) }})</span>
+                        <span class="text-muted small">({{ formatFileSize(pending.file.size) }})</span>
                       </span>
                       <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFile($index)" title="Quitar archivo">
                         <fa-icon icon="times"></fa-icon>
@@ -197,6 +190,7 @@
             <fa-icon icon="plus"></fa-icon> Elegir archivos...
           </button>
         </div>
+
         <div class="mb-3">
           <label class="form-label" for="field_solicitante" jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</label>
           <input

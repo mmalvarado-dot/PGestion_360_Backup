@@ -26,7 +26,6 @@ public interface TrackingRecordMapper extends EntityMapper<TrackingRecordDTO, Tr
 
     // --- MÉTODOS DE SOPORTE PARA MAPEO DE RELACIONES ---
 
-    // 🚀 SOLUCIÓN: Mapeo manual explícito para obligar a extraer ID y Login
     @Named("userLoginManual")
     default UserDTO toDtoUserLoginManual(User user) {
         if (user == null) {

@@ -27,7 +27,9 @@
           <dd>
             @if (department()!.parentDepartment) {
               <div>
-                <a [routerLink]="['/department', department()!.parentDepartment?.id, 'view']">{{ departmentRef.parentDepartment?.id }}</a>
+                <a [routerLink]="['/department', department()!.parentDepartment?.id, 'view']">{{
+                  departmentRef.parentDepartment?.departmentName
+                }}</a>
               </div>
             }
           </dd>

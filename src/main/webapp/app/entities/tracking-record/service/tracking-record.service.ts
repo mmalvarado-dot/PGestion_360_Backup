@@ -55,13 +55,19 @@ export class TrackingRecordService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  getStatsByDepartment(): Observable<HttpResponse<ITrackingStats[]>> {
-    return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/departments`, { observe: 'response' });
+  // --- MÉTODOS MODIFICADOS PARA ACEPTAR FILTROS ---
+
+  getStatsByDepartment(req?: any): Observable<HttpResponse<ITrackingStats[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/departments`, { params: options, observe: 'response' });
   }
 
-  getStatsByUser(): Observable<HttpResponse<ITrackingStats[]>> {
-    return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/users`, { observe: 'response' });
+  getStatsByUser(req?: any): Observable<HttpResponse<ITrackingStats[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/users`, { params: options, observe: 'response' });
   }
+
+  // ------------------------------------------------
 
   protected convertResponseFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {

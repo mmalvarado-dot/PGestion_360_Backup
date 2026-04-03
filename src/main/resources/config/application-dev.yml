@@ -41,7 +41,7 @@ spring:
       max-file-size: 100MB
       max-request-size: 100MB
 
-  # --- CONFIGURACIÓN DE CORREO CORREGIDA ---
+  # --- CONFIGURACIÓN DE CORREO  ---
   mail:
     host: smtp.gmail.com
     port: 587
@@ -54,7 +54,6 @@ spring:
           starttls:
             enable: true
             required: true
-  # -----------------------------------------
 
   messages:
     cache-duration: PT1S

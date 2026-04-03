@@ -56,12 +56,6 @@ public class ChangeRequestAsserts {
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a -> assertThat(a.getFechaEntrega()).as("check fechaEntrega").isEqualTo(expected.getFechaEntrega()))
             .satisfies(a -> assertThat(a.getObservaciones()).as("check observaciones").isEqualTo(expected.getObservaciones()))
-            .satisfies(a -> assertThat(a.getArchivoAdjunto()).as("check archivoAdjunto").isEqualTo(expected.getArchivoAdjunto()))
-            .satisfies(a ->
-                assertThat(a.getArchivoAdjuntoContentType())
-                    .as("check archivoAdjunto contenty type")
-                    .isEqualTo(expected.getArchivoAdjuntoContentType())
-            )
             .satisfies(a -> assertThat(a.getSolicitante()).as("check solicitante").isEqualTo(expected.getSolicitante()))
             .satisfies(a -> assertThat(a.getDepartamento()).as("check departamento").isEqualTo(expected.getDepartamento()));
     }

@@ -115,7 +115,7 @@ spring:
 
   # --- CONFIGURACIÓN PARA SUBIDA DE ARCHIVOS (WEBFLUX) ---
   codec:
-    max-in-memory-size: 100MB # Aumenta el buffer de memoria
+    max-in-memory-size: 100MB # buffer de memoria
   # -------------------------------------------------------
 
   security:

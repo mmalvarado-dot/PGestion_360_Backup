@@ -8,19 +8,19 @@
     },
     "created": "Se creó un nuevo usuario con identificador {{ param }}",
     "updated": "Se actualizó el usuario con identificador {{ param }}",
-    "deleted": "Se borró el usuario con identificador {{ param }}",
+    "deleted": "Se eliminó el usuario con identificador {{ param }}",
     "delete": {
-      "question": "¿Seguro que quieres eliminar el usuario {{ login }}?"
+      "question": "¿Está seguro de que desea eliminar al usuario {{ login }}?"
     },
     "detail": {
       "title": "Usuario"
     },
-    "login": "Login",
+    "login": "Nombre de Usuario",
     "firstName": "Nombre",
     "lastName": "Apellidos",
-    "email": "Email",
-    "activated": "Activado",
-    "deactivated": "Desactivado",
+    "email": "Correo Electrónico",
+    "activated": "Activo",
+    "deactivated": "Inactivo",
     "profiles": "Perfiles",
     "langKey": "Idioma",
     "createdBy": "Creado por",

@@ -1,19 +1,19 @@
 {
   "home": {
-    "title": "¡Bienvenido, Java Hipster!",
-    "subtitle": "Esta es su página de inicio",
+    "title": "¡Bienvenido a Gestion360!",
+    "subtitle": "Esta es su página de inicio del sistema",
     "logged": {
-      "message": "Está conectado como \"{{username}}\"."
+      "message": "Ha iniciado sesión como \"{{username}}\"."
     },
-    "question": "Si tiene preguntas sobre JHipster:",
+    "question": "Si tiene preguntas sobre el sistema:",
     "link": {
-      "homepage": "Página de inicio de JHipster",
-      "stackoverflow": "JHipster en Stack Overflow",
-      "bugtracker": "JHipster seguimiento de errores",
-      "chat": "Sala de chat pública de JHipster",
-      "follow": "contacto @jhipster en Twitter"
+      "homepage": "Página de inicio de Gestion360",
+      "stackoverflow": "Soporte técnico",
+      "bugtracker": "Seguimiento de errores",
+      "chat": "Sala de chat pública",
+      "follow": "Contacto y soporte"
     },
-    "like": "Si te gusta JHipster, danos una estrella en",
-    "github": "GitHub"
+    "like": "Sistema de gestión municipal",
+    "github": "Versión actual"
   }
 }

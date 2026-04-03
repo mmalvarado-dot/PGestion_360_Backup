@@ -71,16 +71,13 @@ class ChangeRequestRepositoryInternalImpl extends SimpleR2dbcRepository<ChangeRe
         return createQuery(pageable, null).all();
     }
 
-    // ========================================================================
-    //  🚀 LA MAGIA: Método que busca por usuario Y hace los JOINs
-    // ========================================================================
+    // Método que busca por usuario Y hace los JOINs
+
     @Override
     public Flux<ChangeRequest> findByUserId(Long userId, Pageable pageable) {
         Comparison whereClause = Conditions.isEqual(entityTable.column("user_id"), Conditions.just(userId.toString()));
         return createQuery(pageable, whereClause).all();
     }
-
-    // ========================================================================
 
     RowsFetchSpec<ChangeRequest> createQuery(Pageable pageable, Condition whereClause) {
         List<Expression> columns = ChangeRequestSqlHelper.getColumns(entityTable, EntityManager.ENTITY_ALIAS);

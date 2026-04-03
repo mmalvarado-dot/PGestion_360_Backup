@@ -23,9 +23,6 @@ public class DepartmentRowMapper implements BiFunction<Row, String, Department> 
      */
     @Override
     public Department apply(Row row, String prefix) {
-        // --- VALIDACIÓN CRÍTICA (AGREGAR ESTO) ---
-        // Si el ID del departamento es NULL, significa que el LEFT JOIN no encontró nada.
-        // Debemos devolver NULL para que la entidad TrackingRecord sepa que no hay departamento.
         Object id = converter.fromRow(row, prefix + "_id", Long.class);
         if (id == null) {
             return null;

@@ -1,57 +1,102 @@
-<div>
-  <div class="d-flex justify-content-center">
-    <div class="col-lg-6 col-md-8 col-sm-10">
-      <h1 data-cy="loginTitle" jhiTranslate="login.title">Iniciar la sesión</h1>
-      @if (authenticationError()) {
-        <div class="alert alert-danger" data-cy="loginError" jhiTranslate="login.messages.error.authentication">
-          <strong>¡El inicio de sesión ha fallado!</strong> Por favor, revise las credenciales e intente de nuevo.
-        </div>
-      }
-      <form class="form" (ngSubmit)="login()" [formGroup]="loginForm">
-        <div class="mb-3">
-          <label class="username-label" for="username" jhiTranslate="global.form.username.label">Usuario</label>
-          <input
-            type="text"
-            class="form-control"
-            name="username"
-            id="username"
-            placeholder="{{ 'global.form.username.placeholder' | translate }}"
-            formControlName="username"
-            data-cy="username"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label for="password" jhiTranslate="login.form.password">Contraseña</label>
-          <input
-            type="password"
-            class="form-control"
-            name="password"
-            id="password"
-            placeholder="{{ 'login.form.password.placeholder' | translate }}"
-            formControlName="password"
-            data-cy="password"
-          />
-        </div>
-
-        <div class="form-check">
-          <label class="form-check-label" for="rememberMe">
-            <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe" formControlName="rememberMe" />
-            <span jhiTranslate="login.form.rememberme">Iniciar la sesión automáticamente</span>
-          </label>
-        </div>
-
-        <button type="submit" class="btn btn-primary" data-cy="submit" jhiTranslate="login.form.button">Iniciar sesión</button>
-      </form>
-      <div class="mt-3 alert alert-warning">
-        <a class="alert-link" routerLink="/account/reset/request" data-cy="forgetYourPasswordSelector" jhiTranslate="login.password.forgot"
-          >¿Ha olvidado su contraseña?</a
-        >
+<div class="login-fullscreen-wrapper d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="row w-100 m-0 align-items-center shadow-lg rounded-4 login-container">
+      <div class="col-12 col-lg-6 d-none d-lg-flex flex-column justify-content-center align-items-center brand-panel p-5">
+        <img src="content/images/360logo.png" alt="Logo" class="login-logo mb-4" />
       </div>
 
-      <div class="alert alert-warning">
-        <span jhiTranslate="global.messages.info.register.noaccount">¿Aún no tienes una cuenta?</span>
-        <a class="alert-link" routerLink="/account/register" jhiTranslate="global.messages.info.register.link">Crea una cuenta</a>
+      <div class="col-12 col-lg-6 d-flex justify-content-center align-items-center form-panel p-4 p-md-5">
+        <div class="login-card w-100">
+          <div class="text-center mb-4">
+            <h2 class="fw-bold text-white" data-cy="loginTitle" jhiTranslate="login.title">Iniciar la sesión</h2>
+            <p class="text-light small">Ingrese sus credenciales para acceder al sistema</p>
+          </div>
+
+          @if (authenticationError()) {
+            <div class="alert alert-danger d-flex align-items-center border-0" data-cy="loginError">
+              <fa-icon icon="exclamation-circle" class="me-2"></fa-icon>
+              <span jhiTranslate="login.messages.error.authentication">
+                <strong>¡El inicio de sesión ha fallado!</strong> Revise las credenciales e intente de nuevo.
+              </span>
+            </div>
+          }
+
+          <form class="form" (ngSubmit)="login()" [formGroup]="loginForm">
+            <div class="mb-4">
+              <label class="form-label fw-bold text-light small text-uppercase" for="username" jhiTranslate="global.form.username.label"
+                >Usuario</label
+              >
+              <input
+                type="text"
+                class="form-control form-control-lg custom-input"
+                name="username"
+                id="username"
+                placeholder="{{ 'global.form.username.placeholder' | translate }}"
+                formControlName="username"
+                data-cy="username"
+                autofocus
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-light small text-uppercase" for="password" jhiTranslate="login.form.password"
+                >Contraseña</label
+              >
+              <input
+                type="password"
+                class="form-control form-control-lg custom-input"
+                name="password"
+                id="password"
+                placeholder="{{ 'login.form.password.placeholder' | translate }}"
+                formControlName="password"
+                data-cy="password"
+              />
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-5">
+              <div class="form-check">
+                <input
+                  class="form-check-input custom-checkbox"
+                  type="checkbox"
+                  name="rememberMe"
+                  id="rememberMe"
+                  formControlName="rememberMe"
+                />
+                <label class="form-check-label text-light small" for="rememberMe">
+                  <span jhiTranslate="login.form.rememberme">Mantener sesión iniciada</span>
+                </label>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg w-100 mb-4 shadow custom-btn"
+              data-cy="submit"
+              jhiTranslate="login.form.button"
+            >
+              Iniciar sesión
+            </button>
+          </form>
+
+          <div class="text-center mt-4 pt-4 border-top border-secondary">
+            <a
+              class="d-block small fw-bold text-decoration-none mb-3 custom-link"
+              routerLink="/account/reset/request"
+              data-cy="forgetYourPasswordSelector"
+              jhiTranslate="login.password.forgot"
+            >
+              ¿Olvidó su contraseña?
+            </a>
+            <span class="small text-light" jhiTranslate="global.messages.info.register.noaccount">¿Aún no tienes una cuenta?</span>
+            <a
+              class="small fw-bold ms-1 text-decoration-none custom-link"
+              routerLink="/account/register"
+              jhiTranslate="global.messages.info.register.link"
+            >
+              Crea una cuenta
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

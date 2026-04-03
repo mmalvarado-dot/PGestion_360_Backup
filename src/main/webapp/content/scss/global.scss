@@ -234,3 +234,236 @@ angular-cli removes postcss-rtl processed inline css, processed rules must be ad
   }
 }
 /* jhipster-needle-scss-add-main JHipster will add new css style */
+
+//LOGIN DESIGN
+
+/* Layout Container */
+.login-fullscreen-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1050;
+  background-color: #ffffff;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Left Panel: Branding */
+.brand-panel {
+  background: linear-gradient(135deg, #1e2b3c 0%, #2c3e50 100%);
+  min-height: 100vh;
+}
+
+.login-logo {
+  max-width: 280px;
+  height: auto;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+}
+
+/* Right Panel: Authentication */
+.form-panel {
+  min-height: 100vh;
+}
+
+.login-card {
+  max-width: 480px;
+}
+
+/* Form Elements */
+.form-control-lg {
+  font-size: 1rem;
+  padding: 0.8rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  background-color: #ffffff !important;
+  border: 1px solid #3498db !important;
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.15) !important;
+}
+
+/* Custom Typography & Links */
+.custom-link {
+  color: #3498db;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #2980b9;
+    text-decoration: underline !important;
+  }
+}
+
+// FORMULARIO E IMAGEN LOGIN
+
+.login-fullscreen-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1050;
+  background: linear-gradient(135deg, #0a0f18 0%, #1a2639 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.login-fullscreen-wrapper .login-container {
+  background-color: rgba(26, 38, 57, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-height: 70vh;
+}
+
+.login-fullscreen-wrapper .brand-panel {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.login-fullscreen-wrapper .login-logo {
+  max-width: 380px;
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(52, 152, 219, 0.2));
+}
+
+.login-fullscreen-wrapper .login-card {
+  max-width: 420px;
+}
+
+.login-fullscreen-wrapper .custom-input {
+  background-color: rgba(10, 15, 24, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  font-size: 1rem;
+  padding: 0.8rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.login-fullscreen-wrapper .custom-input:focus {
+  border-color: #3498db !important;
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.2) !important;
+}
+
+.login-fullscreen-wrapper .custom-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.login-fullscreen-wrapper .custom-btn {
+  background-color: #0d6efd !important;
+  border: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.login-fullscreen-wrapper .custom-btn:hover {
+  background-color: #0b5ed7 !important;
+}
+
+.login-fullscreen-wrapper .custom-link {
+  color: #6ea8fe;
+  transition: color 0.2s ease;
+}
+
+.login-fullscreen-wrapper .custom-link:hover {
+  color: #8bb9fe;
+  text-decoration: underline !important;
+}
+
+@media (max-width: 991px) {
+  .login-fullscreen-wrapper .brand-panel {
+    border-right: none;
+  }
+}
+
+.login-fullscreen-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1050;
+  background: linear-gradient(135deg, #0a0f18 0%, #1a2639 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.login-fullscreen-wrapper .login-container {
+  background-color: rgba(26, 38, 57, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-height: 70vh;
+}
+
+.login-fullscreen-wrapper .brand-panel {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.login-fullscreen-wrapper .login-logo {
+  max-width: 380px;
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(52, 152, 219, 0.2));
+}
+
+.login-fullscreen-wrapper .login-card {
+  max-width: 420px;
+}
+
+.login-fullscreen-wrapper .custom-input {
+  background-color: rgba(10, 15, 24, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  font-size: 1rem;
+  padding: 0.8rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.login-fullscreen-wrapper .custom-input:focus {
+  border-color: #3498db !important;
+  box-shadow: none !important;
+}
+
+.login-fullscreen-wrapper .custom-input::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.login-fullscreen-wrapper .input-group:focus-within {
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.2) !important;
+  border-radius: 0.375rem;
+}
+
+.login-fullscreen-wrapper .custom-eye-btn {
+  color: rgba(255, 255, 255, 0.6) !important;
+  padding: 0 1rem;
+}
+
+.login-fullscreen-wrapper .custom-eye-btn:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.login-fullscreen-wrapper .custom-btn {
+  background-color: #0d6efd !important;
+  border: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.login-fullscreen-wrapper .custom-btn:hover {
+  background-color: #0b5ed7 !important;
+}
+
+.login-fullscreen-wrapper .custom-link {
+  color: #6ea8fe;
+  transition: color 0.2s ease;
+}
+
+.login-fullscreen-wrapper .custom-link:hover {
+  color: #8bb9fe;
+  text-decoration: underline !important;
+}
+
+@media (max-width: 991px) {
+  .login-fullscreen-wrapper .brand-panel {
+    border-right: none;
+  }
+}

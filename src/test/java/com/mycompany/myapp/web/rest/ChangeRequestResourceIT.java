@@ -17,7 +17,6 @@ import com.mycompany.myapp.service.dto.ChangeRequestDTO;
 import com.mycompany.myapp.service.mapper.ChangeRequestMapper;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Base64;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.AfterEach;
@@ -63,11 +62,6 @@ class ChangeRequestResourceIT {
 
     private static final String DEFAULT_OBSERVACIONES = "AAAAAAAAAA";
     private static final String UPDATED_OBSERVACIONES = "BBBBBBBBBB";
-
-    private static final byte[] DEFAULT_ARCHIVO_ADJUNTO = TestUtil.createByteArray(1, "0");
-    private static final byte[] UPDATED_ARCHIVO_ADJUNTO = TestUtil.createByteArray(1, "1");
-    private static final String DEFAULT_ARCHIVO_ADJUNTO_CONTENT_TYPE = "image/jpg";
-    private static final String UPDATED_ARCHIVO_ADJUNTO_CONTENT_TYPE = "image/png";
 
     private static final String DEFAULT_SOLICITANTE = "AAAAAAAAAA";
     private static final String UPDATED_SOLICITANTE = "BBBBBBBBBB";
@@ -117,8 +111,6 @@ class ChangeRequestResourceIT {
             .status(DEFAULT_STATUS)
             .fechaEntrega(DEFAULT_FECHA_ENTREGA)
             .observaciones(DEFAULT_OBSERVACIONES)
-            .archivoAdjunto(DEFAULT_ARCHIVO_ADJUNTO)
-            .archivoAdjuntoContentType(DEFAULT_ARCHIVO_ADJUNTO_CONTENT_TYPE)
             .solicitante(DEFAULT_SOLICITANTE)
             .departamento(DEFAULT_DEPARTAMENTO);
     }
@@ -140,8 +132,6 @@ class ChangeRequestResourceIT {
             .status(UPDATED_STATUS)
             .fechaEntrega(UPDATED_FECHA_ENTREGA)
             .observaciones(UPDATED_OBSERVACIONES)
-            .archivoAdjunto(UPDATED_ARCHIVO_ADJUNTO)
-            .archivoAdjuntoContentType(UPDATED_ARCHIVO_ADJUNTO_CONTENT_TYPE)
             .solicitante(UPDATED_SOLICITANTE)
             .departamento(UPDATED_DEPARTAMENTO);
     }
@@ -335,10 +325,6 @@ class ChangeRequestResourceIT {
             .value(hasItem(DEFAULT_FECHA_ENTREGA.toString()))
             .jsonPath("$.[*].observaciones")
             .value(hasItem(DEFAULT_OBSERVACIONES))
-            .jsonPath("$.[*].archivoAdjuntoContentType")
-            .value(hasItem(DEFAULT_ARCHIVO_ADJUNTO_CONTENT_TYPE))
-            .jsonPath("$.[*].archivoAdjunto")
-            .value(hasItem(Base64.getEncoder().encodeToString(DEFAULT_ARCHIVO_ADJUNTO)))
             .jsonPath("$.[*].solicitante")
             .value(hasItem(DEFAULT_SOLICITANTE))
             .jsonPath("$.[*].departamento")
@@ -381,10 +367,6 @@ class ChangeRequestResourceIT {
             .value(is(DEFAULT_FECHA_ENTREGA.toString()))
             .jsonPath("$.observaciones")
             .value(is(DEFAULT_OBSERVACIONES))
-            .jsonPath("$.archivoAdjuntoContentType")
-            .value(is(DEFAULT_ARCHIVO_ADJUNTO_CONTENT_TYPE))
-            .jsonPath("$.archivoAdjunto")
-            .value(is(Base64.getEncoder().encodeToString(DEFAULT_ARCHIVO_ADJUNTO)))
             .jsonPath("$.solicitante")
             .value(is(DEFAULT_SOLICITANTE))
             .jsonPath("$.departamento")
@@ -422,8 +404,6 @@ class ChangeRequestResourceIT {
             .status(UPDATED_STATUS)
             .fechaEntrega(UPDATED_FECHA_ENTREGA)
             .observaciones(UPDATED_OBSERVACIONES)
-            .archivoAdjunto(UPDATED_ARCHIVO_ADJUNTO)
-            .archivoAdjuntoContentType(UPDATED_ARCHIVO_ADJUNTO_CONTENT_TYPE)
             .solicitante(UPDATED_SOLICITANTE)
             .departamento(UPDATED_DEPARTAMENTO);
         ChangeRequestDTO changeRequestDTO = changeRequestMapper.toDto(updatedChangeRequest);
@@ -525,8 +505,6 @@ class ChangeRequestResourceIT {
             .updatedDate(UPDATED_UPDATED_DATE)
             .fechaEntrega(UPDATED_FECHA_ENTREGA)
             .observaciones(UPDATED_OBSERVACIONES)
-            .archivoAdjunto(UPDATED_ARCHIVO_ADJUNTO)
-            .archivoAdjuntoContentType(UPDATED_ARCHIVO_ADJUNTO_CONTENT_TYPE)
             .solicitante(UPDATED_SOLICITANTE);
 
         webTestClient
@@ -568,8 +546,6 @@ class ChangeRequestResourceIT {
             .status(UPDATED_STATUS)
             .fechaEntrega(UPDATED_FECHA_ENTREGA)
             .observaciones(UPDATED_OBSERVACIONES)
-            .archivoAdjunto(UPDATED_ARCHIVO_ADJUNTO)
-            .archivoAdjuntoContentType(UPDATED_ARCHIVO_ADJUNTO_CONTENT_TYPE)
             .solicitante(UPDATED_SOLICITANTE)
             .departamento(UPDATED_DEPARTAMENTO);
 

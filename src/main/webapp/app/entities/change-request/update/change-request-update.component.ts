@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { finalize, map, switchMap } from 'rxjs/operators';
 
 import SharedModule from 'app/shared/shared.module';
@@ -24,16 +24,10 @@ import dayjs from 'dayjs/esm';
 import { IDepartment } from 'app/entities/department/department.model';
 import { DepartmentService } from 'app/entities/department/service/department.service';
 
-// --- IMPORTACIONES DE FILE RECORD ---
-import { IFileRecord, NewFileRecord } from 'app/entities/file-record/file-record.model';
-import { FileRecordService } from 'app/entities/file-record/service/file-record.service';
-
-// 👇 IMPORTACIÓN DEL SERVICIO DE USUARIOS 👇
 import { UserService } from 'app/entities/user/service/user.service';
 
 interface PendingFile {
   file: File;
-  base64Content: string;
   contentType: string;
 }
 
@@ -50,12 +44,15 @@ export class ChangeRequestUpdateComponent implements OnInit {
 
   departmentsSharedCollection: IDepartment[] = [];
   itemCataloguesSharedCollection: IItemCatalogue[] = [];
-
-  // Lista de usuarios reales
   usersSharedCollection: IUser[] = [];
 
-  // Lista para almacenar los múltiples archivos seleccionados
   selectedFiles: PendingFile[] = [];
+
+  minDate = {
+    year: dayjs().year(),
+    month: dayjs().month() + 1,
+    day: dayjs().date(),
+  };
 
   protected dataUtils = inject(DataUtils);
   protected eventManager = inject(EventManager);
@@ -64,10 +61,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
   protected changeRequestFormService = inject(ChangeRequestFormService);
   protected itemCatalogueService = inject(ItemCatalogueService);
   protected activatedRoute = inject(ActivatedRoute);
-
-  protected fileRecordService = inject(FileRecordService);
-
-  // Inyectamos el servicio de usuarios
   protected userService = inject(UserService);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
@@ -76,7 +69,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
   compareItemCatalogue = (o1: IItemCatalogue | null, o2: IItemCatalogue | null): boolean =>
     this.itemCatalogueService.compareItemCatalogue(o1, o2);
 
-  // Compara usuarios para dejar seleccionado el correcto al editar
   compareUser = (o1: IUser | null, o2: IUser | null): boolean => (o1 && o2 ? o1.id === o2.id : o1 === o2);
 
   ngOnInit(): void {
@@ -86,33 +78,30 @@ export class ChangeRequestUpdateComponent implements OnInit {
         this.updateForm(changeRequest);
       }
 
+      // NUEVO: Forzar siempre el valor de status a PENDIENTE
+      this.editForm.patchValue({ status: 'PENDIENTE' });
+
       this.loadRelationshipsOptions();
       this.loadDepartments();
     });
   }
 
-  byteSize(base64String: string): string {
-    return this.dataUtils.byteSize(base64String);
-  }
-
-  openFile(base64String: string, contentType: string | null | undefined): void {
-    this.dataUtils.openFile(base64String, contentType);
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   setFileData(event: Event, field: string, isImage: boolean): void {
     const target = event.target as HTMLInputElement;
     if (target && target.files && target.files.length > 0) {
       Array.from(target.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          const base64Data = e.target.result.split(',')[1];
-          this.selectedFiles.push({
-            file: file,
-            base64Content: base64Data,
-            contentType: file.type,
-          });
-        };
-        reader.readAsDataURL(file);
+        this.selectedFiles.push({
+          file: file,
+          contentType: file.type,
+        });
       });
       target.value = '';
     }
@@ -143,28 +132,15 @@ export class ChangeRequestUpdateComponent implements OnInit {
         switchMap((res: HttpResponse<IChangeRequest>) => {
           const savedChangeRequest = res.body!;
 
-          if (this.selectedFiles.length > 0) {
+          if (this.selectedFiles.length > 0 && savedChangeRequest.id !== undefined && savedChangeRequest.id !== null) {
             const fileSaveObservables = this.selectedFiles.map(pendingFile => {
-              const fileRecord: NewFileRecord = {
-                id: null,
-                fileName: pendingFile.file.name,
-                filePath: pendingFile.file.name,
-                fileType: pendingFile.contentType,
-                content: pendingFile.base64Content,
-                contentContentType: pendingFile.contentType,
-                changeRequest: savedChangeRequest,
-              };
-
-              return this.fileRecordService.create(fileRecord);
+              return this.changeRequestService.uploadFile(savedChangeRequest.id as number, pendingFile.file);
             });
 
             return forkJoin(fileSaveObservables).pipe(map(() => res));
           }
 
-          return Observable.create((observer: any) => {
-            observer.next(res);
-            observer.complete();
-          });
+          return of(res);
         }),
         finalize(() => this.onSaveFinalize()),
       )
@@ -208,7 +184,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
   }
 
   protected loadRelationshipsOptions(): void {
-    // 1. Catálogo
     this.itemCatalogueService
       .query()
       .pipe(
@@ -222,7 +197,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
       )
       .subscribe(itemCatalogues => (this.itemCataloguesSharedCollection = itemCatalogues));
 
-    // 👇 2. LLAMADA AL BACKEND CON SOLUCIÓN AL CHOQUE DE INTERFACES 👇
     this.userService
       .query()
       .pipe(

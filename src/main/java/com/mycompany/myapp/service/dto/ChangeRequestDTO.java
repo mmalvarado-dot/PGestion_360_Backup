@@ -39,16 +39,10 @@ public class ChangeRequestDTO implements Serializable {
     @Lob
     private String observaciones;
 
-    @Lob
-    private byte[] archivoAdjunto;
-
-    private String archivoAdjuntoContentType;
-
     private String solicitante;
 
     private String departamento;
 
-    // --- CAMBIO DE RESPONSIBLE A USER ---
     private UserDTO user;
 
     private ItemCatalogueDTO itemCatalogue;
@@ -133,22 +127,6 @@ public class ChangeRequestDTO implements Serializable {
         this.observaciones = observaciones;
     }
 
-    public byte[] getArchivoAdjunto() {
-        return archivoAdjunto;
-    }
-
-    public void setArchivoAdjunto(byte[] archivoAdjunto) {
-        this.archivoAdjunto = archivoAdjunto;
-    }
-
-    public String getArchivoAdjuntoContentType() {
-        return archivoAdjuntoContentType;
-    }
-
-    public void setArchivoAdjuntoContentType(String archivoAdjuntoContentType) {
-        this.archivoAdjuntoContentType = archivoAdjuntoContentType;
-    }
-
     public String getSolicitante() {
         return solicitante;
     }
@@ -165,7 +143,6 @@ public class ChangeRequestDTO implements Serializable {
         this.departamento = departamento;
     }
 
-    // --- GETTERS Y SETTERS ACTUALIZADOS PARA USER ---
     public UserDTO getUser() {
         return user;
     }
@@ -173,8 +150,6 @@ public class ChangeRequestDTO implements Serializable {
     public void setUser(UserDTO user) {
         this.user = user;
     }
-
-    // ------------------------------------------------
 
     public ItemCatalogueDTO getItemCatalogue() {
         return itemCatalogue;
@@ -205,25 +180,50 @@ public class ChangeRequestDTO implements Serializable {
         return Objects.hash(this.id);
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "ChangeRequestDTO{" +
-            "id=" + getId() +
-            ", title='" + getTitle() + "'" +
-            ", description='" + getDescription() + "'" +
-            ", createdDate='" + getCreatedDate() + "'" +
-            ", updatedDate='" + getUpdatedDate() + "'" +
-            ", priority='" + getPriority() + "'" +
-            ", impact='" + getImpact() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", fechaEntrega='" + getFechaEntrega() + "'" +
-            ", observaciones='" + getObservaciones() + "'" +
-            ", archivoAdjunto='" + getArchivoAdjunto() + "'" +
-            ", solicitante='" + getSolicitante() + "'" +
-            ", departamento='" + getDepartamento() + "'" +
-            ", user=" + getUser() + // Cambiado aquí
-            ", itemCatalogue=" + getItemCatalogue() +
-            "}";
+        return (
+            "ChangeRequestDTO{" +
+            "id=" +
+            getId() +
+            ", title='" +
+            getTitle() +
+            "'" +
+            ", description='" +
+            getDescription() +
+            "'" +
+            ", createdDate='" +
+            getCreatedDate() +
+            "'" +
+            ", updatedDate='" +
+            getUpdatedDate() +
+            "'" +
+            ", priority='" +
+            getPriority() +
+            "'" +
+            ", impact='" +
+            getImpact() +
+            "'" +
+            ", status='" +
+            getStatus() +
+            "'" +
+            ", fechaEntrega='" +
+            getFechaEntrega() +
+            "'" +
+            ", observaciones='" +
+            getObservaciones() +
+            "'" +
+            ", solicitante='" +
+            getSolicitante() +
+            "'" +
+            ", departamento='" +
+            getDepartamento() +
+            "'" +
+            ", user=" +
+            getUser() +
+            ", itemCatalogue=" +
+            getItemCatalogue() +
+            "}"
+        );
     }
 }

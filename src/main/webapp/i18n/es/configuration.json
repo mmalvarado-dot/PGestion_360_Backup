@@ -1,7 +1,7 @@
 {
   "configuration": {
-    "title": "Configuración",
-    "filter": "Filtro (por prefijo)",
+    "title": "Configuración del Sistema",
+    "filter": "Filtrar (por prefijo)",
     "table": {
       "prefix": "Prefijo",
       "properties": "Propiedades"

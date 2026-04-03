@@ -2,7 +2,7 @@
   "generator-jhipster": {
     "applicationType": "monolith",
     "authenticationType": "jwt",
-    "baseName": "pGestion360",
+    "baseName": "Gestion360",
     "buildTool": "maven",
     "cacheProvider": null,
     "clientFramework": "angular",

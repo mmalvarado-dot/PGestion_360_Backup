@@ -5,12 +5,17 @@ import {
   faBars,
   faBell,
   faBook,
+  faBuilding, // Ícono para Departamentos
   faCalendarAlt,
+  faChartLine, // Ícono para Seguimiento
   faCheck,
+  faClipboardList, // Ícono para Solicitudes
   faCloud,
   faCogs,
   faDatabase,
+  faDownload, // Ícono de Descargar (¡El que rompía tu tabla!)
   faEye,
+  faFileAlt, // Ícono para Archivos
   faFlag,
   faHeart,
   faHome,
@@ -47,12 +52,17 @@ export const fontAwesomeIcons = [
   faBars,
   faBell,
   faBook,
+  faBuilding, // Añadido
   faCalendarAlt,
+  faChartLine, // Añadido
   faCheck,
+  faClipboardList, // Añadido
   faCloud,
   faCogs,
   faDatabase,
+  faDownload, // Añadido
   faEye,
+  faFileAlt, // Añadido
   faFlag,
   faHeart,
   faHome,

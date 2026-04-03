@@ -51,6 +51,8 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
             .map(trackingRecordMapper::toDto);
     }
 
+    // CONSULTAS GENERALES (ADMIN)
+
     @Override
     @Transactional(readOnly = true)
     public Flux<TrackingRecordDTO> findAll(Pageable pageable) {
@@ -58,8 +60,27 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
         return trackingRecordRepository.findAllBy(pageable).map(trackingRecordMapper::toDto);
     }
 
+    @Override
     public Mono<Long> countAll() {
         return trackingRecordRepository.count();
+    }
+
+    //    SEGURIDAD (USUARIO NORMAL)
+
+    @Override
+    @Transactional(readOnly = true)
+    public Flux<TrackingRecordDTO> findAllByUser(Pageable pageable, Long userId) {
+        log.debug("Request to get TrackingRecords by User ID: {}", userId);
+        return trackingRecordRepository
+            .findAllByChangeRequestUser(userId, pageable.getPageSize(), pageable.getOffset())
+            .flatMapSequential(tr -> trackingRecordRepository.findById(tr.getId()))
+            .map(trackingRecordMapper::toDto);
+    }
+
+    @Override
+    public Mono<Long> countAllByUser(Long userId) {
+        log.debug("Request to count TrackingRecords by User ID: {}", userId);
+        return trackingRecordRepository.countAllByChangeRequestUser(userId);
     }
 
     @Override
@@ -84,13 +105,15 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
 
     @Override
     @Transactional(readOnly = true)
-    public Flux<TrackingStats> getDepartmentStats() {
-        return trackingRecordRepository.countMovementsByDepartment();
+    public Flux<TrackingStats> getDepartmentStats(Integer year, Integer month) {
+        log.debug("Request to get Department stats for year: {} and month: {}", year, month);
+        return trackingRecordRepository.countMovementsByDepartment(year, month);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Flux<TrackingStats> getUserStats() {
-        return trackingRecordRepository.countMovementsByUser();
+    public Flux<TrackingStats> getUserStats(Integer year, Integer month) {
+        log.debug("Request to get User stats for year: {} and month: {}", year, month);
+        return trackingRecordRepository.countMovementsByUser(year, month);
     }
 }

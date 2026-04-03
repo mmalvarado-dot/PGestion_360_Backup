@@ -22,9 +22,6 @@ public interface DepartmentRepository extends ReactiveCrudRepository<Department,
     @Query("SELECT * FROM department entity WHERE entity.parent_department_id IS NULL")
     Flux<Department> findAllWhereParentDepartmentIsNull();
 
-    // ========================================================================
-    // AQUÍ ESTÁ LA MAGIA: El método nuevo para buscar por nombre
-    // ========================================================================
     Mono<Department> findByDepartmentName(String departmentName);
 
     @Override
@@ -48,6 +45,4 @@ interface DepartmentRepositoryInternal {
     Flux<Department> findAll();
 
     Mono<Department> findById(Long id);
-    // this is not supported at the moment because of https://github.com/jhipster/generator-jhipster/issues/18269
-    // Flux<Department> findAllBy(Pageable pageable, Criteria criteria);
 }

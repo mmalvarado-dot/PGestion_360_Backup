@@ -10,11 +10,23 @@ public interface TrackingRecordService {
     Mono<TrackingRecordDTO> save(TrackingRecordDTO trackingRecordDTO);
     Mono<TrackingRecordDTO> update(TrackingRecordDTO trackingRecordDTO);
     Mono<TrackingRecordDTO> partialUpdate(TrackingRecordDTO trackingRecordDTO);
+
+    // Métodos generales (Para el Admin)
     Flux<TrackingRecordDTO> findAll(Pageable pageable);
     Mono<Long> countAll();
+
+    //   métodos de seguridad (Para el Usuario Normal)
+
+    Flux<TrackingRecordDTO> findAllByUser(Pageable pageable, Long userId);
+    Mono<Long> countAllByUser(Long userId);
+    // ========================================================================
+
     Mono<TrackingRecordDTO> findOne(Long id);
     Mono<Void> delete(Long id);
     Flux<TrackingRecordDTO> findAllByRequestId(Long id);
-    Flux<TrackingStats> getDepartmentStats();
-    Flux<TrackingStats> getUserStats();
+
+    //  Método de estadísticas actualizados con parámetros de fecha
+
+    Flux<TrackingStats> getDepartmentStats(Integer year, Integer month);
+    Flux<TrackingStats> getUserStats(Integer year, Integer month);
 }

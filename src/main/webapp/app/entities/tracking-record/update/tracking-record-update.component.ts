@@ -13,8 +13,6 @@ import { TrackingRecordFormGroup, TrackingRecordFormService } from './tracking-r
 // Importaciones de entidades relacionadas
 import { IUser } from 'app/entities/user/user.model';
 import { UserService } from 'app/entities/user/service/user.service';
-import { IResponsible } from 'app/entities/responsible/responsible.model';
-import { ResponsibleService } from 'app/entities/responsible/service/responsible.service';
 import { IChangeRequest } from 'app/entities/change-request/change-request.model';
 import { ChangeRequestService } from 'app/entities/change-request/service/change-request.service';
 import { IDepartment } from 'app/entities/department/department.model';
@@ -31,14 +29,12 @@ export class TrackingRecordUpdateComponent implements OnInit {
   trackingRecord: ITrackingRecord | null = null;
 
   usersSharedCollection: IUser[] = [];
-  responsiblesSharedCollection: IResponsible[] = [];
   changeRequestsSharedCollection: IChangeRequest[] = [];
   departmentsSharedCollection: IDepartment[] = [];
 
   protected trackingRecordService = inject(TrackingRecordService);
   protected trackingRecordFormService = inject(TrackingRecordFormService);
   protected userService = inject(UserService);
-  protected responsibleService = inject(ResponsibleService);
   protected changeRequestService = inject(ChangeRequestService);
   protected departmentService = inject(DepartmentService);
   protected activatedRoute = inject(ActivatedRoute);
@@ -49,12 +45,9 @@ export class TrackingRecordUpdateComponent implements OnInit {
   // Comparadores
   compareUser = (o1: IUser | null, o2: IUser | null): boolean => this.userService.compareUser(o1, o2);
 
-  compareResponsible = (o1: IResponsible | null, o2: IResponsible | null): boolean => this.responsibleService.compareResponsible(o1, o2);
-
   compareChangeRequest = (o1: IChangeRequest | null, o2: IChangeRequest | null): boolean =>
     this.changeRequestService.compareChangeRequest(o1, o2);
 
-  // --- CORRECCIÓN CLAVE AQUÍ ---
   // Usamos una comparación directa de IDs para asegurar que el Dropdown detecte el valor seleccionado
   compareDepartment = (o1: IDepartment | null, o2: IDepartment | null): boolean => {
     return o1 && o2 ? o1.id === o2.id : o1 === o2;
@@ -109,15 +102,7 @@ export class TrackingRecordUpdateComponent implements OnInit {
     this.trackingRecord = trackingRecord;
     this.trackingRecordFormService.resetForm(this.editForm, trackingRecord);
 
-    // Actualizamos las colecciones.
-    // IMPORTANTE: Si te da error en 'addDepartmentToCollectionIfMissing', avísame,
-    // ya que depende de que DepartmentService tenga ese método generado.
-
     this.usersSharedCollection = this.userService.addUserToCollectionIfMissing<IUser>(this.usersSharedCollection, trackingRecord.user);
-    this.responsiblesSharedCollection = this.responsibleService.addResponsibleToCollectionIfMissing<IResponsible>(
-      this.responsiblesSharedCollection,
-      trackingRecord.responsible,
-    );
     this.changeRequestsSharedCollection = this.changeRequestService.addChangeRequestToCollectionIfMissing<IChangeRequest>(
       this.changeRequestsSharedCollection,
       trackingRecord.changeRequest,
@@ -135,17 +120,6 @@ export class TrackingRecordUpdateComponent implements OnInit {
       .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
       .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing<IUser>(users, this.trackingRecord?.user)))
       .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
-
-    // Cargar Responsables
-    this.responsibleService
-      .query()
-      .pipe(map((res: HttpResponse<IResponsible[]>) => res.body ?? []))
-      .pipe(
-        map((responsibles: IResponsible[]) =>
-          this.responsibleService.addResponsibleToCollectionIfMissing<IResponsible>(responsibles, this.trackingRecord?.responsible),
-        ),
-      )
-      .subscribe((responsibles: IResponsible[]) => (this.responsiblesSharedCollection = responsibles));
 
     // Cargar Change Requests
     this.changeRequestService

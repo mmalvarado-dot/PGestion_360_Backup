@@ -17,11 +17,6 @@ const routes: Routes = [
     loadChildren: () => import('./item-catalogue/item-catalogue.routes'),
   },
   {
-    path: 'responsible',
-    data: { pageTitle: 'pGestion360App.responsible.home.title' },
-    loadChildren: () => import('./responsible/responsible.routes'),
-  },
-  {
     path: 'department',
     data: { pageTitle: 'pGestion360App.department.home.title' },
     loadChildren: () => import('./department/department.routes'),

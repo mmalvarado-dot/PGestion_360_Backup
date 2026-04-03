@@ -2,25 +2,25 @@
   "pGestion360App": {
     "catalogue": {
       "home": {
-        "title": "Catalogues",
+        "title": "Catálogos",
         "refreshListLabel": "Refrescar lista",
-        "createLabel": "Crear nuevo Catalogue",
-        "createOrEditLabel": "Crear o editar Catalogue",
-        "notFound": "Ningún Catalogues encontrado"
+        "createLabel": "Crear nuevo Catálogo",
+        "createOrEditLabel": "Crear o editar Catálogo",
+        "notFound": "No se encontraron Catálogos"
       },
-      "created": "Un nuevo Catalogue ha sido creado con el identificador {{ param }}",
-      "updated": "Un Catalogue ha sido actualizado con el identificador {{ param }}",
-      "deleted": "Un Catalogue ha sido eliminado con el identificador {{ param }}",
+      "created": "Un nuevo Catálogo ha sido creado con el identificador {{ param }}",
+      "updated": "El Catálogo ha sido actualizado con el identificador {{ param }}",
+      "deleted": "El Catálogo ha sido eliminado con el identificador {{ param }}",
       "delete": {
-        "question": "¿Seguro que quiere eliminar Catalogue {{ id }}?"
+        "question": "¿Está seguro de que desea eliminar el Catálogo {{ id }}?"
       },
       "detail": {
-        "title": "Catalogue"
+        "title": "Detalle del Catálogo"
       },
       "id": "ID",
-      "name": "Name",
-      "code": "Code",
-      "status": "Status"
+      "name": "Nombre",
+      "code": "Código",
+      "status": "Estado"
     }
   }
 }

@@ -17,13 +17,11 @@ import { IChangeRequest } from '../change-request.model';
 import { ChangeRequestService, EntityArrayResponseType } from '../service/change-request.service';
 import { ChangeRequestDeleteDialogComponent } from '../delete/change-request-delete-dialog.component';
 
-// 👇 AQUÍ ESTÁ EL IMPORT CLAVE PARA EL CANDADO DE PERMISOS 👇
 import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
 
 @Component({
   selector: 'jhi-change-request',
   templateUrl: './change-request.component.html',
-  // 👇 AQUÍ SE DECLARA LA DIRECTIVA PARA QUE EL HTML LA PUEDA USAR 👇
   imports: [
     RouterModule,
     FormsModule,
@@ -38,15 +36,14 @@ import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directiv
 export class ChangeRequestComponent implements OnInit {
   subscription: Subscription | null = null;
 
-  // --- CONFIGURACIÓN PRINCIPAL ---
-  serverFetchSize = 500; // Traemos los últimos 500
-  pageSize = 10; // Mostramos de 10 en 10
+  // Bandera para gestionar la redirección inicial a la última página
+  isFirstLoad = true;
 
-  // SEÑAL DE PÁGINA
+  // Parámetros de paginación y filtros
+  pageSize = 10;
   page = signal(1);
 
-  // --- SEÑALES DE DATOS Y FILTROS ---
-  changeRequests = signal<IChangeRequest[]>([]); // Datos crudos del backend
+  changeRequests = signal<IChangeRequest[]>([]);
   isLoading = false;
 
   searchTerm = signal('');
@@ -54,83 +51,46 @@ export class ChangeRequestComponent implements OnInit {
   startDateFilter = signal<string | null>(null);
   endDateFilter = signal<string | null>(null);
 
-  // --- 1. LÓGICA DE FILTRADO (COMPUTED) ---
-  requestsFiltrados = computed(() => {
-    const term = this.searchTerm().toLowerCase().trim();
-    const status = this.statusFilter();
-    const start = this.startDateFilter();
-    const end = this.endDateFilter();
-
-    return this.changeRequests().filter(req => {
-      // A. Texto
-      const matchesText =
-        !term ||
-        req.title?.toLowerCase().includes(term) ||
-        req.departamento?.toLowerCase().includes(term) ||
-        req.description?.toLowerCase().includes(term);
-
-      // B. Estado
-      const matchesStatus = !status || req.status === status;
-
-      // C. Fechas
-      let matchesDate = true;
-      if (req.createdDate && (start || end)) {
-        const recordDate = new Date(req.createdDate.toString());
-        if (start) {
-          matchesDate = matchesDate && recordDate >= new Date(start);
-        }
-        if (end) {
-          const endDateObj = new Date(end);
-          endDateObj.setHours(23, 59, 59, 999);
-          matchesDate = matchesDate && recordDate <= endDateObj;
-        }
-      }
-
-      return matchesText && matchesStatus && matchesDate;
-    });
-  });
-
-  // --- 2. LÓGICA DE VISIBILIDAD (PAGINACIÓN CLIENTE) ---
   requestsVisibles = computed(() => {
-    // Usamos this.page() porque es una señal
-    const startIndex = (this.page() - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    return this.requestsFiltrados().slice(startIndex, endIndex);
+    return this.changeRequests();
   });
 
-  // --- FUNCIONES DE CONTROL ---
-  onSearch(val: string) {
+  // Métodos manejadores de eventos de la vista
+  onSearch(val: string): void {
     this.searchTerm.set(val);
-    this.page.set(1);
+    this.resetAndLoad();
   }
 
-  onStatusChange(val: string) {
+  onStatusChange(val: string): void {
     this.statusFilter.set(val);
-    this.page.set(1);
+    this.resetAndLoad();
   }
 
-  // ... código existente ...
-
-  onDateChange(type: 'start' | 'end', e: any) {
+  onDateChange(type: 'start' | 'end', e: any): void {
     const val = e.target.value;
     type === 'start' ? this.startDateFilter.set(val) : this.endDateFilter.set(val);
-    this.page.set(1);
+    this.resetAndLoad();
   }
 
   limpiarFechas(inputInicio: HTMLInputElement, inputFin: HTMLInputElement): void {
-    // 1. Limpiar visualmente las cajitas de texto HTML
     inputInicio.value = '';
     inputFin.value = '';
-
-    // 2. Resetear las señales (Signals) a null
     this.startDateFilter.set(null);
     this.endDateFilter.set(null);
+    this.resetAndLoad();
+  }
 
-    // 3. Volver a la página 1
-    this.page.set(1);
-
-    // NOTA: No hace falta llamar a this.load() ni nada más.
-    // Como usas 'computed', al cambiar la señal, la lista se actualiza sola.
+  /**
+   * Reinicia a la página 1 si se aplican filtros, o recarga los datos directamente
+   * si ya se encuentra en la primera página para evitar redundancia en la navegación.
+   */
+  resetAndLoad(): void {
+    this.isFirstLoad = false;
+    if (this.page() === 1) {
+      this.load();
+    } else {
+      this.navigateToPage(1);
+    }
   }
 
   sortState = sortStateSignal({});
@@ -192,26 +152,50 @@ export class ChangeRequestComponent implements OnInit {
   }
 
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
-    // 1. Verificamos si hay un orden en la URL (ej: clickeaste una columna)
-    const sortParam = params.get(SORT);
+    const pageParam = params.get('page');
+    if (pageParam) {
+      this.page.set(Number(pageParam));
+    } else {
+      this.page.set(1);
+    }
 
+    const sortParam = params.get(SORT);
     if (sortParam) {
-      // Si el usuario pidió un orden específico, lo respetamos
       this.sortState.set(this.sortService.parseSortParam(sortParam));
     } else {
-      // Si la URL está limpia (inicio), FORZAMOS 'id' DESCENDENTE (Lo nuevo arriba)
-      this.sortState.set({ predicate: 'id', order: 'desc' });
+      // Ordenamiento ascendente por defecto para mantener el flujo cronológico de las páginas
+      this.sortState.set({ predicate: 'id', order: 'asc' });
     }
   }
 
   protected onResponseSuccess(response: EntityArrayResponseType): void {
     this.fillComponentAttributesFromResponseHeader(response.headers);
     const dataFromBody = this.fillComponentAttributesFromResponseBody(response.body);
+
+    // Lógica para saltar a la última página en la primera carga si no hay parámetro 'page' en la URL
+    if (this.isFirstLoad) {
+      this.isFirstLoad = false;
+      if (this.totalItems > 0) {
+        const lastPage = Math.ceil(this.totalItems / this.pageSize);
+        if (lastPage > 1 && !this.activatedRoute.snapshot.queryParamMap.has('page')) {
+          this.navigateToPage(lastPage);
+          return;
+        }
+      }
+    }
+
     this.changeRequests.set(dataFromBody);
   }
 
   protected fillComponentAttributesFromResponseBody(data: IChangeRequest[] | null): IChangeRequest[] {
-    return data ?? [];
+    if (!data) return [];
+
+    // Invierte el arreglo localmente para mantener el orden descendente visual en la tabla
+    if (this.sortState().order === 'asc') {
+      return data.reverse();
+    }
+
+    return data;
   }
 
   protected fillComponentAttributesFromResponseHeader(headers: HttpHeaders): void {
@@ -220,16 +204,34 @@ export class ChangeRequestComponent implements OnInit {
 
   protected queryBackend(): Observable<EntityArrayResponseType> {
     this.isLoading = true;
+
     const queryObject: any = {
-      page: 0,
-      size: this.serverFetchSize,
+      page: this.page() - 1,
+      size: this.pageSize,
       sort: this.sortService.buildSortParam(this.sortState()),
     };
+
+    if (this.searchTerm() && this.searchTerm().trim() !== '') {
+      queryObject.globalSearch = this.searchTerm().trim();
+    }
+
+    if (this.statusFilter() && this.statusFilter().trim() !== '') {
+      queryObject['status.equals'] = this.statusFilter();
+    }
+
+    if (this.startDateFilter()) {
+      queryObject['createdDate.greaterThanOrEqual'] = this.startDateFilter() + 'T00:00:00Z';
+    }
+    if (this.endDateFilter()) {
+      queryObject['createdDate.lessThanOrEqual'] = this.endDateFilter() + 'T23:59:59Z';
+    }
+
     return this.changeRequestService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
   }
 
   protected handleNavigation(page: number, sortState: SortState): void {
     const queryParamsObj = {
+      page: page,
       sort: this.sortService.buildSortParam(sortState),
     };
     this.ngZone.run(() => {

@@ -1,12 +1,12 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
-name: pgestion360
+name: gestion360
 services:
   postgresql:
     image: postgres:17.4
     # volumes:
-    #   - ~/volumes/jhipster/pGestion360/postgresql/:/var/lib/postgresql/data/
+    #   - ~/volumes/jhipster/Gestion360/postgresql/:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=pGestion360
+      - POSTGRES_USER=Gestion360
       - POSTGRES_HOST_AUTH_METHOD=trust
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER}']

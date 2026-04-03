@@ -3,6 +3,7 @@ package com.mycompany.myapp.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.time.Instant;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
@@ -38,6 +39,9 @@ public class FileRecord implements Serializable {
     @Column("content_content_type")
     private String contentContentType;
 
+    @Column("upload_date")
+    private Instant uploadDate;
+
     @org.springframework.data.annotation.Transient
     @JsonIgnoreProperties(value = { "responsible", "itemCatalogue" }, allowSetters = true)
     private ChangeRequest changeRequest;
@@ -45,7 +49,7 @@ public class FileRecord implements Serializable {
     @Column("change_request_id")
     private Long changeRequestId;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+    // --- GETTERS Y SETTERS ---
 
     public Long getId() {
         return this.id;
@@ -125,6 +129,20 @@ public class FileRecord implements Serializable {
         this.contentContentType = contentContentType;
     }
 
+    // NUEVO: Getter y Setter para la fecha
+    public Instant getUploadDate() {
+        return this.uploadDate;
+    }
+
+    public FileRecord uploadDate(Instant uploadDate) {
+        this.setUploadDate(uploadDate);
+        return this;
+    }
+
+    public void setUploadDate(Instant uploadDate) {
+        this.uploadDate = uploadDate;
+    }
+
     public ChangeRequest getChangeRequest() {
         return this.changeRequest;
     }
@@ -147,8 +165,6 @@ public class FileRecord implements Serializable {
         this.changeRequestId = changeRequest;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -162,20 +178,34 @@ public class FileRecord implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "FileRecord{" +
-            "id=" + getId() +
-            ", fileName='" + getFileName() + "'" +
-            ", filePath='" + getFilePath() + "'" +
-            ", fileType='" + getFileType() + "'" +
-            ", content='" + getContent() + "'" +
-            ", contentContentType='" + getContentContentType() + "'" +
-            "}";
+        return (
+            "FileRecord{" +
+            "id=" +
+            getId() +
+            ", fileName='" +
+            getFileName() +
+            "'" +
+            ", filePath='" +
+            getFilePath() +
+            "'" +
+            ", fileType='" +
+            getFileType() +
+            "'" +
+            ", content='" +
+            getContent() +
+            "'" +
+            ", contentContentType='" +
+            getContentContentType() +
+            "'" +
+            ", uploadDate='" +
+            getUploadDate() +
+            "'" +
+            "}"
+        );
     }
 }

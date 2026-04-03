@@ -37,8 +37,7 @@ public class ChangeRequestRowMapper implements BiFunction<Row, String, ChangeReq
         entity.setStatus(converter.fromRow(row, prefix + "_status", String.class));
         entity.setFechaEntrega(converter.fromRow(row, prefix + "_fecha_entrega", LocalDate.class));
         entity.setObservaciones(converter.fromRow(row, prefix + "_observaciones", String.class));
-        entity.setArchivoAdjuntoContentType(converter.fromRow(row, prefix + "_archivo_adjunto_content_type", String.class));
-        entity.setArchivoAdjunto(converter.fromRow(row, prefix + "_archivo_adjunto", byte[].class));
+
         entity.setSolicitante(converter.fromRow(row, prefix + "_solicitante", String.class));
         entity.setDepartamento(converter.fromRow(row, prefix + "_departamento", String.class));
 

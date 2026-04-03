@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.TimeZone; // <-- 1. Importado para manejar el tiempo
+import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class PGestion360App {
      */
     @PostConstruct
     public void initApplication() {
-        // 2. CONFIGURACIÓN DE HORA LOCAL (ECUADOR)
+        //  CONFIGURACIÓN DE HORA LOCAL (ECUADOR)
         TimeZone.setDefault(TimeZone.getTimeZone("America/Guayaquil"));
         LOG.info("Zona horaria configurada a: {}", TimeZone.getDefault().getID());
 

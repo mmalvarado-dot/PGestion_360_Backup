@@ -1,82 +1,99 @@
-<div class="row">
-  <div class="col-md-3">
-    <span class="hipster img-fluid rounded"></span>
-  </div>
-
-  <div class="col-md-9">
-    <h1 class="display-4"><span jhiTranslate="home.title">¡Bienvenido, Java Hipster!</span> (P Gestion 360)</h1>
-
-    <p class="lead" jhiTranslate="home.subtitle">Esta es su página de inicio</p>
-
-    <div>
-      @if (account() !== null) {
-        <div class="alert alert-success">
-          @if (account(); as accountRef) {
-            <span id="home-logged-message" jhiTranslate="home.logged.message" [translateValues]="{ username: accountRef.login }"
-              >Está conectado como &quot;{{ accountRef.login }}&quot;.</span
-            >
-          }
-        </div>
-      } @else {
-        <div class="alert alert-warning">
-          <span jhiTranslate="global.messages.info.authenticated.prefix">Si desea </span>
-          <a class="alert-link" (click)="login()" jhiTranslate="global.messages.info.authenticated.link">iniciar sesión</a
-          ><span jhiTranslate="global.messages.info.authenticated.suffix"
-            >, puede intentar con las cuentas predeterminadas:<br />- Administrador (usuario=&quot;admin&quot; y
-            contraseña=&quot;admin&quot;) <br />- Usuario (usuario=&quot;user&quot; y contraseña=&quot;user&quot;).</span
-          >
-        </div>
-
-        <div class="alert alert-warning">
-          <span jhiTranslate="global.messages.info.register.noaccount">¿Aún no tienes una cuenta?</span>&nbsp;
-          <a class="alert-link" routerLink="/account/register" jhiTranslate="global.messages.info.register.link">Crea una cuenta</a>
-        </div>
-      }
+@if (account !== null) {
+  <div class="dashboard-wrapper p-4 p-md-5 rounded-4 mt-3 shadow-lg">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="display-6 fw-bold text-white mb-0">Panel de Control</h1>
     </div>
 
-    <p jhiTranslate="home.question">Si tiene preguntas sobre JHipster:</p>
+    <div class="alert alert-custom border-0 shadow-sm d-flex align-items-center mb-5 rounded-3">
+      <span class="fs-4 text-primary me-3">&#10004;</span>
+      <div class="text-light">
+        <strong>¡Bienvenido a Gestion360!</strong> Sesión iniciada como
+        <span class="fw-bold text-uppercase text-primary">"{{ account.login }}"</span>.
+      </div>
+    </div>
 
-    <ul>
-      <li>
-        <a href="https://www.jhipster.tech/" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.homepage"
-          >Página de inicio de JHipster</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://stackoverflow.com/tags/jhipster/info"
-          target="_blank"
-          rel="noopener noreferrer"
-          jhiTranslate="home.link.stackoverflow"
-          >JHipster en Stack Overflow</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/jhipster/generator-jhipster/issues?state=open"
-          target="_blank"
-          rel="noopener noreferrer"
-          jhiTranslate="home.link.bugtracker"
-          >JHipster seguimiento de errores</a
-        >
-      </li>
-      <li>
-        <a href="https://gitter.im/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.chat"
-          >Sala de chat pública de JHipster</a
-        >
-      </li>
-      <li>
-        <a href="https://twitter.com/jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.follow"
-          >contacto &#64;jhipster en Twitter</a
-        >
-      </li>
-    </ul>
+    <h4 class="fw-bold text-secondary mb-4">Módulos del Sistema</h4>
 
-    <p>
-      <span jhiTranslate="home.like">Si te gusta JHipster, danos una estrella en</span>
-      <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.github"
-        >GitHub</a
-      >!
-    </p>
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-xl-3">
+        <a class="card h-100 dark-module-card text-decoration-none" routerLink="/change-request">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div
+                class="icon-shape bg-warning bg-opacity-25 text-warning rounded-circle d-flex justify-content-center align-items-center me-3"
+                style="width: 48px; height: 48px; font-size: 1.5rem"
+              >
+                <fa-icon icon="clipboard-list"></fa-icon>
+              </div>
+              <h5 class="card-title fw-bold mb-0 text-white">Solicitudes de Cambio</h5>
+            </div>
+            <p class="card-text text-light opacity-75 small">
+              Gestione, revise y agregue las solicitudes de cambio registradas en el sistema.
+            </p>
+          </div>
+          <div class="card-footer bg-transparent border-0 pb-4 pt-0 text-warning fw-bold small text-uppercase">
+            Acceder al módulo &rarr;
+          </div>
+        </a>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-3">
+        <a class="card h-100 dark-module-card text-decoration-none" routerLink="/tracking-record">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div
+                class="icon-shape bg-info bg-opacity-25 text-info rounded-circle d-flex justify-content-center align-items-center me-3"
+                style="width: 48px; height: 48px; font-size: 1.5rem"
+              >
+                <fa-icon icon="chart-line"></fa-icon>
+              </div>
+              <h5 class="card-title fw-bold mb-0 text-white">Seguimiento</h5>
+            </div>
+            <p class="card-text text-light opacity-75 small">Controle el historial, estado y métricas de las operaciones en curso.</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 pb-4 pt-0 text-info fw-bold small text-uppercase">Acceder al módulo &rarr;</div>
+        </a>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-3">
+        <a class="card h-100 dark-module-card text-decoration-none" routerLink="/file-record">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div
+                class="icon-shape bg-success bg-opacity-25 text-success rounded-circle d-flex justify-content-center align-items-center me-3"
+                style="width: 48px; height: 48px; font-size: 1.5rem"
+              >
+                <fa-icon icon="file-alt"></fa-icon>
+              </div>
+              <h5 class="card-title fw-bold mb-0 text-white">Archivos</h5>
+            </div>
+            <p class="card-text text-light opacity-75 small">Administre el repositorio de documentos y registros de archivos adjuntos.</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 pb-4 pt-0 text-success fw-bold small text-uppercase">
+            Acceder al módulo &rarr;
+          </div>
+        </a>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-3">
+        <a class="card h-100 dark-module-card text-decoration-none" routerLink="/department">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div
+                class="icon-shape bg-primary bg-opacity-25 text-primary rounded-circle d-flex justify-content-center align-items-center me-3"
+                style="width: 48px; height: 48px; font-size: 1.5rem"
+              >
+                <fa-icon icon="building"></fa-icon>
+              </div>
+              <h5 class="card-title fw-bold mb-0 text-white">Departamentos</h5>
+            </div>
+            <p class="card-text text-light opacity-75 small">Configure y organice las diferentes áreas y departamentos de la empresa.</p>
+          </div>
+          <div class="card-footer bg-transparent border-0 pb-4 pt-0 text-primary fw-bold small text-uppercase">
+            Acceder al módulo &rarr;
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
-</div>
+}

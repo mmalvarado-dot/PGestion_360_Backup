@@ -2,6 +2,9 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.repository.TrackingRecordRepository;
 import com.mycompany.myapp.repository.TrackingStats;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.security.AuthoritiesConstants;
+import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.TrackingRecordService;
 import com.mycompany.myapp.service.dto.TrackingRecordDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
@@ -40,10 +43,16 @@ public class TrackingRecordResource {
 
     private final TrackingRecordService trackingRecordService;
     private final TrackingRecordRepository trackingRecordRepository;
+    private final UserRepository userRepository;
 
-    public TrackingRecordResource(TrackingRecordService trackingRecordService, TrackingRecordRepository trackingRecordRepository) {
+    public TrackingRecordResource(
+        TrackingRecordService trackingRecordService,
+        TrackingRecordRepository trackingRecordRepository,
+        UserRepository userRepository
+    ) {
         this.trackingRecordService = trackingRecordService;
         this.trackingRecordRepository = trackingRecordRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("")
@@ -89,9 +98,22 @@ public class TrackingRecordResource {
 
     @GetMapping("")
     public Mono<ResponseEntity<List<TrackingRecordDTO>>> getAllTrackingRecords(Pageable pageable, ServerHttpRequest request) {
-        return trackingRecordService
-            .countAll()
-            .zipWith(trackingRecordService.findAll(pageable).collectList())
+        LOG.debug("REST request to get a page of TrackingRecords");
+
+        return SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+            .flatMap(isAdmin -> {
+                if (Boolean.TRUE.equals(isAdmin)) {
+                    return trackingRecordService.countAll().zipWith(trackingRecordService.findAll(pageable).collectList());
+                } else {
+                    return SecurityUtils.getCurrentUserLogin()
+                        .flatMap(userRepository::findOneByLogin)
+                        .flatMap(user ->
+                            trackingRecordService
+                                .countAllByUser(user.getId())
+                                .zipWith(trackingRecordService.findAllByUser(pageable, user.getId()).collectList())
+                        );
+                }
+            })
             .map(tuple ->
                 ResponseEntity.ok()
                     .headers(
@@ -127,13 +149,21 @@ public class TrackingRecordResource {
             );
     }
 
+    //   ENDPOINTS DE ESTADÍSTICAS CON FILTROS DE FECHA
+
     @GetMapping(value = "/stats/departments", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<TrackingStats> getDepartmentStats() {
-        return trackingRecordService.getDepartmentStats();
+    public Flux<TrackingStats> getDepartmentStats(
+        @RequestParam(value = "year", required = false) Integer year,
+        @RequestParam(value = "month", required = false) Integer month
+    ) {
+        return trackingRecordService.getDepartmentStats(year, month);
     }
 
     @GetMapping(value = "/stats/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Flux<TrackingStats> getUserStats() {
-        return trackingRecordService.getUserStats();
+    public Flux<TrackingStats> getUserStats(
+        @RequestParam(value = "year", required = false) Integer year,
+        @RequestParam(value = "month", required = false) Integer month
+    ) {
+        return trackingRecordService.getUserStats(year, month);
     }
 }

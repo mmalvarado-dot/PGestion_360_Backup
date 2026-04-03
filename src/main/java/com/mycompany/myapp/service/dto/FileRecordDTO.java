@@ -3,6 +3,7 @@ package com.mycompany.myapp.service.dto;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -26,6 +27,8 @@ public class FileRecordDTO implements Serializable {
     private byte[] content;
 
     private String contentContentType;
+
+    private Instant uploadDate;
 
     private ChangeRequestDTO changeRequest;
 
@@ -77,6 +80,14 @@ public class FileRecordDTO implements Serializable {
         this.contentContentType = contentContentType;
     }
 
+    public Instant getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(Instant uploadDate) {
+        this.uploadDate = uploadDate;
+    }
+
     public ChangeRequestDTO getChangeRequest() {
         return changeRequest;
     }
@@ -115,6 +126,7 @@ public class FileRecordDTO implements Serializable {
             ", filePath='" + getFilePath() + "'" +
             ", fileType='" + getFileType() + "'" +
             ", content='" + getContent() + "'" +
+            ", uploadDate='" + getUploadDate() + "'" + 
             ", changeRequest=" + getChangeRequest() +
             "}";
     }

@@ -11,7 +11,6 @@ public class TrackingRecordSqlHelper {
     public static List<Expression> getColumns(Table table, String columnPrefix) {
         List<Expression> columns = new ArrayList<>();
 
-        // Escudo protector contra el doble guión bajo
         String p = (columnPrefix != null && columnPrefix.endsWith("_"))
             ? columnPrefix.substring(0, columnPrefix.length() - 1)
             : columnPrefix;

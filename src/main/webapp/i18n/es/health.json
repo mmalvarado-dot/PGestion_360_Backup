@@ -1,8 +1,8 @@
 {
   "health": {
-    "title": "Control de salud",
-    "refresh.button": "Refrescar",
-    "stacktrace": "Stacktrace",
+    "title": "Estado del Sistema",
+    "refresh.button": "Actualizar",
+    "stacktrace": "Traza de Error",
     "details": {
       "details": "Detalles",
       "properties": "Propiedades",
@@ -11,21 +11,21 @@
       "error": "Error"
     },
     "indicator": {
-      "diskSpace": "Espacio en disco",
-      "mail": "Correo Electrónico",
-      "livenessState": "Liveness state",
-      "readinessState": "Readiness state",
+      "diskSpace": "Espacio en Disco",
+      "mail": "Servidor de Correo",
+      "livenessState": "Estado de Actividad (Liveness)",
+      "readinessState": "Estado de Disponibilidad (Readiness)",
       "ping": "Aplicación",
       "r2dbc": "Base de Datos"
     },
     "table": {
-      "service": "Nombre del servicio",
+      "service": "Nombre del Servicio",
       "status": "Estado"
     },
     "status": {
       "UNKNOWN": "DESCONOCIDO",
-      "UP": "LEVANTADO",
-      "OUT_OF_SERVICE": "FUERA_DE_SERVICIO",
+      "UP": "EN LÍNEA",
+      "OUT_OF_SERVICE": "FUERA DE SERVICIO",
       "DOWN": "CAÍDO"
     }
   }

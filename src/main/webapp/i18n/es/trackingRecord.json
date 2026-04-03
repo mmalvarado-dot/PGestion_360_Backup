@@ -2,28 +2,29 @@
   "pGestion360App": {
     "trackingRecord": {
       "home": {
-        "title": "Tracking Records",
+        "title": "Registros de Seguimiento",
         "refreshListLabel": "Refrescar lista",
-        "createLabel": "Crear nuevo Tracking Record",
-        "createOrEditLabel": "Crear o editar Tracking Record",
-        "notFound": "Ningún Tracking Records encontrado"
+        "createLabel": "Crear nuevo Registro de Seguimiento",
+        "createOrEditLabel": "Crear o editar Registro de Seguimiento",
+        "notFound": "No se encontraron Registros de Seguimiento"
       },
-      "created": "Un nuevo Tracking Record ha sido creado con el identificador {{ param }}",
-      "updated": "Un Tracking Record ha sido actualizado con el identificador {{ param }}",
-      "deleted": "Un Tracking Record ha sido eliminado con el identificador {{ param }}",
+      "created": "Un nuevo Registro de Seguimiento ha sido creado con el identificador {{ param }}",
+      "updated": "El Registro de Seguimiento ha sido actualizado con el identificador {{ param }}",
+      "deleted": "El Registro de Seguimiento ha sido eliminado con el identificador {{ param }}",
       "delete": {
-        "question": "¿Seguro que quiere eliminar Tracking Record {{ id }}?"
+        "question": "¿Está seguro de que desea eliminar el Registro de Seguimiento {{ id }}?"
       },
       "detail": {
-        "title": "Tracking Record"
+        "title": "Detalle del Registro de Seguimiento"
       },
       "id": "ID",
-      "changeDate": "Change Date",
-      "status": "Status",
-      "comments": "Comments",
-      "user": "User",
-      "responsible": "Responsible",
-      "changeRequest": "Change Request"
+      "changeDate": "Fecha y Hora",
+      "status": "Estado",
+      "comments": "Comentarios",
+      "user": "Usuario",
+      "responsible": "Responsable",
+      "changeRequest": "Solicitud",
+      "department": "Departamento"
     }
   }
 }

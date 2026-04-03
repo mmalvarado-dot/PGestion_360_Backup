@@ -7,6 +7,7 @@ export interface IFileRecord {
   fileType?: string | null;
   content?: string | null;
   contentContentType?: string | null;
+  uploadDate?: any | null; // <-- ¡Aquí está la magia para que Angular acepte la fecha!
   changeRequest?: Pick<IChangeRequest, 'id'> | null;
 }
 

@@ -74,7 +74,9 @@
               <td>
                 @if (department.parentDepartment) {
                   <div>
-                    <a [routerLink]="['/department', department.parentDepartment.id, 'view']">{{ department.parentDepartment.id }}</a>
+                    <a [routerLink]="['/department', department.parentDepartment.id, 'view']">{{
+                      department.parentDepartment.departmentName
+                    }}</a>
                   </div>
                 }
               </td>

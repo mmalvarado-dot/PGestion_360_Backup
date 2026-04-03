@@ -38,11 +38,8 @@ public class TrackingRecord implements Serializable {
 
     // --- Relaciones (IDs en Base de Datos) ---
 
-    // ¡Aquí está nuestro Usuario Real!
     @Column("user_id")
     private Long userId;
-
-    // 🧹 ELIMINADO: responsibleId
 
     @Column("change_request_id")
     private Long changeRequestId;
@@ -50,12 +47,8 @@ public class TrackingRecord implements Serializable {
     @Column("department_id")
     private Long departmentId;
 
-    // --- Objetos Transients (Para que Java y el Mapper los vean) ---
-
     @org.springframework.data.annotation.Transient
     private User user;
-
-    // 🧹 ELIMINADO: Objeto Transient Responsible
 
     @org.springframework.data.annotation.Transient
     @JsonIgnoreProperties(value = { "itemCatalogue" }, allowSetters = true)
@@ -142,8 +135,6 @@ public class TrackingRecord implements Serializable {
         this.userId = userId;
     }
 
-    // 🧹 ELIMINADOS: Getters y Setters de responsibleId
-
     public Long getChangeRequestId() {
         return this.changeRequestId;
     }
@@ -175,8 +166,6 @@ public class TrackingRecord implements Serializable {
         this.setUser(user);
         return this;
     }
-
-    // 🧹 ELIMINADOS: Getters y Setters del objeto Responsible
 
     public ChangeRequest getChangeRequest() {
         return this.changeRequest;

@@ -20,14 +20,10 @@ public class ChangeRequestSqlHelper {
         columns.add(Column.aliased("status", table, columnPrefix + "_status"));
         columns.add(Column.aliased("fecha_entrega", table, columnPrefix + "_fecha_entrega"));
         columns.add(Column.aliased("observaciones", table, columnPrefix + "_observaciones"));
-        columns.add(Column.aliased("archivo_adjunto", table, columnPrefix + "_archivo_adjunto"));
-        columns.add(Column.aliased("archivo_adjunto_content_type", table, columnPrefix + "_archivo_adjunto_content_type"));
         columns.add(Column.aliased("solicitante", table, columnPrefix + "_solicitante"));
         columns.add(Column.aliased("departamento", table, columnPrefix + "_departamento"));
 
-        // --- CAMBIADO DE RESPONSIBLE_ID A USER_ID ---
         columns.add(Column.aliased("user_id", table, columnPrefix + "_user_id"));
-        // --------------------------------------------
 
         columns.add(Column.aliased("item_catalogue_id", table, columnPrefix + "_item_catalogue_id"));
         return columns;

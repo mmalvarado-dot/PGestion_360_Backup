@@ -45,45 +45,6 @@
               <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
                 <a
                   class="dropdown-item"
-                  routerLink="/catalogue"
-                  routerLinkActive="active"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  (click)="collapseNavbar()"
-                >
-                  <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.catalogue">Catalogue</span>
-                </a>
-              </li>
-
-              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
-                <a
-                  class="dropdown-item"
-                  routerLink="/item-catalogue"
-                  routerLinkActive="active"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  (click)="collapseNavbar()"
-                >
-                  <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.itemCatalogue">Item Catalogue</span>
-                </a>
-              </li>
-
-              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
-                <a
-                  class="dropdown-item"
-                  routerLink="/responsible"
-                  routerLinkActive="active"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  (click)="collapseNavbar()"
-                >
-                  <fa-icon icon="asterisk" [fixedWidth]="true"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.responsible">Responsible</span>
-                </a>
-              </li>
-
-              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
-                <a
-                  class="dropdown-item"
                   routerLink="/department"
                   routerLinkActive="active"
                   [routerLinkActiveOptions]="{ exact: true }"
@@ -107,7 +68,7 @@
                 </a>
               </li>
 
-              <li *jhiHasAnyAuthority="'ROLE_ADMIN'">
+              <li *jhiHasAnyAuthority="['ROLE_USER', 'ROLE_ADMIN']">
                 <a
                   class="dropdown-item"
                   routerLink="/tracking-record"

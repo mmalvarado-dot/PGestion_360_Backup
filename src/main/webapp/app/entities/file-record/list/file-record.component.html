@@ -38,45 +38,57 @@
     </div>
   } @else {
     <div class="table-responsive table-entities" id="entities">
-      <table class="table table-striped" aria-describedby="page-heading">
+      <table class="table table-striped align-middle" aria-describedby="page-heading">
         <thead>
           <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
-            <th scope="col" jhiSortBy="id">
+            <th scope="col" jhiSortBy="id" style="width: 80px">
               <div class="d-flex">
                 <span jhiTranslate="global.field.id">ID</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
-            <th scope="col" jhiSortBy="fileName">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.fileRecord.fileName">File Name</span>
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="filePath">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.fileRecord.filePath">File Path</span>
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="fileType">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.fileRecord.fileType">File Type</span>
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="content">
-              <div class="d-flex">
-                <span jhiTranslate="pGestion360App.fileRecord.content">Content</span>
-                <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
+
             <th scope="col" jhiSortBy="changeRequest.id">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.fileRecord.changeRequest">Change Request</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
             </th>
+
+            <th scope="col" jhiSortBy="fileName">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.fileRecord.fileName">File Name</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+
+            <th scope="col" jhiSortBy="filePath" style="max-width: 250px">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.fileRecord.filePath">File Path</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+
+            <th scope="col" jhiSortBy="fileType">
+              <div class="d-flex">
+                <span jhiTranslate="pGestion360App.fileRecord.fileType">File Type</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+
+            <th scope="col">
+              <div class="d-flex">
+                <span>Archivo</span>
+              </div>
+            </th>
+
+            <th scope="col" jhiSortBy="uploadDate">
+              <div class="d-flex">
+                <span>Fecha de subida</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+
             <th scope="col"></th>
           </tr>
         </thead>
@@ -84,46 +96,80 @@
           @for (fileRecord of fileRecords(); track trackId(fileRecord)) {
             <tr data-cy="entityTable">
               <td>
-                <a [routerLink]="['/file-record', fileRecord.id, 'view']">{{ fileRecord.id }}</a>
-              </td>
-              <td>{{ fileRecord.fileName }}</td>
-              <td>{{ fileRecord.filePath }}</td>
-              <td>{{ fileRecord.fileType }}</td>
-              <td>
-                @if (fileRecord.content) {
-                  <a (click)="openFile(fileRecord.content, fileRecord.contentContentType)" jhiTranslate="entity.action.open">Abrir</a>
-                  <span>{{ fileRecord.contentContentType }}, {{ byteSize(fileRecord.content) }}</span>
-                }
+                <a [routerLink]="['/file-record', fileRecord.id, 'view']" class="text-muted small text-decoration-none">
+                  #{{ fileRecord.id }}
+                </a>
               </td>
 
               <td>
-                @if (fileRecord.changeRequest) {
+                @if (fileRecord.changeRequest?.id) {
                   <div>
-                    <a [routerLink]="['/change-request', fileRecord.changeRequest.id, 'view']">{{ fileRecord.changeRequest.id }}</a>
+                    <a
+                      [routerLink]="['/change-request', fileRecord.changeRequest?.id, 'view']"
+                      class="badge bg-primary text-white fs-6 text-decoration-none shadow-sm"
+                    >
+                      REQ-{{ fileRecord.changeRequest?.id }}
+                    </a>
                   </div>
                 } @else if (searchRequestId()) {
                   <div>
-                    <a [routerLink]="['/change-request', searchRequestId(), 'view']">{{ searchRequestId() }}</a>
+                    <a
+                      [routerLink]="['/change-request', searchRequestId(), 'view']"
+                      class="badge bg-primary text-white fs-6 text-decoration-none shadow-sm"
+                    >
+                      REQ-{{ searchRequestId() }}
+                    </a>
                   </div>
+                } @else {
+                  <span class="badge bg-secondary text-white">Sin Solicitud</span>
                 }
               </td>
+
+              <td class="fw-medium">{{ fileRecord?.fileName }}</td>
+
+              <td style="max-width: 250px" class="text-truncate text-muted small" [title]="fileRecord?.filePath || 'Sin ruta'">
+                {{ fileRecord?.filePath }}
+              </td>
+
+              <td>
+                <span class="badge bg-light text-dark border">{{ fileRecord?.fileType }}</span>
+              </td>
+
+              <td>
+                <div class="btn-group">
+                  <button
+                    type="button"
+                    (click)="downloadPhysicalFile(fileRecord.id, false)"
+                    class="btn btn-outline-success btn-sm"
+                    title="Ver Archivo"
+                    [disabled]="!fileRecord?.id"
+                  >
+                    <fa-icon icon="eye"></fa-icon> <span class="d-none d-md-inline">Ver</span>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="downloadPhysicalFile(fileRecord.id, true)"
+                    class="btn btn-outline-primary btn-sm"
+                    title="Descargar Archivo"
+                    [disabled]="!fileRecord?.id"
+                  >
+                    <span class="d-none d-md-inline">Descargar</span>
+                  </button>
+                </div>
+              </td>
+
+              <td class="small">{{ fileRecord?.uploadDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+
               <td class="text-end">
                 <div class="btn-group">
-                  <a [routerLink]="['/file-record', fileRecord.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
-                    <fa-icon icon="eye"></fa-icon>
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Vista</span>
-                  </a>
-
-                  <button
-                    *jhiHasAnyAuthority="'ROLE_ADMIN'"
-                    type="submit"
-                    (click)="delete(fileRecord)"
-                    class="btn btn-danger btn-sm"
-                    data-cy="entityDeleteButton"
+                  <a
+                    [routerLink]="['/file-record', fileRecord.id, 'view']"
+                    class="btn btn-info btn-sm"
+                    data-cy="entityDetailsButton"
+                    title="Detalles del Registro"
                   >
-                    <fa-icon icon="times"></fa-icon>
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Eliminar</span>
-                  </button>
+                    <fa-icon icon="eye"></fa-icon>
+                  </a>
                 </div>
               </td>
             </tr>
@@ -134,7 +180,7 @@
   }
   @if (fileRecords().length > 0) {
     <div>
-      <div class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center mt-3">
         <jhi-item-count [params]="{ page, totalItems, itemsPerPage }" />
       </div>
 

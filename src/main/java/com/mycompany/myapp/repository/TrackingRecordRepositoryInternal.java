@@ -8,7 +8,6 @@ import reactor.core.publisher.Mono;
 
 @SuppressWarnings("unused")
 public interface TrackingRecordRepositoryInternal {
-    // Estos son los de JHipster por defecto
     Flux<TrackingRecord> findAllBy(Pageable pageable);
 
     Flux<TrackingRecord> findAllBy(Pageable pageable, Criteria criteria);
@@ -17,6 +16,5 @@ public interface TrackingRecordRepositoryInternal {
 
     Mono<TrackingRecord> findById(Long id);
 
-    // 👇 AQUI ESTA NUESTRA PROMESA DEL METODO NUEVO 👇
     Flux<TrackingRecord> findByChangeRequestId(Long id);
 }

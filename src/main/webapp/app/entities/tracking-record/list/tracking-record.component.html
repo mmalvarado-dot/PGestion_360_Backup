@@ -1,8 +1,9 @@
 <div class="container-fluid p-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary fw-bold m-0">Seguimiento de Cambios</h2>
+    <h2 class="text-primary fw-bold m-0">Registros de Seguimiento</h2>
     <button class="btn btn-info shadow-sm" (click)="load()" [disabled]="isLoading">
-      <fa-icon icon="sync" [class.fa-spin]="isLoading"></fa-icon> Refrescar Lista
+      <fa-icon icon="sync" [class.fa-spin]="isLoading"></fa-icon>
+      <span>Actualizar lista</span>
     </button>
   </div>
 
@@ -13,11 +14,44 @@
       (click)="toggleStats()"
     >
       <span><fa-icon icon="chart-line" class="me-2"></fa-icon>Resumen de Actividad</span>
-      <button class="btn btn-sm btn-outline-light">{{ isStatsCollapsed ? 'Visualizar' : 'Ocultar' }}</button>
+      <button class="btn btn-sm btn-outline-light">{{ isStatsCollapsed ? 'Ver' : 'Ocultar' }}</button>
     </div>
 
     @if (!isStatsCollapsed) {
       <div class="card-body bg-light border-start border-end border-bottom">
+        <div class="row mb-4 g-2 justify-content-center">
+          <div class="col-md-3">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-dark text-white">Año</span>
+              <select class="form-select" [(ngModel)]="filterYear" (change)="updateStats()">
+                <option [ngValue]="null">Todos los años</option>
+                <option [ngValue]="2026">2026</option>
+                <option [ngValue]="2025">2025</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-dark text-white">Mes</span>
+              <select class="form-select" [(ngModel)]="filterMonth" (change)="updateStats()">
+                <option [ngValue]="null">Todos los meses</option>
+                <option [ngValue]="1">Enero</option>
+                <option [ngValue]="2">Febrero</option>
+                <option [ngValue]="3">Marzo</option>
+                <option [ngValue]="4">Abril</option>
+                <option [ngValue]="5">Mayo</option>
+                <option [ngValue]="6">Junio</option>
+                <option [ngValue]="7">Julio</option>
+                <option [ngValue]="8">Agosto</option>
+                <option [ngValue]="9">Septiembre</option>
+                <option [ngValue]="10">Octubre</option>
+                <option [ngValue]="11">Noviembre</option>
+                <option [ngValue]="12">Diciembre</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col-md-6 mb-3">
             <div class="card h-100 border-info">
@@ -33,6 +67,7 @@
               </ul>
             </div>
           </div>
+
           <div class="col-md-6 mb-3">
             <div class="card h-100 border-success">
               <div class="card-header bg-success text-white text-center">Top Usuarios</div>
@@ -55,9 +90,8 @@
   <div class="card mb-4 border-0 shadow-sm">
     <div class="card-body p-3">
       <div class="input-group" style="max-width: 500px">
-        <span class="input-group-text bg-primary text-white">ID Solicitud</span>
-        <input type="number" class="form-control" placeholder="Escriba el ID..." [(ngModel)]="searchRequestId" (keyup.enter)="load()" />
-
+        <span class="input-group-text bg-primary text-white">ID de Solicitud</span>
+        <input type="number" class="form-control" placeholder="ID..." [(ngModel)]="searchRequestId" (keyup.enter)="load()" />
         @if (searchRequestId()) {
           <button class="btn btn-danger" title="Limpiar búsqueda" (click)="searchRequestId.set(null); load()">
             <fa-icon icon="times"></fa-icon>
@@ -72,16 +106,17 @@
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
         <tr>
-          <th class="text-muted">ID Reg.</th>
+          <th class="text-muted">ID</th>
           <th>Solicitud</th>
           <th>Fecha y Hora</th>
           <th>Estado</th>
           <th>Usuario</th>
           <th>Departamento</th>
-          <th>Comentario / Acción</th>
+          <th>Comentarios</th>
           <th class="text-end">Acciones</th>
         </tr>
       </thead>
+
       <tbody>
         @for (tr of trackingRecords(); track tr.id) {
           <tr>
@@ -111,6 +146,7 @@
                 {{ tr.status }}
               </span>
             </td>
+
             <td>{{ tr.user?.login || 'Sin asignar' }}</td>
             <td>{{ tr.department?.departmentName }}</td>
 
@@ -123,7 +159,8 @@
                 <button [routerLink]="['/tracking-record', tr.id, 'view']" class="btn btn-info btn-sm text-white">
                   <fa-icon icon="eye"></fa-icon>
                 </button>
-                <button (click)="delete(tr)" class="btn btn-danger btn-sm">
+
+                <button *jhiHasAnyAuthority="['ROLE_ADMIN']" (click)="delete(tr)" class="btn btn-danger btn-sm">
                   <fa-icon icon="times"></fa-icon>
                 </button>
               </div>
@@ -133,7 +170,7 @@
           <tr>
             <td colspan="8" class="text-center py-5">
               <fa-icon icon="info-circle" class="text-muted fa-2x mb-3"></fa-icon>
-              <p class="text-muted">No se encontraron registros de seguimiento en la base de datos.</p>
+              <p class="text-muted">No se encontraron Registros de Seguimiento</p>
             </td>
           </tr>
         }

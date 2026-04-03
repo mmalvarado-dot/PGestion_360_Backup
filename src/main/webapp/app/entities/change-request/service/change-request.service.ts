@@ -19,9 +19,7 @@ type RestOf<T extends IChangeRequest | NewChangeRequest> = Omit<T, 'createdDate'
 };
 
 export type RestChangeRequest = RestOf<IChangeRequest>;
-
 export type NewRestChangeRequest = RestOf<NewChangeRequest>;
-
 export type PartialUpdateRestChangeRequest = RestOf<PartialUpdateChangeRequest>;
 
 export type EntityResponseType = HttpResponse<IChangeRequest>;
@@ -33,6 +31,17 @@ export class ChangeRequestService {
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/change-requests');
+
+  // ============================================================================
+  // NUEVO METODO: Este es el mensajero que lleva el archivo físico a Java
+  // ============================================================================
+  uploadFile(id: number, file: File): Observable<HttpResponse<any>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    // Llama a nuestra nueva ruta: POST /api/change-requests/{id}/archivo
+    return this.http.post(`${this.resourceUrl}/${id}/archivo`, formData, { observe: 'response' });
+  }
+  // ============================================================================
 
   create(changeRequest: NewChangeRequest): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(changeRequest);

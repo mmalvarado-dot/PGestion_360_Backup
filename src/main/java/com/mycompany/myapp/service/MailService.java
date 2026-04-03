@@ -118,7 +118,7 @@ public class MailService {
         sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
     }
 
-    // --- NUEVO MÉTODO AGREGADO PARA LAS SOLICITUDES DE CAMBIO ---
+    //  MÉTODO  PARA LAS SOLICITUDES DE CAMBIO
     public void sendChangeRequestAssignmentEmail(User user, ChangeRequestDTO changeRequest) {
         LOG.debug("Enviando correo de asignación de solicitud a '{}'", user.getEmail());
 

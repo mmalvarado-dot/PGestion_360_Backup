@@ -15,5 +15,6 @@ public interface DepartmentMapper extends EntityMapper<DepartmentDTO, Department
     @Named("departmentId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "departmentName", source = "departmentName") // <-- ¡Agregamos esta línea!
     DepartmentDTO toDtoDepartmentId(Department department);
 }

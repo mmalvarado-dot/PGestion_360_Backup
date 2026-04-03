@@ -21,3 +21,44 @@ Main page styles
     background-size: contain;
   }
 }
+
+//PANEL CONTROL INICIO
+
+/* home.component.scss */
+
+.dashboard-wrapper {
+  background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alert-custom {
+  background-color: rgba(13, 110, 253, 0.15) !important;
+  border: 1px solid rgba(13, 110, 253, 0.3) !important;
+}
+
+.dark-module-card {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.dark-module-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+  border-color: rgba(52, 152, 219, 0.6) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-module-card h5,
+.dark-module-card p,
+.dark-module-card .card-footer {
+  color: #ffffff !important;
+}
+
+.dark-module-card p {
+  opacity: 0.8;
+}

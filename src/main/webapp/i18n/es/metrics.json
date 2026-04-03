@@ -1,42 +1,42 @@
 {
   "metrics": {
-    "title": "Métricas de aplicación",
-    "refresh.button": "Refrescar",
+    "title": "Métricas de la Aplicación",
+    "refresh.button": "Actualizar",
     "updating": "Actualizando...",
     "jvm": {
       "title": "Métricas de JVM",
       "memory": {
         "title": "Memoria",
-        "total": "Memoria total",
-        "heap": "Memoria del Heap",
-        "nonheap": "Memoria no Heap"
+        "total": "Memoria Total",
+        "heap": "Memoria Heap",
+        "nonheap": "Memoria No-Heap"
       },
       "threads": {
-        "title": "Hilos",
-        "all": "Todo",
-        "runnable": "Ejecutables",
-        "timedwaiting": "Tiempo esperando",
-        "waiting": "Esperando",
+        "title": "Hilos (Threads)",
+        "all": "Todos",
+        "runnable": "En Ejecución",
+        "timedwaiting": "Espera Temporal",
+        "waiting": "En Espera",
         "blocked": "Bloqueados",
         "dump": {
-          "title": "Volcado de hilos",
-          "id": "Id: ",
-          "blockedtime": "Tiempo bloqueado",
-          "blockedcount": "Contador bloqueados",
-          "waitedtime": "Tiempo en espera",
-          "waitedcount": "Contador en espera",
-          "lockname": "Nombre del bloqueo",
-          "stacktrace": "Stacktrace",
+          "title": "Volcado de Hilos",
+          "id": "ID: ",
+          "blockedtime": "Tiempo Bloqueado",
+          "blockedcount": "Contador de Bloqueos",
+          "waitedtime": "Tiempo en Espera",
+          "waitedcount": "Contador en Espera",
+          "lockname": "Nombre del Bloqueo",
+          "stacktrace": "Traza de Pila (Stacktrace)",
           "show": "Mostrar",
           "hide": "Ocultar"
         }
       },
       "gc": {
-        "title": "Colecciones de basura",
-        "marksweepcount": "Mark Sweep count",
-        "marksweeptime": "Mark Sweep time",
-        "scavengecount": "Scavenge count",
-        "scavengetime": "Scavenge time"
+        "title": "Recolección de Basura (GC)",
+        "marksweepcount": "Conteo Mark Sweep",
+        "marksweeptime": "Tiempo Mark Sweep",
+        "scavengecount": "Conteo Scavenge",
+        "scavengetime": "Tiempo Scavenge"
       },
       "http": {
         "title": "Peticiones HTTP (eventos por segundo)",
@@ -44,26 +44,26 @@
         "total": "Peticiones totales:",
         "table": {
           "code": "Código",
-          "count": "Recuento",
+          "count": "Conteo",
           "mean": "Media",
           "average": "Promedio",
-          "max": "Max"
+          "max": "Máx"
         },
         "code": {
-          "ok": "Ok",
-          "notfound": "No encontrado",
-          "servererror": "Error de servidor"
+          "ok": "OK (200)",
+          "notfound": "No Encontrado (404)",
+          "servererror": "Error de Servidor (500)"
         }
       }
     },
     "servicesstats": {
-      "title": "Estadísticas de servicios (tiempo en milisegundos)",
+      "title": "Estadísticas de Servicios (tiempo en milisegundos)",
       "table": {
-        "name": "Nombre del servicio",
-        "count": "Contador",
+        "name": "Nombre del Servicio",
+        "count": "Conteo",
         "mean": "Media",
-        "min": "Min",
-        "max": "Max",
+        "min": "Mín",
+        "max": "Máx",
         "p50": "p50",
         "p75": "p75",
         "p95": "p95",
@@ -71,20 +71,20 @@
       }
     },
     "cache": {
-      "title": "Estadísticas de cache",
-      "cachename": "Nombre cache",
-      "hits": "Accesos",
-      "misses": "Fallos",
-      "evictions": "Contador desalojo"
+      "title": "Estadísticas de Caché",
+      "cachename": "Nombre de la Caché",
+      "hits": "Aciertos (Hits)",
+      "misses": "Fallos (Misses)",
+      "evictions": "Desalojos (Evictions)"
     },
     "datasource": {
       "usage": "Uso",
-      "title": "Estadísticas de la fuente de datos (tiempo en milisegundos)",
-      "name": "Uso del pool",
-      "count": "Recuento",
+      "title": "Estadísticas de la Fuente de Datos (tiempo en milisegundos)",
+      "name": "Uso del Pool",
+      "count": "Conteo",
       "mean": "Media",
-      "min": "Min",
-      "max": "Max",
+      "min": "Mín",
+      "max": "Máx",
       "p50": "p50",
       "p75": "p75",
       "p95": "p95",

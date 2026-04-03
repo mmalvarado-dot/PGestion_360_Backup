@@ -66,9 +66,8 @@ class FileRecordRepositoryInternalImpl extends SimpleR2dbcRepository<FileRecord,
         return createQuery(pageable, null).all();
     }
 
-    // ========================================================================
-    //  🚀 LA MAGIA: Método que busca por usuario revisando la tabla cruzada
-    // ========================================================================
+    //   LA MAGIA: Método que busca por usuario revisando la tabla cruzada
+
     @Override
     public Flux<FileRecord> findByChangeRequestUserId(Long userId, Pageable pageable) {
         Comparison whereClause = Conditions.isEqual(changeRequestTable.column("user_id"), Conditions.just(userId.toString()));

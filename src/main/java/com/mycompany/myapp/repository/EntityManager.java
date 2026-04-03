@@ -19,7 +19,6 @@ import org.springframework.data.relational.core.sql.SelectBuilder.SelectFromAndJ
 import org.springframework.data.relational.core.sql.SelectBuilder.SelectOrdered;
 import org.springframework.data.relational.core.sql.Table;
 import org.springframework.data.relational.core.sql.render.SqlRenderer;
-// CORRECCIÓN 1: Usamos el Parameter de Spring, no el genérico
 import org.springframework.r2dbc.core.Parameter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -121,7 +120,6 @@ public class EntityManager {
             .sql(statementMapper.getMappedObject(delete))
             .fetch()
             .rowsUpdated()
-            // CORRECCIÓN 2: Aseguramos que sea Long, por si Spring devuelve Integer
             .map(count -> Long.valueOf(count));
     }
 
@@ -143,7 +141,6 @@ public class EntityManager {
                         .sql(statementMapper.getMappedObject(insert))
                         .fetch()
                         .rowsUpdated()
-                        // CORRECCIÓN 2: Conversión segura a Long
                         .map(count -> Long.valueOf(count));
                 })
                 .collectList()

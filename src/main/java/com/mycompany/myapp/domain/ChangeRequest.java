@@ -54,33 +54,24 @@ public class ChangeRequest implements Serializable {
     @Column("observaciones")
     private String observaciones;
 
-    @Column("archivo_adjunto")
-    private byte[] archivoAdjunto;
-
-    @Column("archivo_adjunto_content_type")
-    private String archivoAdjuntoContentType;
-
     @Column("solicitante")
     private String solicitante;
 
     @Column("departamento")
     private String departamento;
 
-    // --- AQUÍ EMPIEZAN LOS CAMBIOS DE RESPONSIBLE A USER ---
     @org.springframework.data.annotation.Transient
-    private User user; // Cambiado a User
+    private User user;
 
     @org.springframework.data.annotation.Transient
     @JsonIgnoreProperties(value = { "catalogue" }, allowSetters = true)
     private ItemCatalogue itemCatalogue;
 
-    @Column("user_id") // Cambiamos el nombre de la columna para la BD
+    @Column("user_id")
     private Long userId;
 
     @Column("item_catalogue_id")
     private Long itemCatalogueId;
-
-    // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
         return this.id;
@@ -212,32 +203,6 @@ public class ChangeRequest implements Serializable {
         this.observaciones = observaciones;
     }
 
-    public byte[] getArchivoAdjunto() {
-        return this.archivoAdjunto;
-    }
-
-    public ChangeRequest archivoAdjunto(byte[] archivoAdjunto) {
-        this.setArchivoAdjunto(archivoAdjunto);
-        return this;
-    }
-
-    public void setArchivoAdjunto(byte[] archivoAdjunto) {
-        this.archivoAdjunto = archivoAdjunto;
-    }
-
-    public String getArchivoAdjuntoContentType() {
-        return this.archivoAdjuntoContentType;
-    }
-
-    public ChangeRequest archivoAdjuntoContentType(String archivoAdjuntoContentType) {
-        this.archivoAdjuntoContentType = archivoAdjuntoContentType;
-        return this;
-    }
-
-    public void setArchivoAdjuntoContentType(String archivoAdjuntoContentType) {
-        this.archivoAdjuntoContentType = archivoAdjuntoContentType;
-    }
-
     public String getSolicitante() {
         return this.solicitante;
     }
@@ -264,7 +229,6 @@ public class ChangeRequest implements Serializable {
         this.departamento = departamento;
     }
 
-    // --- GETTERS Y SETTERS ACTUALIZADOS PARA USER ---
     public User getUser() {
         return this.user;
     }
@@ -286,8 +250,6 @@ public class ChangeRequest implements Serializable {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
-    // ------------------------------------------------
 
     public ItemCatalogue getItemCatalogue() {
         return this.itemCatalogue;
@@ -311,8 +273,6 @@ public class ChangeRequest implements Serializable {
         this.itemCatalogueId = itemCatalogue;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -326,28 +286,49 @@ public class ChangeRequest implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
-        return "ChangeRequest{" +
-            "id=" + getId() +
-            ", title='" + getTitle() + "'" +
-            ", description='" + getDescription() + "'" +
-            ", createdDate='" + getCreatedDate() + "'" +
-            ", updatedDate='" + getUpdatedDate() + "'" +
-            ", priority='" + getPriority() + "'" +
-            ", impact='" + getImpact() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", fechaEntrega='" + getFechaEntrega() + "'" +
-            ", observaciones='" + getObservaciones() + "'" +
-            ", archivoAdjunto='" + getArchivoAdjunto() + "'" +
-            ", archivoAdjuntoContentType='" + getArchivoAdjuntoContentType() + "'" +
-            ", solicitante='" + getSolicitante() + "'" +
-            ", departamento='" + getDepartamento() + "'" +
-            "}";
+        return (
+            "ChangeRequest{" +
+            "id=" +
+            getId() +
+            ", title='" +
+            getTitle() +
+            "'" +
+            ", description='" +
+            getDescription() +
+            "'" +
+            ", createdDate='" +
+            getCreatedDate() +
+            "'" +
+            ", updatedDate='" +
+            getUpdatedDate() +
+            "'" +
+            ", priority='" +
+            getPriority() +
+            "'" +
+            ", impact='" +
+            getImpact() +
+            "'" +
+            ", status='" +
+            getStatus() +
+            "'" +
+            ", fechaEntrega='" +
+            getFechaEntrega() +
+            "'" +
+            ", observaciones='" +
+            getObservaciones() +
+            "'" +
+            ", solicitante='" +
+            getSolicitante() +
+            "'" +
+            ", departamento='" +
+            getDepartamento() +
+            "'" +
+            "}"
+        );
     }
 }

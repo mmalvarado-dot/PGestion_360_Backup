@@ -2,6 +2,7 @@ package com.mycompany.myapp.repository.rowmapper;
 
 import com.mycompany.myapp.domain.FileRecord;
 import io.r2dbc.spi.Row;
+import java.time.Instant;
 import java.util.function.BiFunction;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,9 @@ public class FileRecordRowMapper implements BiFunction<Row, String, FileRecord> 
         entity.setFileType(converter.fromRow(row, prefix + "_file_type", String.class));
         entity.setContentContentType(converter.fromRow(row, prefix + "_content_content_type", String.class));
         entity.setContent(converter.fromRow(row, prefix + "_content", byte[].class));
+
+        entity.setUploadDate(converter.fromRow(row, prefix + "_upload_date", Instant.class));
+
         entity.setChangeRequestId(converter.fromRow(row, prefix + "_change_request_id", Long.class));
         return entity;
     }

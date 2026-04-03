@@ -1,6 +1,6 @@
 {
   "global": {
-    "title": "PGestion360",
+    "title": "Gestion360",
     "browsehappy": "Está usando un navegador <strong>no actualizado</strong>. Por favor, <a href=\"http://browsehappy.com/?locale=es\">actualice su navegador</a> para mejorar su experiencia.",
     "menu": {
       "home": "Inicio",
@@ -8,13 +8,14 @@
       "entities": {
         "main": "Entidades",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)",
-        "catalogue": "Catalogue",
-        "itemCatalogue": "Item Catalogue",
-        "responsible": "Responsible",
-        "department": "Department",
-        "changeRequest": "Change Request",
-        "trackingRecord": "Tracking Record",
-        "fileRecord": "File Record"
+        "catalogue": "Catálogo",
+        "itemCatalogue": "Catálogo de Ítems",
+        "responsible": "Responsable",
+        "department": "Departamento",
+        "changeRequest": "Solicitud de Cambio",
+        "trackingRecord": "Registro de Seguimiento",
+        "fileRecord": "Registro de Archivo",
+        "adminAuthority": "Autoridad Administrativa"
       },
       "account": {
         "main": "Cuenta",
@@ -22,7 +23,7 @@
         "password": "Contraseña",
         "sessions": "Sesiones",
         "login": "Iniciar sesión",
-        "logout": "Cerrar la sesión",
+        "logout": "Cerrar sesión",
         "register": "Crear una cuenta"
       },
       "admin": {
@@ -30,9 +31,9 @@
         "userManagement": "Gestión de usuarios",
         "tracker": "Registro de usuarios",
         "metrics": "Métricas",
-        "health": "Salud",
+        "health": "Salud del sistema",
         "configuration": "Configuración",
-        "logs": "Logs",
+        "logs": "Registros del sistema (Logs)",
         "apidocs": "API",
         "database": "Base de datos",
         "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
@@ -59,8 +60,8 @@
           "suffix": ", puede intentar con las cuentas predeterminadas:<br/>- Administrador (usuario=\"admin\" y contraseña=\"admin\") <br/>- Usuario (usuario=\"user\" y contraseña=\"user\")."
         },
         "register": {
-          "noaccount": "¿Aún no tienes una cuenta?",
-          "link": "Crea una cuenta"
+          "noaccount": "¿Aún no tiene una cuenta?",
+          "link": "Cree una cuenta"
         }
       },
       "error": {
@@ -68,21 +69,21 @@
       },
       "validate": {
         "newpassword": {
-          "required": "Se requiere que ingrese una contraseña.",
-          "minlength": "Se requiere que su contraseña tenga por lo menos 4 caracteres",
-          "maxlength": "Su contraseña no puede tener más de 50 caracteres",
-          "strength": "Seguridad de la contraseña:"
+          "required": "La contraseña es obligatoria.",
+          "minlength": "La contraseña debe tener al menos 4 caracteres.",
+          "maxlength": "La contraseña no puede tener más de 50 caracteres.",
+          "strength": "Nivel de seguridad de la contraseña:"
         },
         "confirmpassword": {
-          "required": "Se requiere que confirme la contraseña.",
-          "minlength": "Se requiere que su contraseña de confirmación tenga por lo menos 4 caracteres",
-          "maxlength": "Su contraseña de confirmación no puede tener más de 50 caracteres"
+          "required": "Debe confirmar la contraseña.",
+          "minlength": "La contraseña de confirmación debe tener al menos 4 caracteres.",
+          "maxlength": "La contraseña de confirmación no puede tener más de 50 caracteres."
         },
         "email": {
-          "required": "Se requiere un correo electrónico.",
-          "invalid": "Su correo electrónico no es válido.",
-          "minlength": "Se requiere que su correo electrónico tenga por lo menos 5 caracteres",
-          "maxlength": "Su correo electrónico no puede tener más de 50 caracteres"
+          "required": "El correo electrónico es obligatorio.",
+          "invalid": "El correo electrónico no es válido.",
+          "minlength": "El correo electrónico debe tener al menos 5 caracteres.",
+          "maxlength": "El correo electrónico no puede tener más de 50 caracteres."
         }
       }
     },
@@ -90,13 +91,13 @@
       "id": "ID"
     },
     "ribbon": {
-      "dev": "Development"
+      "dev": "Desarrollo"
     },
     "item-count": "Mostrando {{first}} - {{second}} de {{total}} elementos."
   },
   "entity": {
     "action": {
-      "addblob": "Añadir fichero",
+      "addblob": "Añadir archivo",
       "addimage": "Añadir imagen",
       "back": "Volver",
       "cancel": "Cancelar",
@@ -104,49 +105,49 @@
       "edit": "Editar",
       "open": "Abrir",
       "save": "Guardar",
-      "view": "Vista",
-      "show": "Show {{otherEntity}}"
+      "view": "Ver",
+      "show": "Mostrar {{otherEntity}}"
     },
     "detail": {
       "field": "Campo",
       "value": "Valor"
     },
     "delete": {
-      "title": "Confirmar operación de borrado"
+      "title": "Confirmar operación de eliminación"
     },
     "validation": {
       "required": "Este campo es obligatorio.",
       "minlength": "Este campo requiere al menos {{min}} caracteres.",
-      "maxlength": "Este campo no puede superar más de {{max}} caracteres.",
+      "maxlength": "Este campo no puede superar los {{max}} caracteres.",
       "min": "Este campo debe ser mayor que {{min}}.",
       "max": "Este campo no puede ser mayor que {{max}}.",
       "minbytes": "Este campo debe tener como mínimo {{min}} bytes.",
       "maxbytes": "Este campo no puede tener más de {{max}} bytes.",
       "pattern": "Este campo debe seguir el patrón {{pattern}}.",
       "number": "Este campo debe ser un número.",
-      "datetimelocal": "Este campo debe ser una fecha y hora."
+      "datetimelocal": "Este campo debe ser una fecha y hora válida."
     },
     "filters": {
-      "set": "Following filters are set",
-      "clear": "Clear filter",
-      "clearAll": "Clear all filters"
+      "set": "Los siguientes filtros están activos",
+      "clear": "Limpiar filtro",
+      "clearAll": "Limpiar todos los filtros"
     }
   },
   "error": {
     "internalServerError": "Error interno en el servidor",
     "server.not.reachable": "Servidor no accesible",
-    "url.not.found": "No existe",
+    "url.not.found": "Ruta no encontrada",
     "NotNull": "¡El campo {{fieldName}} no puede estar vacío!",
     "Size": "¡El campo {{fieldName}} no cumple con los requisitos de tamaño mínimo/máximo!",
     "userexists": "¡El nombre de usuario ya existe!",
-    "emailexists": "¡La cuenta de correo ya está en uso!",
-    "idexists": "Un/a nuevo/a {{entityName}} no puede tener ID",
+    "emailexists": "¡La cuenta de correo electrónico ya está en uso!",
+    "idexists": "Un nuevo registro de {{entityName}} no puede tener un ID asignado previamente",
     "idnull": "ID inválido",
     "idinvalid": "ID inválido",
     "idnotfound": "ID no encontrado",
     "file": {
-      "could.not.extract": "No se pudo extraer el fichero",
-      "not.image": "Se esperaba que el fichero fuera una imagen pero se encontro \"{{ fileType }}\""
+      "could.not.extract": "No se pudo extraer el archivo",
+      "not.image": "Se esperaba que el archivo fuera una imagen pero se encontró \"{{ fileType }}\""
     }
   },
   "footer": "Pie de página"
