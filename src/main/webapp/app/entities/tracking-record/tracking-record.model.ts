@@ -7,6 +7,7 @@ export interface ITrackingRecord {
   id: number;
   changeDate?: dayjs.Dayjs | null;
   status?: string | null;
+  etapa?: string | null; // <-- NUEVO CAMPO AÑADIDO
   comments?: string | null;
 
   user?: Pick<IUser, 'id' | 'login'> | null;

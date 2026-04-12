@@ -20,6 +20,7 @@ type TrackingRecordFormGroupContent = {
   id: FormControl<ITrackingRecord['id'] | NewTrackingRecord['id']>;
   changeDate: FormControl<ITrackingRecord['changeDate']>;
   status: FormControl<ITrackingRecord['status']>;
+  etapa: FormControl<ITrackingRecord['etapa']>; // <-- AGREGADO
   comments: FormControl<ITrackingRecord['comments']>;
   user: FormControl<ITrackingRecord['user']>;
   changeRequest: FormControl<ITrackingRecord['changeRequest']>;
@@ -49,6 +50,7 @@ export class TrackingRecordFormService {
       status: new FormControl(trackingRecordRawValue.status, {
         validators: [Validators.required],
       }),
+      etapa: new FormControl(trackingRecordRawValue.etapa), // <-- AGREGADO
       comments: new FormControl(trackingRecordRawValue.comments),
       user: new FormControl(trackingRecordRawValue.user),
       changeRequest: new FormControl(trackingRecordRawValue.changeRequest),

@@ -177,10 +177,6 @@
                     <fa-icon icon="eye"></fa-icon>
                   </a>
 
-                  <a [routerLink]="['/change-request', changeRequest.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
-                    <fa-icon icon="pencil-alt"></fa-icon>
-                  </a>
-
                   <button
                     *jhiHasAnyAuthority="['ROLE_ADMIN']"
                     type="submit"

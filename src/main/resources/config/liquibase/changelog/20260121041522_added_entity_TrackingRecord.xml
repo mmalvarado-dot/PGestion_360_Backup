@@ -22,7 +22,7 @@
                 <constraints nullable="false" />
             </column>
             
-            <column name="comments" type="varchar(255)">
+            <column name="comments" type="text">
                 <constraints nullable="true" />
             </column>
 

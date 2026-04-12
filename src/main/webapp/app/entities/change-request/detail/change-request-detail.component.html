@@ -15,46 +15,56 @@
           <dd>
             <span>{{ changeRequestRef.id }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.title">Title</span></dt>
           <dd>
             <span>{{ changeRequestRef.title }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.description">Description</span></dt>
           <dd>
             <span>{{ changeRequestRef.description }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.createdDate">Created Date</span></dt>
           <dd>
             <span>{{ changeRequestRef.createdDate | formatMediumDate }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.updatedDate">Updated Date</span></dt>
           <dd>
             <span>{{ changeRequestRef.updatedDate | formatMediumDate }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.priority">Priority</span></dt>
           <dd>
             <span [jhiTranslate]="'pGestion360App.prioridad.' + (changeRequestRef.priority ?? 'null')">{{
               { null: '', ALTA: 'ALTA', MEDIA: 'MEDIA', BAJA: 'BAJA' }[changeRequestRef.priority ?? 'null']
             }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.impact">Impact</span></dt>
           <dd>
             <span [jhiTranslate]="'pGestion360App.Impacto.' + (changeRequestRef.impact ?? 'null')">{{
               { null: '', ALTO: 'ALTO', MEDIO: 'MEDIO', BAJO: 'BAJO' }[changeRequestRef.impact ?? 'null']
             }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.status">Status</span></dt>
           <dd>
             <span>{{ changeRequestRef.status }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.fechaEntrega">Fecha Entrega</span></dt>
           <dd>
             <span>{{ changeRequestRef.fechaEntrega | formatMediumDate }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.observaciones">Observaciones</span></dt>
           <dd>
             <span>{{ changeRequestRef.observaciones }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.archivoAdjunto">Archivo Adjunto</span></dt>
           <dd>
             @if (changeRequestRef.archivoAdjunto) {
@@ -68,10 +78,12 @@
               </div>
             }
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.solicitante">Solicitante</span></dt>
           <dd>
             <span>{{ changeRequestRef.solicitante }}</span>
           </dd>
+
           <dt><span jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</span></dt>
           <dd>
             <span>{{ changeRequestRef.departamento }}</span>
@@ -98,12 +110,91 @@
           </dd>
         </dl>
 
-        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
-          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
-        </button>
+        <hr class="my-4" />
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0 text-primary">Historial de Avances</h4>
+          <button class="btn btn-success btn-sm" [routerLink]="['/tracking-record/new']" [queryParams]="{ reqId: changeRequestRef.id }">
+            <fa-icon icon="plus"></fa-icon> Agregar Avance
+          </button>
+        </div>
 
-        <button type="button" [routerLink]="['/change-request', changeRequestRef.id, 'edit']" class="btn btn-primary">
-          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered table-striped shadow-sm">
+            <thead class="table-light">
+              <tr>
+                <th>ID Avance</th>
+                <th>Fecha de Avance</th>
+                <th>Etapa</th>
+                <th>Estado</th>
+                <th>Archivos Adjuntos</th>
+                <th>Comentarios</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (listaAvances && listaAvances.length > 0) {
+                @for (avance of listaAvances; track avance.id) {
+                  <tr>
+                    <td>{{ avance.id }}</td>
+                    <td>{{ avance.changeDate | formatMediumDatetime }}</td>
+
+                    <td>
+                      <span class="fw-bold text-primary">
+                        {{
+                          avance.comentarioVisual?.includes('[Etapa:')
+                            ? avance.comentarioVisual!.split(']')[0].replace('[Etapa:', '').trim()
+                            : 'N/A'
+                        }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <span
+                        class="badge"
+                        [class.bg-warning]="avance.status === 'PENDIENTE'"
+                        [class.text-dark]="avance.status === 'PENDIENTE'"
+                        [class.bg-primary]="avance.status === 'EN_PROCESO'"
+                        [class.bg-success]="avance.status === 'FINALIZADO'"
+                        [class.bg-info]="avance.status !== 'PENDIENTE' && avance.status !== 'EN_PROCESO' && avance.status !== 'FINALIZADO'"
+                      >
+                        {{ avance.status }}
+                      </span>
+                    </td>
+
+                    <td>
+                      @if (avance.archivosVisuales && avance.archivosVisuales.length > 0) {
+                        <div class="d-flex flex-column gap-1">
+                          @for (archivo of avance.archivosVisuales; track $index) {
+                            <span class="badge bg-light text-dark border text-wrap text-start" style="font-weight: 500">
+                              📄 {{ archivo }}
+                            </span>
+                          }
+                        </div>
+                      } @else {
+                        <span class="text-muted small">Sin adjuntos</span>
+                      }
+                    </td>
+
+                    <td>
+                      {{
+                        avance.comentarioVisual?.includes('[Etapa:')
+                          ? avance.comentarioVisual!.split(']').slice(1).join(']').trim()
+                          : avance.comentarioVisual
+                      }}
+                    </td>
+                  </tr>
+                }
+              } @else {
+                <tr>
+                  <td colspan="6" class="text-center text-muted py-3">
+                    Aún no hay avances registrados para esta solicitud. ¡Agrega el primero!
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <button type="submit" (click)="previousState()" class="btn btn-dark" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
         </button>
       </div>
     }

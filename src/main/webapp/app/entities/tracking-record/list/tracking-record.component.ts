@@ -21,7 +21,6 @@ export class TrackingRecordComponent implements OnInit {
   statsDepartments = signal<ITrackingStats[]>([]);
   statsUsers = signal<ITrackingStats[]>([]);
 
-  // Filtros de búsqueda y estadísticas
   searchRequestId = signal<number | null>(null);
   filterYear = signal<number | null>(null);
   filterMonth = signal<number | null>(null);
@@ -31,7 +30,9 @@ export class TrackingRecordComponent implements OnInit {
   totalItems = 0;
   page = 1;
   itemsPerPage = ITEMS_PER_PAGE;
-  sortState = sortStateSignal(inject(SortService).parseSortParam('changeDate,desc'));
+
+  // Orden por defecto
+  sortState = sortStateSignal(inject(SortService).parseSortParam('id,desc'));
 
   protected trackingRecordService = inject(TrackingRecordService);
   protected activatedRoute = inject(ActivatedRoute);
@@ -50,10 +51,15 @@ export class TrackingRecordComponent implements OnInit {
 
   load(): void {
     this.isLoading = true;
+
     if (this.searchRequestId()) {
       this.trackingRecordService.findByRequestId(this.searchRequestId()!).subscribe({
         next: res => {
-          this.trackingRecords.set(res.body ?? []);
+          // FORZA BRUTA 1: Ordenamos por ID de mayor a menor sin importar la fecha
+          let records = [...(res.body ?? [])];
+          records.sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+
+          this.trackingRecords.set(records);
           this.isLoading = false;
         },
         error: () => (this.isLoading = false),
@@ -66,7 +72,11 @@ export class TrackingRecordComponent implements OnInit {
       };
       this.trackingRecordService.query(queryObject).subscribe({
         next: res => {
-          this.trackingRecords.set(res.body ?? []);
+          // FORZA BRUTA 2: Si carga por el listado general, también lo ordenamos a la fuerza
+          let records = [...(res.body ?? [])];
+          records.sort((a, b) => (b.id ?? 0) - (a.id ?? 0));
+
+          this.trackingRecords.set(records);
           this.totalItems = Number(res.headers.get(TOTAL_COUNT_RESPONSE_HEADER));
           this.isLoading = false;
         },
@@ -85,7 +95,6 @@ export class TrackingRecordComponent implements OnInit {
   }
 
   loadStats(): void {
-    // Solo agregamos al objeto los filtros que tengan un valor real (no null)
     const filters: any = {};
     if (this.filterYear() !== null) {
       filters.year = this.filterYear();

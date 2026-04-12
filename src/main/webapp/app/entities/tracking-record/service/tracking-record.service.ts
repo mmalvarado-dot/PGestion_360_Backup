@@ -67,6 +67,17 @@ export class TrackingRecordService {
     return this.http.get<ITrackingStats[]>(`${this.resourceUrl}/stats/users`, { params: options, observe: 'response' });
   }
 
+  // --- NUEVO MÉTODO PARA SUBIR ARCHIVOS ---
+  uploadFile(trackingRecordId: number, file: File): Observable<any> {
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+    // Ruta corregida a /archivo para coincidir con el backend de Java
+    return this.http.post(`${this.resourceUrl}/${trackingRecordId}/archivo`, formData, {
+      reportProgress: true,
+      observe: 'events',
+    });
+  }
+
   // ------------------------------------------------
 
   protected convertResponseFromServer(res: EntityResponseType): EntityResponseType {

@@ -49,6 +49,10 @@ public class FileRecord implements Serializable {
     @Column("change_request_id")
     private Long changeRequestId;
 
+    // NUEVO: Columna para relacionar el archivo con el avance (Tracking Record)
+    @Column("tracking_record_id")
+    private Long trackingRecordId;
+
     // --- GETTERS Y SETTERS ---
 
     public Long getId() {
@@ -129,7 +133,6 @@ public class FileRecord implements Serializable {
         this.contentContentType = contentContentType;
     }
 
-    // NUEVO: Getter y Setter para la fecha
     public Instant getUploadDate() {
         return this.uploadDate;
     }
@@ -163,6 +166,20 @@ public class FileRecord implements Serializable {
 
     public void setChangeRequestId(Long changeRequest) {
         this.changeRequestId = changeRequest;
+    }
+
+    // NUEVO: Getters y Setters para trackingRecordId
+    public Long getTrackingRecordId() {
+        return this.trackingRecordId;
+    }
+
+    public FileRecord trackingRecordId(Long trackingRecordId) {
+        this.setTrackingRecordId(trackingRecordId);
+        return this;
+    }
+
+    public void setTrackingRecordId(Long trackingRecordId) {
+        this.trackingRecordId = trackingRecordId;
     }
 
     @Override
@@ -205,6 +222,8 @@ public class FileRecord implements Serializable {
             ", uploadDate='" +
             getUploadDate() +
             "'" +
+            ", trackingRecordId=" +
+            getTrackingRecordId() +
             "}"
         );
     }

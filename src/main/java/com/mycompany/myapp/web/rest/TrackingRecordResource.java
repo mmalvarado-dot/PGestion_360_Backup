@@ -5,23 +5,28 @@ import com.mycompany.myapp.repository.TrackingStats;
 import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.security.AuthoritiesConstants;
 import com.mycompany.myapp.security.SecurityUtils;
+import com.mycompany.myapp.service.FileStorageService;
 import com.mycompany.myapp.service.TrackingRecordService;
 import com.mycompany.myapp.service.dto.TrackingRecordDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.ForwardedHeaderUtils;
@@ -45,15 +50,73 @@ public class TrackingRecordResource {
     private final TrackingRecordRepository trackingRecordRepository;
     private final UserRepository userRepository;
 
+    //  DEPENDENCIAS PARA MANEJO DE ARCHIVOS
+    private final FileStorageService fileStorageService;
+    private final DatabaseClient databaseClient;
+
     public TrackingRecordResource(
         TrackingRecordService trackingRecordService,
         TrackingRecordRepository trackingRecordRepository,
-        UserRepository userRepository
+        UserRepository userRepository,
+        FileStorageService fileStorageService,
+        DatabaseClient databaseClient
     ) {
         this.trackingRecordService = trackingRecordService;
         this.trackingRecordRepository = trackingRecordRepository;
         this.userRepository = userRepository;
+        this.fileStorageService = fileStorageService;
+        this.databaseClient = databaseClient;
     }
+
+    //  ENDPOINT PARA RECIBIR LOS ARCHIVOS DEL AVANCE
+    @PostMapping(value = "/{id}/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Mono<ResponseEntity<Void>> uploadFile(@PathVariable Long id, @RequestPart("file") FilePart filePart) {
+        LOG.debug("REST request para subir un archivo para TrackingRecord ID: {}", id);
+
+        // 1. Primero buscamos el ID de la Solicitud (change_request_id) asociada a este Avance
+        return databaseClient
+            .sql("SELECT change_request_id FROM tracking_record WHERE id = :id")
+            .bind("id", id)
+            .map(row -> row.get("change_request_id", Long.class))
+            .first()
+            .switchIfEmpty(Mono.error(new BadRequestAlertException("TrackingRecord no encontrado", ENTITY_NAME, "idnotfound")))
+            .flatMap(changeRequestId -> {
+                // 2. Procesamos el archivo
+                return DataBufferUtils.join(filePart.content())
+                    .map(dataBuffer -> {
+                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                        dataBuffer.read(bytes);
+                        DataBufferUtils.release(dataBuffer);
+                        return bytes;
+                    })
+                    .flatMap(bytes -> {
+                        String fileName = filePart.filename() != null ? filePart.filename() : "archivo_desconocido";
+                        String savedFilePath = fileStorageService.save(bytes, fileName);
+                        String fileType = filePart.headers().getContentType() != null
+                            ? filePart.headers().getContentType().toString()
+                            : "application/octet-stream";
+
+                        // 3. ¡LA MAGIA! Insertamos el archivo vinculándolo al Avance Y a la Solicitud
+                        String sql =
+                            "INSERT INTO file_record (file_name, file_path, file_type, tracking_record_id, change_request_id, upload_date) " +
+                            "VALUES (:fileName, :filePath, :fileType, :trkId, :reqId, :uploadDate)";
+
+                        return databaseClient
+                            .sql(sql)
+                            .bind("fileName", fileName)
+                            .bind("filePath", savedFilePath)
+                            .bind("fileType", fileType)
+                            .bind("trkId", id)
+                            .bind("reqId", changeRequestId)
+                            .bind("uploadDate", Instant.now())
+                            .fetch()
+                            .rowsUpdated()
+                            .then(Mono.just(ResponseEntity.ok().<Void>build()));
+                    });
+            });
+    }
+
+    //  FIN DEL ENDPOINT DE ARCHIVOS
 
     @PostMapping("")
     public Mono<ResponseEntity<TrackingRecordDTO>> createTrackingRecord(@Valid @RequestBody TrackingRecordDTO trackingRecordDTO)

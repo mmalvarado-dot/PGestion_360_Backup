@@ -36,6 +36,10 @@ public class TrackingRecord implements Serializable {
     @Column("comments")
     private String comments;
 
+    // --- NUEVO CAMPO: ETAPA ---
+    @Column("etapa")
+    private String etapa;
+
     // --- Relaciones (IDs en Base de Datos) ---
 
     @Column("user_id")
@@ -123,6 +127,20 @@ public class TrackingRecord implements Serializable {
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    // --- GETTER Y SETTER DE LA ETAPA ---
+    public String getEtapa() {
+        return this.etapa;
+    }
+
+    public TrackingRecord etapa(String etapa) {
+        this.setEtapa(etapa);
+        return this;
+    }
+
+    public void setEtapa(String etapa) {
+        this.etapa = etapa;
     }
 
     // --- IDs ---
@@ -222,6 +240,9 @@ public class TrackingRecord implements Serializable {
             "'" +
             ", status='" +
             getStatus() +
+            "'" +
+            ", etapa='" +
+            getEtapa() +
             "'" +
             ", actionType='" +
             getActionType() +

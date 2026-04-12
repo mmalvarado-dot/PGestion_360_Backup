@@ -32,6 +32,9 @@ public class FileRecordDTO implements Serializable {
 
     private ChangeRequestDTO changeRequest;
 
+    // NUEVO: Campo para el ID del avance
+    private Long trackingRecordId;
+
     public Long getId() {
         return id;
     }
@@ -96,6 +99,15 @@ public class FileRecordDTO implements Serializable {
         this.changeRequest = changeRequest;
     }
 
+    // NUEVO: Getter y Setter
+    public Long getTrackingRecordId() {
+        return trackingRecordId;
+    }
+
+    public void setTrackingRecordId(Long trackingRecordId) {
+        this.trackingRecordId = trackingRecordId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -127,6 +139,7 @@ public class FileRecordDTO implements Serializable {
             ", fileType='" + getFileType() + "'" +
             ", content='" + getContent() + "'" +
             ", uploadDate='" + getUploadDate() + "'" + 
+            ", trackingRecordId=" + getTrackingRecordId() + 
             ", changeRequest=" + getChangeRequest() +
             "}";
     }

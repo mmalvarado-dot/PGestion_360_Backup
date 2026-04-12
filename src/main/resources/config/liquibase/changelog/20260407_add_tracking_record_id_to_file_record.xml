@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260407-add-tracking-record-id-correct" author="jhipster">
+        <addColumn tableName="file_record">
+            <column name="tracking_record_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+
+        <addForeignKeyConstraint baseColumnNames="tracking_record_id"
+                                 baseTableName="file_record"
+                                 constraintName="fk_file_record__tracking_record_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tracking_record"/>
+    </changeSet>
+
+</databaseChangeLog>

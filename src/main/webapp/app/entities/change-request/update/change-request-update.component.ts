@@ -23,7 +23,6 @@ import { DATE_TIME_FORMAT } from 'app/config/input.constants';
 import dayjs from 'dayjs/esm';
 import { IDepartment } from 'app/entities/department/department.model';
 import { DepartmentService } from 'app/entities/department/service/department.service';
-
 import { UserService } from 'app/entities/user/service/user.service';
 
 interface PendingFile {
@@ -63,7 +62,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);
   protected userService = inject(UserService);
 
-  // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: ChangeRequestFormGroup = this.changeRequestFormService.createChangeRequestFormGroup();
 
   compareItemCatalogue = (o1: IItemCatalogue | null, o2: IItemCatalogue | null): boolean =>
@@ -77,10 +75,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
       if (changeRequest) {
         this.updateForm(changeRequest);
       }
-
-      // NUEVO: Forzar siempre el valor de status a PENDIENTE
-      this.editForm.patchValue({ status: 'PENDIENTE' });
-
       this.loadRelationshipsOptions();
       this.loadDepartments();
     });
@@ -116,12 +110,18 @@ export class ChangeRequestUpdateComponent implements OnInit {
   }
 
   save(): void {
+    // 🛑 CANDADO DE SEGURIDAD: Si el formulario está incompleto, no se envía a la base de datos
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched(); // Marca en rojo los campos obligatorios que faltan
+      return;
+    }
+
     this.isSaving = true;
     const changeRequest = this.changeRequestFormService.getChangeRequest(this.editForm);
 
     let saveObservable: Observable<HttpResponse<IChangeRequest>>;
 
-    if (changeRequest.id !== null) {
+    if (changeRequest.id !== null && changeRequest.id !== undefined) {
       saveObservable = this.changeRequestService.update(changeRequest);
     } else {
       saveObservable = this.changeRequestService.create(changeRequest);

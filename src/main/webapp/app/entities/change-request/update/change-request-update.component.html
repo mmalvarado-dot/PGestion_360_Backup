@@ -19,20 +19,14 @@
           </div>
         }
 
-        @let titleRef = editForm.get('title')!;
         <div class="mb-3">
           <label class="form-label" for="field_title" jhiTranslate="pGestion360App.changeRequest.title">Title</label>
           <input type="text" class="form-control" name="title" id="field_title" data-cy="title" formControlName="title" />
-          @if (titleRef.invalid && (titleRef.dirty || titleRef.touched)) {
-            <div>
-              @if (editForm.get('title')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
-              }
-            </div>
+          @if (editForm.get('title')!.invalid && (editForm.get('title')!.dirty || editForm.get('title')!.touched)) {
+            <small class="form-text text-danger">El título es requerido.</small>
           }
         </div>
 
-        @let descriptionRef = editForm.get('description')!;
         <div class="mb-3">
           <label class="form-label" for="field_description" jhiTranslate="pGestion360App.changeRequest.description">Description</label>
           <textarea
@@ -43,16 +37,11 @@
             formControlName="description"
             rows="5"
           ></textarea>
-          @if (descriptionRef.invalid && (descriptionRef.dirty || descriptionRef.touched)) {
-            <div>
-              @if (editForm.get('description')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
-              }
-            </div>
+          @if (editForm.get('description')!.invalid && (editForm.get('description')!.dirty || editForm.get('description')!.touched)) {
+            <small class="form-text text-danger">La descripción es requerida.</small>
           }
         </div>
 
-        @let createdDateRef = editForm.get('createdDate')!;
         <div class="mb-3">
           <label class="form-label" for="field_createdDate" jhiTranslate="pGestion360App.changeRequest.createdDate">Created Date</label>
           <div class="input-group">
@@ -70,13 +59,6 @@
               <fa-icon icon="calendar-alt"></fa-icon>
             </button>
           </div>
-          @if (createdDateRef.invalid && (createdDateRef.dirty || createdDateRef.touched)) {
-            <div>
-              @if (editForm.get('createdDate')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
-              }
-            </div>
-          }
         </div>
 
         <div class="mb-3">
@@ -120,16 +102,11 @@
 
         <div class="mb-3">
           <label class="form-label" for="field_status">Estado de la Solicitud</label>
-          <select
-            class="form-control"
-            name="status"
-            id="field_status"
-            data-cy="status"
-            formControlName="status"
-            style="pointer-events: none; background-color: #e9ecef"
-            tabindex="-1"
-          >
-            <option value="PENDIENTE">PENDIENTE</option>
+          <select class="form-control" name="status" id="field_status" data-cy="status" formControlName="status">
+            <option [ngValue]="null" disabled>-- Seleccione un Estado --</option>
+            <option [value]="'PENDIENTE'">PENDIENTE</option>
+            <option [value]="'EN PROCESO'">EN PROCESO</option>
+            <option [value]="'FINALIZADO'">FINALIZADO</option>
           </select>
         </div>
 
@@ -151,6 +128,9 @@
               <fa-icon icon="calendar-alt"></fa-icon>
             </button>
           </div>
+          @if (editForm.get('fechaEntrega')!.invalid && (editForm.get('fechaEntrega')!.dirty || editForm.get('fechaEntrega')!.touched)) {
+            <small class="form-text text-danger">La fecha de entrega es requerida.</small>
+          }
         </div>
 
         <div class="mb-3">
@@ -252,13 +232,7 @@
           <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
         </button>
 
-        <button
-          type="submit"
-          id="save-entity"
-          data-cy="entityCreateSaveButton"
-          [disabled]="editForm.invalid || isSaving"
-          class="btn btn-primary"
-        >
+        <button type="submit" id="save-entity" data-cy="entityCreateSaveButton" [disabled]="isSaving" class="btn btn-primary">
           <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
         </button>
       </div>
