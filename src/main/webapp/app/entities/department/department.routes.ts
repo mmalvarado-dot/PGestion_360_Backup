@@ -10,6 +10,7 @@ const departmentRoute: Routes = [
     loadComponent: () => import('./list/department.component').then(m => m.DepartmentComponent),
     data: {
       defaultSort: `id,${ASC}`,
+      authorities: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     canActivate: [UserRouteAccessService],
   },
@@ -19,6 +20,9 @@ const departmentRoute: Routes = [
     resolve: {
       department: DepartmentResolve,
     },
+    data: {
+      authorities: ['ROLE_USER', 'ROLE_ADMIN'],
+    },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -27,6 +31,9 @@ const departmentRoute: Routes = [
     resolve: {
       department: DepartmentResolve,
     },
+    data: {
+      authorities: ['ROLE_ADMIN'],
+    },
     canActivate: [UserRouteAccessService],
   },
   {
@@ -34,6 +41,9 @@ const departmentRoute: Routes = [
     loadComponent: () => import('./update/department-update.component').then(m => m.DepartmentUpdateComponent),
     resolve: {
       department: DepartmentResolve,
+    },
+    data: {
+      authorities: ['ROLE_ADMIN'],
     },
     canActivate: [UserRouteAccessService],
   },

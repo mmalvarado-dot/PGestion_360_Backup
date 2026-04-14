@@ -92,21 +92,17 @@ export class TrackingRecordUpdateComponent implements OnInit {
     this.changeRequestService.find(id).subscribe(res => {
       const cr: any = res.body;
       if (cr) {
-        // CORRECCIÓN: Nos aseguramos de que el estado empate exactamente con los value del select
+        // Nos aseguramos de que el estado empate exactamente con los value del select
         let status = cr.status || cr.estado || 'PENDIENTE';
         if (status === 'EN PROCESO') status = 'EN_PROCESO';
 
-        let formDept = null;
-        if (cr.department && typeof cr.department === 'object') formDept = cr.department;
-        else if (cr.departamento && typeof cr.departamento === 'object') formDept = cr.departamento;
-
-        let formUser = null;
-        if (cr.user && typeof cr.user === 'object') formUser = cr.user;
-        else if (cr.usuario && typeof cr.usuario === 'object') formUser = cr.usuario;
+        // 🚀 CORRECCIÓN: Asignamos directamente lo que venga (string u objeto) sin bloquearlo a null
+        let formDept = cr.department || cr.departamento || null;
+        let formUser = cr.user || cr.usuario || null;
 
         this.editForm.patchValue({
           changeRequest: cr,
-          status: status, // Aquí ya debe cargar el estado correcto de la base de datos
+          status: status,
           department: formDept,
           user: formUser,
         });
@@ -188,14 +184,47 @@ export class TrackingRecordUpdateComponent implements OnInit {
     }
     trackingRecord.comments = comentarioFinal;
 
-    // Limpieza
-    (trackingRecord as any).actionType = null;
-    if (trackingRecord.department && typeof trackingRecord.department !== 'object') trackingRecord.department = null;
-    if (trackingRecord.user && typeof trackingRecord.user !== 'object') trackingRecord.user = null;
-
     // MAGIA: Obtenemos la solicitud padre para actualizarla después
-    const solicitudPadre = valoresFormulario.changeRequest;
+    const solicitudPadre: any = valoresFormulario.changeRequest;
     const nuevoEstado = valoresFormulario.status;
+
+    // 🚀 SOLUCIÓN DEFINITIVA: Buscar los OBJETOS reales para que el servidor no dé "Bad Request"
+    if (solicitudPadre) {
+      // 1. Rescatar y armar el objeto del DEPARTAMENTO
+      const rawDept = solicitudPadre.department || solicitudPadre.departamento || (trackingRecord as any).department;
+      let objDept = null;
+
+      if (typeof rawDept === 'string') {
+        // Si es un texto, lo buscamos en la lista desplegable de departamentos para sacar su objeto con ID
+        objDept = this.departmentsSharedCollection.find(d => d.departmentName === rawDept || (d as any).nombre === rawDept);
+      } else if (typeof rawDept === 'object') {
+        objDept = rawDept; // Si ya es objeto, lo dejamos tal cual
+      }
+      (trackingRecord as any).department = objDept;
+
+      // 2. Rescatar y armar el objeto del USUARIO
+      const rawUser = solicitudPadre.user || solicitudPadre.usuario || (trackingRecord as any).user;
+      let objUser = null;
+
+      if (typeof rawUser === 'string') {
+        // Si es un texto, lo buscamos en la lista de usuarios
+        objUser = this.usersSharedCollection.find(
+          u => u.login === rawUser || (u as any).nombre === rawUser || (u as any).username === rawUser,
+        );
+      } else if (typeof rawUser === 'object') {
+        objUser = rawUser;
+      }
+      (trackingRecord as any).user = objUser;
+    }
+
+    // 🧹 LIMPIEZA ESTRICTA (Seguro de vida contra el error 400 Bad Request)
+    (trackingRecord as any).actionType = null;
+    if ((trackingRecord as any).department && typeof (trackingRecord as any).department !== 'object') {
+      (trackingRecord as any).department = null;
+    }
+    if ((trackingRecord as any).user && typeof (trackingRecord as any).user !== 'object') {
+      (trackingRecord as any).user = null;
+    }
 
     // Guardamos el Tracking Record y le pasamos los datos del Padre para que los actualice simultáneamente
     if (trackingRecord.id !== null && trackingRecord.id !== undefined) {

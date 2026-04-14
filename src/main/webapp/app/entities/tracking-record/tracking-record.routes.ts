@@ -35,8 +35,8 @@ const trackingRecordRoute: Routes = [
       trackingRecord: TrackingRecordResolve,
     },
     data: {
-      // 🔒 BLOQUEADO: Solo el Admin puede forzar la creación manual desde la URL
-      authorities: ['ROLE_ADMIN'],
+      // 🔓 PERMITIDO: Ahora todos los usuarios pueden registrar un nuevo avance
+      authorities: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     canActivate: [UserRouteAccessService],
   },
@@ -47,8 +47,8 @@ const trackingRecordRoute: Routes = [
       trackingRecord: TrackingRecordResolve,
     },
     data: {
-      // 🔒 BLOQUEADO: Solo el Admin puede forzar la edición desde la URL
-      authorities: ['ROLE_ADMIN'],
+      // 🔓 PERMITIDO: Ahora todos los usuarios pueden editar/completar un avance
+      authorities: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     canActivate: [UserRouteAccessService],
   },

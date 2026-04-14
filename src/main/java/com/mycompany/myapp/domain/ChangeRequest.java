@@ -60,6 +60,10 @@ public class ChangeRequest implements Serializable {
     @Column("departamento")
     private String departamento;
 
+    // --- NUEVO CAMPO AÑADIDO ---
+    @Column("sistema")
+    private String sistema;
+
     @org.springframework.data.annotation.Transient
     private User user;
 
@@ -229,6 +233,22 @@ public class ChangeRequest implements Serializable {
         this.departamento = departamento;
     }
 
+    // --- MÉTODOS DEL NUEVO CAMPO SISTEMA ---
+    public String getSistema() {
+        return this.sistema;
+    }
+
+    public ChangeRequest sistema(String sistema) {
+        this.setSistema(sistema);
+        return this;
+    }
+
+    public void setSistema(String sistema) {
+        this.sistema = sistema;
+    }
+
+    // ---------------------------------------
+
     public User getUser() {
         return this.user;
     }
@@ -327,6 +347,9 @@ public class ChangeRequest implements Serializable {
             "'" +
             ", departamento='" +
             getDepartamento() +
+            "'" +
+            ", sistema='" + // Añadido aquí también
+            getSistema() +
             "'" +
             "}"
         );

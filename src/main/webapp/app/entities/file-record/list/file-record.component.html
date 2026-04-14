@@ -55,7 +55,7 @@
               </div>
             </th>
 
-            <th scope="col" jhiSortBy="fileName">
+            <th scope="col" jhiSortBy="fileName" style="max-width: 200px">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.fileRecord.fileName">File Name</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
@@ -69,16 +69,10 @@
               </div>
             </th>
 
-            <th scope="col" jhiSortBy="fileType">
+            <th scope="col" jhiSortBy="fileType" style="width: 120px">
               <div class="d-flex">
                 <span jhiTranslate="pGestion360App.fileRecord.fileType">File Type</span>
                 <fa-icon class="p-1" icon="sort"></fa-icon>
-              </div>
-            </th>
-
-            <th scope="col">
-              <div class="d-flex">
-                <span>Archivo</span>
               </div>
             </th>
 
@@ -125,17 +119,43 @@
                 }
               </td>
 
-              <td class="fw-medium">{{ fileRecord?.fileName }}</td>
+              <td class="fw-medium" style="max-width: 200px">
+                <div
+                  style="
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                    word-break: break-word;
+                  "
+                  [title]="fileRecord?.fileName"
+                >
+                  {{ fileRecord?.fileName }}
+                </div>
+              </td>
 
-              <td style="max-width: 250px" class="text-truncate text-muted small" [title]="fileRecord?.filePath || 'Sin ruta'">
-                {{ fileRecord?.filePath }}
+              <td class="text-muted small" style="max-width: 250px">
+                <div
+                  style="
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    overflow: hidden;
+                    word-break: break-word;
+                  "
+                  [title]="fileRecord?.filePath || 'Sin ruta'"
+                >
+                  {{ fileRecord?.filePath }}
+                </div>
               </td>
 
               <td>
                 <span class="badge bg-light text-dark border">{{ fileRecord?.fileType }}</span>
               </td>
 
-              <td>
+              <td class="small">{{ fileRecord?.uploadDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+
+              <td class="text-end">
                 <div class="btn-group">
                   <button
                     type="button"
@@ -146,6 +166,7 @@
                   >
                     <fa-icon icon="eye"></fa-icon> <span class="d-none d-md-inline">Ver</span>
                   </button>
+
                   <button
                     type="button"
                     (click)="downloadPhysicalFile(fileRecord.id, true)"
@@ -155,16 +176,10 @@
                   >
                     <span class="d-none d-md-inline">Descargar</span>
                   </button>
-                </div>
-              </td>
 
-              <td class="small">{{ fileRecord?.uploadDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-
-              <td class="text-end">
-                <div class="btn-group">
                   <a
                     [routerLink]="['/file-record', fileRecord.id, 'view']"
-                    class="btn btn-info btn-sm"
+                    class="btn btn-info btn-sm text-dark"
                     data-cy="entityDetailsButton"
                     title="Detalles del Registro"
                   >

@@ -43,6 +43,9 @@ public class ChangeRequestDTO implements Serializable {
 
     private String departamento;
 
+    // --- NUEVO CAMPO AÑADIDO ---
+    private String sistema;
+
     private UserDTO user;
 
     private ItemCatalogueDTO itemCatalogue;
@@ -143,6 +146,17 @@ public class ChangeRequestDTO implements Serializable {
         this.departamento = departamento;
     }
 
+    // --- MÉTODOS DEL NUEVO CAMPO SISTEMA ---
+    public String getSistema() {
+        return sistema;
+    }
+
+    public void setSistema(String sistema) {
+        this.sistema = sistema;
+    }
+
+    // ---------------------------------------
+
     public UserDTO getUser() {
         return user;
     }
@@ -218,6 +232,9 @@ public class ChangeRequestDTO implements Serializable {
             "'" +
             ", departamento='" +
             getDepartamento() +
+            "'" +
+            ", sistema='" + // Añadido aquí
+            getSistema() +
             "'" +
             ", user=" +
             getUser() +

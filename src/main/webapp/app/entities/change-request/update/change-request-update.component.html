@@ -62,32 +62,16 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="field_updatedDate" jhiTranslate="pGestion360App.changeRequest.updatedDate">Updated Date</label>
-          <div class="input-group">
-            <input
-              id="field_updatedDate"
-              data-cy="updatedDate"
-              type="text"
-              class="form-control"
-              name="updatedDate"
-              ngbDatepicker
-              #updatedDateDp="ngbDatepicker"
-              formControlName="updatedDate"
-            />
-            <button type="button" class="btn btn-secondary" (click)="updatedDateDp.toggle()">
-              <fa-icon icon="calendar-alt"></fa-icon>
-            </button>
-          </div>
-        </div>
-
-        <div class="mb-3">
           <label class="form-label" for="field_priority" jhiTranslate="pGestion360App.changeRequest.priority">Priority</label>
           <select class="form-control" name="priority" formControlName="priority" id="field_priority" data-cy="priority">
-            <option [ngValue]="null">{{ 'pGestion360App.prioridad.null' | translate }}</option>
+            <option [ngValue]="null" disabled>{{ 'pGestion360App.prioridad.null' | translate }}</option>
             @for (prioridad of prioridadValues; track $index) {
               <option [value]="prioridad">{{ 'pGestion360App.prioridad.' + prioridad | translate }}</option>
             }
           </select>
+          @if (editForm.get('priority')!.invalid && (editForm.get('priority')!.dirty || editForm.get('priority')!.touched)) {
+            <small class="form-text text-danger">La prioridad es requerida.</small>
+          }
         </div>
 
         <div class="mb-3">
@@ -102,12 +86,20 @@
 
         <div class="mb-3">
           <label class="form-label" for="field_status">Estado de la Solicitud</label>
-          <select class="form-control" name="status" id="field_status" data-cy="status" formControlName="status">
-            <option [ngValue]="null" disabled>-- Seleccione un Estado --</option>
+          <select
+            class="form-control text-muted"
+            style="background-color: #e9ecef; pointer-events: none; opacity: 0.8"
+            name="status"
+            id="field_status"
+            data-cy="status"
+            formControlName="status"
+            tabindex="-1"
+          >
             <option [value]="'PENDIENTE'">PENDIENTE</option>
             <option [value]="'EN PROCESO'">EN PROCESO</option>
             <option [value]="'FINALIZADO'">FINALIZADO</option>
           </select>
+          <small class="form-text text-muted">El estado está bloqueado. Solo se actualiza mediante un Avance.</small>
         </div>
 
         <div class="mb-3">
@@ -181,49 +173,55 @@
             data-cy="solicitante"
             formControlName="solicitante"
           />
+          @if (editForm.get('solicitante')!.invalid && (editForm.get('solicitante')!.dirty || editForm.get('solicitante')!.touched)) {
+            <small class="form-text text-danger">El solicitante es requerido.</small>
+          }
         </div>
 
         <div class="mb-3">
           <label class="form-label" for="field_departamento" jhiTranslate="pGestion360App.changeRequest.departamento">Departamento</label>
           <select class="form-select" name="departamento" formControlName="departamento" id="field_departamento" data-cy="departamento">
-            <option [ngValue]="null">Seleccione un departamento...</option>
+            <option [ngValue]="null" disabled>Seleccione un departamento...</option>
             @for (dept of departmentsSharedCollection; track $index) {
               <option [value]="dept.departmentName">
                 {{ dept.departmentName }}
               </option>
             }
           </select>
+          @if (editForm.get('departamento')!.invalid && (editForm.get('departamento')!.dirty || editForm.get('departamento')!.touched)) {
+            <small class="form-text text-danger">El departamento es requerido.</small>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_sistema">Sistema / Aplicación</label>
+          <input
+            type="text"
+            class="form-control"
+            name="sistema"
+            id="field_sistema"
+            data-cy="sistema"
+            formControlName="sistema"
+            placeholder="Ej. Sistema Contable, CRM, etc."
+          />
+          @if (editForm.get('sistema')!.invalid && (editForm.get('sistema')!.dirty || editForm.get('sistema')!.touched)) {
+            <small class="form-text text-danger">El sistema es requerido.</small>
+          }
         </div>
 
         <div class="mb-3">
           <label class="form-label" for="field_user">Usuario Asignado</label>
           <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user" [compareWith]="compareUser">
-            <option [ngValue]="null">Seleccione un usuario...</option>
+            <option [ngValue]="null" disabled>Seleccione un usuario...</option>
             @for (userOption of usersSharedCollection; track $index) {
               <option [ngValue]="userOption">
                 {{ userOption.login }}
               </option>
             }
           </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_itemCatalogue" jhiTranslate="pGestion360App.changeRequest.itemCatalogue"
-            >Item Catalogue</label
-          >
-          <select
-            class="form-control"
-            id="field_itemCatalogue"
-            data-cy="itemCatalogue"
-            name="itemCatalogue"
-            formControlName="itemCatalogue"
-            [compareWith]="compareItemCatalogue"
-          >
-            <option [ngValue]="null"></option>
-            @for (itemCatalogueOption of itemCataloguesSharedCollection; track $index) {
-              <option [ngValue]="itemCatalogueOption">{{ itemCatalogueOption.id }}</option>
-            }
-          </select>
+          @if (editForm.get('user')!.invalid && (editForm.get('user')!.dirty || editForm.get('user')!.touched)) {
+            <small class="form-text text-danger">El usuario asignado es requerido.</small>
+          }
         </div>
       </div>
 

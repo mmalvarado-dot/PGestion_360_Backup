@@ -173,8 +173,13 @@
 
               <td class="text-end">
                 <div class="btn-group">
-                  <a [routerLink]="['/change-request', changeRequest.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                  <a
+                    [routerLink]="['/change-request', changeRequest.id, 'view']"
+                    class="btn btn-info btn-sm text-dark"
+                    data-cy="entityDetailsButton"
+                  >
                     <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline ms-1 fw-bold">Detalles / Avances</span>
                   </a>
 
                   <button

@@ -34,7 +34,9 @@ type ChangeRequestFormGroupContent = {
   archivoAdjuntoContentType: FormControl<IChangeRequest['archivoAdjuntoContentType']>;
   solicitante: FormControl<IChangeRequest['solicitante']>;
   departamento: FormControl<IChangeRequest['departamento']>;
-  user: FormControl<IChangeRequest['user']>; // <-- CAMBIO AQUÍ
+  // --- NUEVO CAMPO AÑADIDO EN LA ESTRUCTURA ---
+  sistema: FormControl<IChangeRequest['sistema']>;
+  user: FormControl<IChangeRequest['user']>;
   itemCatalogue: FormControl<IChangeRequest['itemCatalogue']>;
 };
 
@@ -65,18 +67,38 @@ export class ChangeRequestFormService {
         validators: [Validators.required],
       }),
       updatedDate: new FormControl(changeRequestRawValue.updatedDate),
-      priority: new FormControl(changeRequestRawValue.priority),
+
+      // NUEVOS CAMPOS OBLIGATORIOS
+      priority: new FormControl(changeRequestRawValue.priority, {
+        validators: [Validators.required],
+      }),
       impact: new FormControl(changeRequestRawValue.impact),
       status: new FormControl(changeRequestRawValue.status, {
         validators: [Validators.required],
       }),
-      fechaEntrega: new FormControl(changeRequestRawValue.fechaEntrega),
+      fechaEntrega: new FormControl(changeRequestRawValue.fechaEntrega, {
+        validators: [Validators.required], // Agregado para que coincida con tu HTML
+      }),
       observaciones: new FormControl(changeRequestRawValue.observaciones),
       archivoAdjunto: new FormControl(changeRequestRawValue.archivoAdjunto),
       archivoAdjuntoContentType: new FormControl(changeRequestRawValue.archivoAdjuntoContentType),
-      solicitante: new FormControl(changeRequestRawValue.solicitante),
-      departamento: new FormControl(changeRequestRawValue.departamento),
-      user: new FormControl(changeRequestRawValue.user), // <-- CAMBIO AQUÍ
+
+      // NUEVOS CAMPOS OBLIGATORIOS
+      solicitante: new FormControl(changeRequestRawValue.solicitante, {
+        validators: [Validators.required],
+      }),
+      departamento: new FormControl(changeRequestRawValue.departamento, {
+        validators: [Validators.required],
+      }),
+
+      // --- NUEVO CAMPO SISTEMA OBLIGATORIO ---
+      sistema: new FormControl(changeRequestRawValue.sistema, {
+        validators: [Validators.required],
+      }),
+
+      user: new FormControl(changeRequestRawValue.user, {
+        validators: [Validators.required],
+      }),
       itemCatalogue: new FormControl(changeRequestRawValue.itemCatalogue),
     });
   }

@@ -11,15 +11,12 @@ import { AlertError } from 'app/shared/alert/alert-error.model';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 
-import { IItemCatalogue } from 'app/entities/item-catalogue/item-catalogue.model';
-import { ItemCatalogueService } from 'app/entities/item-catalogue/service/item-catalogue.service';
 import { prioridad } from 'app/entities/enumerations/prioridad.model';
 import { Impacto } from 'app/entities/enumerations/impacto.model';
 import { ChangeRequestService } from '../service/change-request.service';
 import { IChangeRequest, IUser } from '../change-request.model';
 import { ChangeRequestFormGroup, ChangeRequestFormService } from './change-request-form.service';
 
-import { DATE_TIME_FORMAT } from 'app/config/input.constants';
 import dayjs from 'dayjs/esm';
 import { IDepartment } from 'app/entities/department/department.model';
 import { DepartmentService } from 'app/entities/department/service/department.service';
@@ -42,7 +39,6 @@ export class ChangeRequestUpdateComponent implements OnInit {
   impactoValues = Object.keys(Impacto);
 
   departmentsSharedCollection: IDepartment[] = [];
-  itemCataloguesSharedCollection: IItemCatalogue[] = [];
   usersSharedCollection: IUser[] = [];
 
   selectedFiles: PendingFile[] = [];
@@ -58,14 +54,10 @@ export class ChangeRequestUpdateComponent implements OnInit {
   protected changeRequestService = inject(ChangeRequestService);
   protected departmentService = inject(DepartmentService);
   protected changeRequestFormService = inject(ChangeRequestFormService);
-  protected itemCatalogueService = inject(ItemCatalogueService);
   protected activatedRoute = inject(ActivatedRoute);
   protected userService = inject(UserService);
 
   editForm: ChangeRequestFormGroup = this.changeRequestFormService.createChangeRequestFormGroup();
-
-  compareItemCatalogue = (o1: IItemCatalogue | null, o2: IItemCatalogue | null): boolean =>
-    this.itemCatalogueService.compareItemCatalogue(o1, o2);
 
   compareUser = (o1: IUser | null, o2: IUser | null): boolean => (o1 && o2 ? o1.id === o2.id : o1 === o2);
 
@@ -75,6 +67,12 @@ export class ChangeRequestUpdateComponent implements OnInit {
       if (changeRequest) {
         this.updateForm(changeRequest);
       }
+
+      // FORZAR EL ESTADO INICIAL A PENDIENTE
+      if (!this.editForm.get('status')?.value) {
+        this.editForm.patchValue({ status: 'PENDIENTE' });
+      }
+
       this.loadRelationshipsOptions();
       this.loadDepartments();
     });
@@ -173,30 +171,12 @@ export class ChangeRequestUpdateComponent implements OnInit {
     this.changeRequest = changeRequest;
     this.changeRequestFormService.resetForm(this.editForm, changeRequest);
 
-    this.itemCataloguesSharedCollection = this.itemCatalogueService.addItemCatalogueToCollectionIfMissing<IItemCatalogue>(
-      this.itemCataloguesSharedCollection,
-      changeRequest.itemCatalogue,
-    );
-
     if (changeRequest.user) {
       this.usersSharedCollection = [changeRequest.user];
     }
   }
 
   protected loadRelationshipsOptions(): void {
-    this.itemCatalogueService
-      .query()
-      .pipe(
-        map(res => res.body ?? []),
-        map(itemCatalogues =>
-          this.itemCatalogueService.addItemCatalogueToCollectionIfMissing<IItemCatalogue>(
-            itemCatalogues,
-            this.changeRequest?.itemCatalogue,
-          ),
-        ),
-      )
-      .subscribe(itemCatalogues => (this.itemCataloguesSharedCollection = itemCatalogues));
-
     this.userService
       .query()
       .pipe(

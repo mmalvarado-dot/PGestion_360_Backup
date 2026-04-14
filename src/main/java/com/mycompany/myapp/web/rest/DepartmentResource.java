@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.ForwardedHeaderUtils;
@@ -58,6 +59,7 @@ public class DepartmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ResponseEntity<DepartmentDTO>> createDepartment(@Valid @RequestBody DepartmentDTO departmentDTO) throws URISyntaxException {
         LOG.debug("REST request to save Department : {}", departmentDTO);
         if (departmentDTO.getId() != null) {
@@ -87,6 +89,7 @@ public class DepartmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ResponseEntity<DepartmentDTO>> updateDepartment(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody DepartmentDTO departmentDTO
@@ -129,6 +132,7 @@ public class DepartmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ResponseEntity<DepartmentDTO>> partialUpdateDepartment(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody DepartmentDTO departmentDTO
@@ -148,9 +152,8 @@ public class DepartmentResource {
                     return Mono.error(new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
                 }
 
-                Mono<DepartmentDTO> result = departmentService.partialUpdate(departmentDTO);
-
-                return result
+                return departmentService
+                    .partialUpdate(departmentDTO)
                     .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
                     .map(res ->
                         ResponseEntity.ok()
@@ -168,6 +171,7 @@ public class DepartmentResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of departments in body.
      */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public Mono<ResponseEntity<List<DepartmentDTO>>> getAllDepartments(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         ServerHttpRequest request
@@ -195,6 +199,7 @@ public class DepartmentResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the departmentDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public Mono<ResponseEntity<DepartmentDTO>> getDepartment(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Department : {}", id);
         Mono<DepartmentDTO> departmentDTO = departmentService.findOne(id);
@@ -208,6 +213,7 @@ public class DepartmentResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public Mono<ResponseEntity<Void>> deleteDepartment(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Department : {}", id);
         return departmentService

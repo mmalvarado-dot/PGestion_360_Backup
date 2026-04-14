@@ -21,10 +21,10 @@ public interface TrackingRecordRepository extends ReactiveCrudRepository<Trackin
 
     Flux<TrackingRecord> findByChangeRequestId(Long id);
 
-    //  CONSULTAS DE ESTADÍSTICAS MODIFICADAS PARA FILTROS (R2DBC)
+    // CONSULTAS DE ESTADÍSTICAS MODIFICADAS PARA FILTROS Y CONTEO ÚNICO (R2DBC)
 
     @Query(
-        "SELECT tr.department_id AS id, dep.department_name AS nombre, CAST(COUNT(*) AS int) AS total " +
+        "SELECT tr.department_id AS id, dep.department_name AS nombre, CAST(COUNT(DISTINCT tr.change_request_id) AS int) AS total " +
         "FROM tracking_record tr " +
         "JOIN department dep ON dep.id = tr.department_id " +
         "WHERE (:year IS NULL OR EXTRACT(YEAR FROM tr.change_date) = :year) " +
@@ -34,7 +34,7 @@ public interface TrackingRecordRepository extends ReactiveCrudRepository<Trackin
     Flux<TrackingStats> countMovementsByDepartment(Integer year, Integer month);
 
     @Query(
-        "SELECT tr.user_id AS id, u.login AS nombre, CAST(COUNT(*) AS int) AS total " +
+        "SELECT tr.user_id AS id, u.login AS nombre, CAST(COUNT(DISTINCT tr.change_request_id) AS int) AS total " +
         "FROM tracking_record tr " +
         "JOIN jhi_user u ON u.id = tr.user_id " +
         "WHERE (:year IS NULL OR EXTRACT(YEAR FROM tr.change_date) = :year) " +
@@ -43,11 +43,14 @@ public interface TrackingRecordRepository extends ReactiveCrudRepository<Trackin
     )
     Flux<TrackingStats> countMovementsByUser(Integer year, Integer month);
 
-    //  CONSULTAS DE PRIVACIDAD PARA USUARIOS NORMALES
+    // CONSULTAS DE PRIVACIDAD PARA USUARIOS NORMALES CON JOINS COMPLETOS
+    // Se agregan los LEFT JOIN para que cargue el Department y el ChangeRequest.
 
     @Query(
-        "SELECT tr.* FROM tracking_record tr " +
+        "SELECT tr.*, dep.department_name AS department_name, cr.id AS change_request_id " +
+        "FROM tracking_record tr " +
         "INNER JOIN change_request cr ON tr.change_request_id = cr.id " +
+        "LEFT JOIN department dep ON tr.department_id = dep.id " +
         "WHERE cr.user_id = :userId " +
         "ORDER BY tr.id DESC " +
         "LIMIT :limit OFFSET :offset"

@@ -3,7 +3,6 @@ import { IItemCatalogue } from 'app/entities/item-catalogue/item-catalogue.model
 import { prioridad } from 'app/entities/enumerations/prioridad.model';
 import { Impacto } from 'app/entities/enumerations/impacto.model';
 
-// Agregamos una interfaz muy básica para el Usuario (para que Angular no llore)
 export interface IUser {
   id: number;
   login: string;
@@ -24,7 +23,8 @@ export interface IChangeRequest {
   archivoAdjuntoContentType?: string | null;
   solicitante?: string | null;
   departamento?: string | null;
-  user?: Pick<IUser, 'id' | 'login'> | null; // <--- ¡AQUÍ ESTÁ LA MAGIA!
+  sistema?: string | null; // <-- Confirmado: Angular ya lo reconoce
+  user?: Pick<IUser, 'id' | 'login'> | null;
   itemCatalogue?: Pick<IItemCatalogue, 'id'> | null;
 }
 

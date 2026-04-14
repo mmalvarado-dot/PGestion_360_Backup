@@ -24,14 +24,9 @@ import { FileRecordDeleteDialogComponent } from '../delete/file-record-delete-di
 export class FileRecordComponent implements OnInit {
   subscription: Subscription | null = null;
   fileRecords = signal<IFileRecord[]>([]);
-
-  // Variable para guardar el ID que el usuario quiere buscar
   searchRequestId = signal<number | null>(null);
-
   isLoading = false;
-
   sortState = sortStateSignal({});
-
   itemsPerPage = ITEMS_PER_PAGE;
   totalItems = 0;
   page = 1;
@@ -43,8 +38,6 @@ export class FileRecordComponent implements OnInit {
   protected dataUtils = inject(DataUtils);
   protected modalService = inject(NgbModal);
   protected ngZone = inject(NgZone);
-
-  // 👇 Inyectamos HttpClient para hacer la petición segura llevando nuestro Token
   private readonly http = inject(HttpClient);
 
   trackId = (item: IFileRecord): number => this.fileRecordService.getFileRecordIdentifier(item);
@@ -77,9 +70,8 @@ export class FileRecordComponent implements OnInit {
       .subscribe();
   }
 
-  // --- NUEVO: Función que se ejecuta al darle al botón de buscar ---
   onSearch(): void {
-    this.page = 1; // Reiniciamos a la página 1 al buscar
+    this.page = 1;
     this.load();
   }
 
@@ -102,7 +94,7 @@ export class FileRecordComponent implements OnInit {
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
     const page = params.get(PAGE_HEADER);
     this.page = +(page ?? 1);
-    const sortParam = params.get(SORT) ?? 'id,desc'; // Forzamos los más nuevos arriba
+    const sortParam = params.get(SORT) ?? 'id,desc';
     this.sortState.set(this.sortService.parseSortParam(sortParam));
   }
 
@@ -122,19 +114,15 @@ export class FileRecordComponent implements OnInit {
 
   protected queryBackend(): Observable<EntityArrayResponseType> {
     const { page } = this;
-
     this.isLoading = true;
-    const pageToLoad: number = page;
     const queryObject: any = {
-      page: pageToLoad - 1,
+      page: page - 1,
       size: this.itemsPerPage,
       sort: this.sortService.buildSortParam(this.sortState()),
     };
 
-    // --- NUEVO: Si el usuario escribió un ID, se lo mandamos al Backend de Java ---
     const currentSearchId = this.searchRequestId();
     if (currentSearchId) {
-      // JHipster usa este formato por defecto para filtrar relaciones
       queryObject['changeRequestId.equals'] = currentSearchId;
     }
 
@@ -156,27 +144,19 @@ export class FileRecordComponent implements OnInit {
     });
   }
 
-  // 👇 NUEVA FUNCIÓN PARA DESCARGAR O VER ARCHIVOS CON SEGURIDAD 👇
   downloadPhysicalFile(fileId: number, descargar: boolean): void {
     const url = `/api/change-requests/archivo/${fileId}/descargar?descargar=${descargar}`;
-
-    // Hacemos la petición pidiendo un Blob (archivo binario)
     this.http.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
       next: (response: HttpResponse<Blob>) => {
         if (!response.body) return;
-
-        // Creamos una URL temporal para el archivo en la memoria del navegador
         const fileUrl = window.URL.createObjectURL(response.body);
-
         if (descargar) {
-          // Si es descargar, creamos un enlace invisible y lo "clickeamos"
           let fileName = 'archivo';
           const disposition = response.headers.get('content-disposition');
           if (disposition && disposition.indexOf('filename=') !== -1) {
             const matches = /filename="([^"]*)"/.exec(disposition);
             if (matches != null && matches[1]) fileName = matches[1];
           }
-
           const a = document.createElement('a');
           a.href = fileUrl;
           a.download = fileName;
@@ -184,11 +164,8 @@ export class FileRecordComponent implements OnInit {
           a.click();
           document.body.removeChild(a);
         } else {
-          // Si es solo "ver", abrimos la URL temporal en una nueva pestaña
           window.open(fileUrl, '_blank');
         }
-
-        // Limpiamos la memoria
         setTimeout(() => window.URL.revokeObjectURL(fileUrl), 1000);
       },
       error: () => {

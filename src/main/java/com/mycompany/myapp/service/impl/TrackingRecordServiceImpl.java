@@ -3,11 +3,13 @@ package com.mycompany.myapp.service.impl;
 import com.mycompany.myapp.repository.TrackingRecordRepository;
 import com.mycompany.myapp.repository.TrackingStats;
 import com.mycompany.myapp.service.TrackingRecordService;
+import com.mycompany.myapp.service.dto.DepartmentDTO;
 import com.mycompany.myapp.service.dto.TrackingRecordDTO;
 import com.mycompany.myapp.service.mapper.TrackingRecordMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -21,9 +23,17 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
     private final TrackingRecordRepository trackingRecordRepository;
     private final TrackingRecordMapper trackingRecordMapper;
 
-    public TrackingRecordServiceImpl(TrackingRecordRepository trackingRecordRepository, TrackingRecordMapper trackingRecordMapper) {
+    // 1. AÑADIDO: Solo agregamos el DatabaseClient para hacer una consulta directa
+    private final DatabaseClient databaseClient;
+
+    public TrackingRecordServiceImpl(
+        TrackingRecordRepository trackingRecordRepository,
+        TrackingRecordMapper trackingRecordMapper,
+        DatabaseClient databaseClient // <--- Inyectado aquí
+    ) {
         this.trackingRecordRepository = trackingRecordRepository;
         this.trackingRecordMapper = trackingRecordMapper;
+        this.databaseClient = databaseClient;
     }
 
     @Override
@@ -51,8 +61,6 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
             .map(trackingRecordMapper::toDto);
     }
 
-    // CONSULTAS GENERALES (ADMIN)
-
     @Override
     @Transactional(readOnly = true)
     public Flux<TrackingRecordDTO> findAll(Pageable pageable) {
@@ -65,8 +73,6 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
         return trackingRecordRepository.count();
     }
 
-    //    SEGURIDAD (USUARIO NORMAL)
-
     @Override
     @Transactional(readOnly = true)
     public Flux<TrackingRecordDTO> findAllByUser(Pageable pageable, Long userId) {
@@ -74,7 +80,9 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
         return trackingRecordRepository
             .findAllByChangeRequestUser(userId, pageable.getPageSize(), pageable.getOffset())
             .flatMapSequential(tr -> trackingRecordRepository.findById(tr.getId()))
-            .map(trackingRecordMapper::toDto);
+            .map(trackingRecordMapper::toDto)
+            // 2. AÑADIDO: Pasamos la lista por el método que rescata el Departamento
+            .flatMapSequential(this::enrichDepartment);
     }
 
     @Override
@@ -115,5 +123,26 @@ public class TrackingRecordServiceImpl implements TrackingRecordService {
     public Flux<TrackingStats> getUserStats(Integer year, Integer month) {
         log.debug("Request to get User stats for year: {} and month: {}", year, month);
         return trackingRecordRepository.countMovementsByUser(year, month);
+    }
+
+    // 3. AÑADIDO: Método exclusivo para buscar y colocar el departamento faltante
+    private Mono<TrackingRecordDTO> enrichDepartment(TrackingRecordDTO dto) {
+        return databaseClient
+            .sql(
+                "SELECT dep.id, dep.department_name FROM tracking_record t JOIN department dep ON t.department_id = dep.id WHERE t.id = :id"
+            )
+            .bind("id", dto.getId())
+            .map(row -> {
+                DepartmentDTO dep = new DepartmentDTO();
+                dep.setId(row.get("id", Long.class));
+                dep.setDepartmentName(row.get("department_name", String.class));
+                return dep;
+            })
+            .first()
+            .map(dep -> {
+                dto.setDepartment(dep);
+                return dto;
+            })
+            .defaultIfEmpty(dto);
     }
 }
